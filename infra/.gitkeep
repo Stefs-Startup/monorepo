@@ -1,0 +1,22 @@
+# AGENT CONTEXT: This directory holds all infrastructure-as-code for the monorepo.
+#
+# Infrastructure lives alongside app and package code so that:
+#   - A single PR can include both application changes and infra changes
+#   - Infra versioning is tied to the same git history as the code it serves
+#   - No separate infra repo context-switch is needed (Company of One efficiency)
+#
+# ANTICIPATED STRUCTURE (populated by CMP-12):
+#   infra/
+#     docker/
+#       docker-compose.yml        (local dev environment)
+#       docker-compose.prod.yml   (production overrides)
+#     k8s/                        (if/when Kubernetes is adopted)
+#     terraform/                  (if/when cloud IaC is needed)
+#     scripts/                    (deployment and utility shell scripts)
+#
+# IMPORTANT: Terraform state files (.tfstate) are in .gitignore.
+# Never commit state files — they can contain secrets and are environment-specific.
+# Use remote state (S3, Terraform Cloud) for any real environments.
+#
+# CMP-12 will populate this directory with Docker Compose configuration.
+# This .gitkeep file can be deleted once any real content is committed here.
