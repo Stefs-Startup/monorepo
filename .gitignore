@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # =============================================================================
 # AGENT CONTEXT: This .gitignore covers the full monorepo.
 # Individual workspace packages should NOT have their own .gitignore files
@@ -101,3 +102,7 @@ coverage/
 *.tfstate.*
 .terraform/
 .terraform.lock.hcl
+
+# Rust / JVM build outputs
+target/
+**/target/
