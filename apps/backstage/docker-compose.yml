@@ -14,7 +14,7 @@ services:
   backstage:
     # Requires backstage app to be built locally first (yarn build:backend)
     build:
-      context: ./backstage
+      context: .
       dockerfile: Dockerfile
     depends_on:
       - postgres
