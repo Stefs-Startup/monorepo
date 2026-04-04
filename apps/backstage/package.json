@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": "22 || 24"
+    "node": "20"
   },
   "scripts": {
     "start": "backstage-cli repo start",
-    "build:backend": "yarn workspace backend build",
+    "build:backend": "pnpm --filter backend build",
     "build:all": "backstage-cli repo build --all",
-    "build-image": "yarn workspace backend build-image",
+    "build-image": "pnpm --filter backend build-image",
     "tsc": "tsc",
     "tsc:full": "tsc --skipLibCheck false --incremental false",
     "clean": "backstage-cli repo clean",
@@ -21,12 +21,6 @@
     "lint:all": "backstage-cli repo lint",
     "prettier:check": "prettier --check .",
     "new": "backstage-cli new"
-  },
-  "workspaces": {
-    "packages": [
-      "packages/*",
-      "plugins/*"
-    ]
   },
   "devDependencies": {
     "@backstage/cli": "^0.35.4",
@@ -53,6 +47,5 @@
     "*.{json,md}": [
       "prettier --write"
     ]
-  },
-  "packageManager": "yarn@4.4.1"
+  }
 }
