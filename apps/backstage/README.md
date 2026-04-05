@@ -29,7 +29,8 @@ This application is **intentionally excluded** from the root pnpm workspace. It 
 ### Docker
 To build and run the entire stack (Backstage + PostgreSQL):
 ```bash
-docker-compose up --build
+yarn build:backend
+docker compose up --build
 ```
 This uses the following configuration files:
 - `Dockerfile`: Single, Node 24-based Docker build.

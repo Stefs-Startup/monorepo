@@ -62,5 +62,6 @@ We provide a `docker-compose.yml` that stands up:
 To deploy via Docker:
 ```bash
 cd apps/backstage
-docker-compose up --build
+yarn build:backend
+docker compose up --build
 ```
