@@ -10,6 +10,7 @@ about this monorepo — its architecture, conventions, processes, and decisions.
 | File / Directory | Purpose |
 |-----------------|---------|
 | [`adr/`](./adr/) | Architecture Decision Records — immutable log of *why* decisions were made |
+| [`backstage-management.md`](./backstage-management.md) | Architectural isolation and management guide for Backstage (Node 24/Yarn 4) |
 | [`monorepo-conventions.md`](./monorepo-conventions.md) | Naming rules, structure patterns, and coding conventions for this repo |
 
 ---
