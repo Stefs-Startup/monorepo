@@ -3,8 +3,7 @@ kind: Component
 metadata:
   name: ${{ values.name }}
   description: ${{ values.name }} Expo React Native project
-  annotations:
-    github.com/project-slug: owner/${{ values.name }}
+  annotations: {} # Add annotations after scaffolding if needed
 spec:
   type: service
   lifecycle: experimental
