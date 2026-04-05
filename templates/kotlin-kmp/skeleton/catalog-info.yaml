@@ -3,7 +3,8 @@ kind: Component
 metadata:
   name: ${{ values.name }}
   description: ${{ values.name }} Kotlin KMP project
-  annotations: {} # Add annotations after scaffolding if needed
+  annotations:
+    github.com/project-slug: owner/${{ values.name }}
 spec:
   type: service
   lifecycle: experimental
