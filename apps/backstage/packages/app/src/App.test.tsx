@@ -3,7 +3,7 @@ import App from './App';
 
 describe('App', () => {
   it('should render', async () => {
-    process.env = {
+    Object.assign(process.env, {
       NODE_ENV: 'test',
       APP_CONFIG: [
         {
@@ -17,7 +17,7 @@ describe('App', () => {
           context: 'test',
         },
       ] as any,
-    };
+    });
 
     const rendered = render(<App />);
 

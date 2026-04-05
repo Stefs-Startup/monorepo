@@ -1,5 +1,7 @@
 # This dockerfile builds an image for the backend package.
-# It should be executed with the root of the repo as docker context.
+# It should be executed with the ROOT of the repo as docker context, e.g.:
+#   yarn build-image          (from apps/backstage/packages/backend)
+#   docker build ../../.. -f Dockerfile --tag backstage
 #
 # Before building this image, be sure to have run the following commands in the repo root:
 #
@@ -7,12 +9,10 @@
 # yarn tsc
 # yarn build:backend
 #
-# Once the commands have been run, you can build the image using `yarn build-image`
-#
 # Alternatively, there is also a multi-stage Dockerfile documented here:
 # https://backstage.io/docs/deployment/docker#multi-stage-build
 
-FROM node:24-bookworm-slim
+FROM node:22-bookworm-slim
 
 # Set Python interpreter for `node-gyp` to use
 ENV PYTHON=/usr/bin/python3
@@ -41,9 +41,10 @@ USER node
 WORKDIR /app
 
 # Copy files needed by Yarn
-COPY --chown=node:node .yarn ./.yarn
-COPY --chown=node:node .yarnrc.yml ./
-COPY --chown=node:node backstage.json ./
+# NOTE: paths are relative to the monorepo root (build context)
+COPY --chown=node:node apps/backstage/.yarn ./.yarn
+COPY --chown=node:node apps/backstage/.yarnrc.yml ./
+COPY --chown=node:node apps/backstage/backstage.json ./
 
 # This switches many Node.js dependencies to production mode.
 ENV NODE_ENV=production
@@ -54,17 +55,20 @@ ENV NODE_OPTIONS="--no-node-snapshot"
 # Copy repo skeleton first, to avoid unnecessary docker cache invalidation.
 # The skeleton contains the package.json of each package in the monorepo,
 # and along with yarn.lock and the root package.json, that's enough to run yarn install.
-COPY --chown=node:node yarn.lock package.json packages/backend/dist/skeleton.tar.gz ./
+COPY --chown=node:node apps/backstage/yarn.lock apps/backstage/package.json apps/backstage/packages/backend/dist/skeleton.tar.gz ./
 RUN tar xzf skeleton.tar.gz && rm skeleton.tar.gz
 
 RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000 \
     yarn workspaces focus --all --production && rm -rf "$(yarn cache clean)"
 
 # This will include the examples, if you don't need these simply remove this line
-COPY --chown=node:node examples ./examples
+COPY --chown=node:node apps/backstage/examples ./examples
+
+# Copy scaffolder templates so they are available at runtime
+COPY --chown=node:node templates ./templates
 
 # Then copy the rest of the backend bundle, along with any other files we might want.
-COPY --chown=node:node packages/backend/dist/bundle.tar.gz app-config*.yaml ./
+COPY --chown=node:node apps/backstage/packages/backend/dist/bundle.tar.gz apps/backstage/app-config.yaml apps/backstage/app-config.production.yaml ./
 RUN tar xzf bundle.tar.gz && rm bundle.tar.gz
 
 CMD ["node", "packages/backend", "--config", "app-config.yaml", "--config", "app-config.production.yaml"]

@@ -79,24 +79,6 @@ catalog:
       rules:
         - allow: [Template]
 
-    # Added App Templates
-    - type: file
-      target: ../../../templates/expo-react-native/template.yaml
-      rules:
-        - allow: [Template]
-    - type: file
-      target: ../../../templates/go-backend/template.yaml
-      rules:
-        - allow: [Template]
-    - type: file
-      target: ../../../templates/kotlin-kmp/template.yaml
-      rules:
-        - allow: [Template]
-    - type: file
-      target: ../../../templates/rust-backend/template.yaml
-      rules:
-        - allow: [Template]
-
     # Local example organizational data
     - type: file
       target: ../../examples/org.yaml
