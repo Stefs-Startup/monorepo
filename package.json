@@ -17,6 +17,7 @@
     "clean": "turbo clean && rimraf node_modules"
   },
   "devDependencies": {
+    "rimraf": "^6.0.0",
     "turbo": "^2.8.17"
   }
 }
