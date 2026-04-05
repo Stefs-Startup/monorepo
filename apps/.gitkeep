@@ -1,0 +1,24 @@
+# AGENT CONTEXT: This directory holds all deployable units in the monorepo.
+#
+# Each subdirectory here is a pnpm workspace package — an independently
+# deployable app (web frontend, API server, CLI tool, etc.).
+#
+# NAMING CONVENTION:
+#   apps/web     → @cmp/web   (primary web frontend)
+#   apps/api     → @cmp/api   (backend API)
+#   apps/cli     → @cmp/cli   (internal command-line tooling)
+#
+# STRUCTURE EXPECTATION per app:
+#   apps/<name>/
+#     package.json    (required — defines the workspace package)
+#     src/
+#     tsconfig.json   (if TypeScript)
+#     README.md       (app-specific docs)
+#
+# DEPENDENCY RULE:
+#   Apps MAY depend on packages/* (shared libraries).
+#   Apps MUST NOT depend on other apps.
+#   Packages MUST NOT depend on apps.
+#
+# CMP-10 will populate this directory with the first app template.
+# This .gitkeep file can be deleted once any real content is committed here.
