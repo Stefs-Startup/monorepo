@@ -62,3 +62,21 @@ catalog:
       target: ./examples/org.yaml
       rules:
         - allow: [User, Group]
+
+    # App Templates — paths relative to Docker WORKDIR /app
+    - type: file
+      target: ./templates/expo-react-native/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ./templates/go-backend/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ./templates/kotlin-kmp/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ./templates/rust-backend/template.yaml
+      rules:
+        - allow: [Template]

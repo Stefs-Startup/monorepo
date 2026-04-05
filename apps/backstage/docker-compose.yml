@@ -13,9 +13,10 @@ services:
 
   backstage:
     # Requires backstage app to be built locally first (yarn build:backend)
+    # Build context is the monorepo root so we can include the root templates/ dir
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: apps/backstage/Dockerfile
     depends_on:
       - postgres
     ports:

@@ -103,6 +103,24 @@ catalog:
       rules:
         - allow: [User, Group]
 
+    # App Templates — paths are relative to packages/backend (4 levels up = repo root)
+    - type: file
+      target: ../../../../templates/expo-react-native/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../../templates/go-backend/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../../templates/kotlin-kmp/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ../../../../templates/rust-backend/template.yaml
+      rules:
+        - allow: [Template]
+
     ## Uncomment these lines to add more example data
     # - type: url
     #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
