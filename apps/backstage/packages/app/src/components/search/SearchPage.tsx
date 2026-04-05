@@ -45,6 +45,11 @@ const SearchPage = () => {
   const { types } = useSearch();
   const catalogApi = useApi(catalogApiRef);
 
+  // ⚡ Bolt Optimization:
+  // Wrapped the `values` prop function in useCallback to prevent
+  // it from being recreated on every SearchPage render. This
+  // avoids triggering unnecessary re-renders in the SearchFilter component
+  // and eliminates duplicate catalog API fetch calls during layout updates.
   const getTechdocsFilters = useCallback(async () => {
     // Return a list of entities which are documented.
     const { items } = await catalogApi.getEntities({
