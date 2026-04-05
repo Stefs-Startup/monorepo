@@ -106,3 +106,5 @@ coverage/
 # Rust / JVM build outputs
 target/
 **/target/
+.gradle/
+**/ .gradle/
