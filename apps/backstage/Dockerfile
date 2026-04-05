@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim
+FROM node:24-bookworm-slim
 
 # Set Python interpreter for `node-gyp` to use
 ENV PYTHON=/usr/bin/python3

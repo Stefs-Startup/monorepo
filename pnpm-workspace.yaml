@@ -29,8 +29,7 @@ packages:
   # Deployable units: web apps, APIs, CLIs, mobile apps.
   # Each app should be independently deployable.
   - 'apps/*'
-  - 'apps/backstage/packages/*'
-  - 'apps/backstage/plugins/*'
+  - '!apps/backstage'
 
   # Shared libraries consumed by apps and other packages.
   # Examples: ui components, utility functions, shared types, config presets.
