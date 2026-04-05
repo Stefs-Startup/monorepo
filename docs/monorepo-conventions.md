@@ -68,6 +68,16 @@ This tells pnpm to use the local version, never the registry version.
 
 ---
 
+## Exceptions
+
+### Backstage (`apps/backstage`)
+The Backstage application is an **independent Yarn monorepo** and is excluded from the root pnpm workspace. 
+- **Package Manager**: Use `yarn` 4.x within the `apps/backstage` directory.
+- **Why**: Backstage has complex dependency hoisting requirements and module federation logic that is incompatible with pnpm's strict isolation.
+- **Documentation**: See [Backstage Management Guide](./backstage-management.md) for full details on how to maintain and troubleshoot this application.
+
+---
+
 ## TypeScript
 
 - All new code should be TypeScript. No `// @ts-ignore` without a comment explaining why.
