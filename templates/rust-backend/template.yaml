@@ -16,6 +16,7 @@ spec:
     - title: Fill in some steps
       required:
         - name
+        - repoUrl
       properties:
         name:
           title: Name
@@ -24,6 +25,13 @@ spec:
           ui:autofocus: true
           ui:options:
             rows: 5
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
 
   steps:
     - id: fetch-base
@@ -41,7 +49,7 @@ spec:
         allowedHosts:
           - github.com
         description: This is ${{ parameters.name }}
-        repoUrl: ${{ steps['publish'].output.remoteUrl }}
+        repoUrl: ${{ parameters.repoUrl }}
 
     - id: register
       name: Register
