@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: backstage
+    env: docker
+    rootDirectory: apps/backstage
+    dockerContext: .
+    dockerfilePath: Dockerfile
