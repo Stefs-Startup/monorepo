@@ -81,19 +81,19 @@ catalog:
 
     # Added App Templates
     - type: file
-      target: ../../templates/expo-react-native/template.yaml
+      target: ../../../templates/expo-react-native/template.yaml
       rules:
         - allow: [Template]
     - type: file
-      target: ../../templates/go-backend/template.yaml
+      target: ../../../templates/go-backend/template.yaml
       rules:
         - allow: [Template]
     - type: file
-      target: ../../templates/kotlin-kmp/template.yaml
+      target: ../../../templates/kotlin-kmp/template.yaml
       rules:
         - allow: [Template]
     - type: file
-      target: ../../templates/rust-backend/template.yaml
+      target: ../../../templates/rust-backend/template.yaml
       rules:
         - allow: [Template]
 
