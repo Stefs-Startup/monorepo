@@ -1,0 +1,3 @@
+## 2024-05-14 - Prevent N+1 API Calls from Inline Functions in Context Consumers
+**Learning:** In React applications (like Backstage), providing an inline async function as a prop to a component that uses a context hook (like `useSearch`) can lead to severe performance issues. Because context changes trigger re-renders, the inline function is re-created on each render, causing the child component to unnecessarily re-trigger the API call.
+**Action:** Always extract inline functions that perform API calls or expensive operations into `useCallback` hooks, especially when passed to context-consuming components or components that re-render frequently (like search bars).
