@@ -1,3 +1,4 @@
+import React, { useCallback } from 'react';
 import { makeStyles, Theme, Grid, Paper } from '@material-ui/core';
 
 import { CatalogSearchResultListItem } from '@backstage/plugin-catalog';
@@ -44,6 +45,22 @@ const SearchPage = () => {
   const { types } = useSearch();
   const catalogApi = useApi(catalogApiRef);
 
+  // Memoize the getDocumentedEntities function to prevent recreating it on every render
+  // and triggering unnecessary fetches in the SearchFilter.Select component.
+  const getDocumentedEntities = useCallback(async () => {
+    // Return a list of entities which are documented.
+    const { items } = await catalogApi.getEntities({
+      fields: ['metadata.name'],
+      filter: {
+        'metadata.annotations.backstage.io/techdocs-ref': CATALOG_FILTER_EXISTS,
+      },
+    });
+
+    const names = items.map(entity => entity.metadata.name);
+    names.sort();
+    return names;
+  }, [catalogApi]);
+
   return (
     <Page themeId="home">
       <Header title="Search" />
@@ -77,20 +94,7 @@ const SearchPage = () => {
                   className={classes.filter}
                   label="Entity"
                   name="name"
-                  values={async () => {
-                    // Return a list of entities which are documented.
-                    const { items } = await catalogApi.getEntities({
-                      fields: ['metadata.name'],
-                      filter: {
-                        'metadata.annotations.backstage.io/techdocs-ref':
-                          CATALOG_FILTER_EXISTS,
-                      },
-                    });
-
-                    const names = items.map(entity => entity.metadata.name);
-                    names.sort();
-                    return names;
-                  }}
+                  values={getDocumentedEntities}
                 />
               )}
               <SearchFilter.Select
