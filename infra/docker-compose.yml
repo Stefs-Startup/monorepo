@@ -1,0 +1,5 @@
+version: '3.8'
+
+services:
+  # Base service file to manage monorepo infrastructure services
+  # specific apps and dependencies can be added here

@@ -96,11 +96,13 @@ pnpm --filter web add @cmp/ui --workspace
 | Ticket | Description | Status |
 |--------|-------------|--------|
 | CMP-9  | Init workspace (this) | ✅ Done |
-| CMP-10 | App template | Unblocked |
-| CMP-11 | Shared packages scaffold | Unblocked after CMP-10 |
-| CMP-12 | Docker Compose / infra | Unblocked |
-| CMP-13 | ADR process + first ADR | Parallel to CMP-10 |
-| CMP-16 | Convergence — all streams | Blocked on CMP-10–13 |
+| CMP-10 | App template | ✅ Done |
+| CMP-11 | Shared packages scaffold | ✅ Done |
+| CMP-12 | Docker Compose / infra | ✅ Done |
+| CMP-13 | ADR process + first ADR | ✅ Done |
+| CMP-16 | Convergence — all streams | Unblocked |
+| CMP-17 | CI/CD Pipeline | Unblocked |
+| CMP-18 | Add linting/formatting configs | Unblocked |
 
 ---
 
