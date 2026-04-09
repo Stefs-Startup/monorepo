@@ -99,8 +99,13 @@ pnpm --filter web add @cmp/ui --workspace
 | CMP-10 | App template | Unblocked |
 | CMP-11 | Shared packages scaffold | Unblocked after CMP-10 |
 | CMP-12 | Docker Compose / infra | Unblocked |
-| CMP-13 | ADR process + first ADR | Parallel to CMP-10 |
-| CMP-16 | Convergence — all streams | Blocked on CMP-10–13 |
+| CMP-13 | ADR process + first ADR | ✅ Done |
+| CMP-14 | Setup CI/CD pipeline | Unblocked |
+| CMP-15 | Setup automated dependency updates | Unblocked |
+| CMP-16 | Convergence — all streams | Blocked on CMP-10–12 |
+| CMP-17 | Enforce ADR template and format via CI checks | Unblocked |
+| CMP-18 | Create ADR for Testing Strategy | Unblocked |
+| CMP-19 | Create ADR for Deployment Strategy | Unblocked |
 
 ---
 
