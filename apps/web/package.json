@@ -1,0 +1,20 @@
+{
+  "name": "@cmp/web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "test": "echo 'web test'",
+    "lint": "echo 'web lint'",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist .next"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@cmp/config": "workspace:*",
+    "rimraf": "^6.0.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.2.0"
+  }
+}
