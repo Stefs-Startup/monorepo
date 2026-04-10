@@ -1,0 +1,21 @@
+{
+  "name": "@cmp/config",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared configurations",
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json"
+  },
+  "scripts": {
+    "dev": "echo \"config dev\"",
+    "build": "echo \"config build\"",
+    "test": "echo \"config test\"",
+    "lint": "echo \"config lint\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist node_modules"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.0",
+    "typescript": "^5.4.5"
+  }
+}
