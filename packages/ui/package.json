@@ -1,0 +1,26 @@
+{
+  "name": "@cmp/ui",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared UI components",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "echo \"ui dev\"",
+    "build": "echo \"ui build\"",
+    "test": "echo \"ui test\"",
+    "lint": "echo \"ui lint\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist node_modules"
+  },
+  "dependencies": {
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@cmp/config": "workspace:*",
+    "@types/react": "^18.2.0",
+    "rimraf": "^6.0.0",
+    "typescript": "^5.4.5"
+  }
+}

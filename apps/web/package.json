@@ -1,0 +1,19 @@
+{
+  "name": "@cmp/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Primary web frontend",
+  "scripts": {
+    "dev": "echo \"web dev\"",
+    "build": "echo \"web build\"",
+    "test": "echo \"web test\"",
+    "lint": "echo \"web lint\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist .next node_modules"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "rimraf": "^6.0.0",
+    "typescript": "^5.4.5"
+  }
+}
