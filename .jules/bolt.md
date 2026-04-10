@@ -1,0 +1,3 @@
+## 2024-06-25 - React Component Re-renders in Backstage Search
+**Learning:** In the Backstage app codebase, context-heavy components like `SearchPage` that use hooks like `useSearch()` re-render frequently on user input (e.g. typing in the search bar). If inline data-fetching functions (like the async function passed to the `values` prop in `SearchFilter.Select`) are not memoized, they trigger excessive network requests to the catalog API on every keystroke.
+**Action:** Always memoize data-fetching callbacks (using `useCallback`) when passing them as props in Backstage components that are susceptible to frequent re-renders due to user input or context updates.
