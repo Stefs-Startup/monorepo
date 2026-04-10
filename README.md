@@ -96,11 +96,15 @@ pnpm --filter web add @cmp/ui --workspace
 | Ticket | Description | Status |
 |--------|-------------|--------|
 | CMP-9  | Init workspace (this) | ✅ Done |
-| CMP-10 | App template | Unblocked |
-| CMP-11 | Shared packages scaffold | Unblocked after CMP-10 |
+| CMP-10 | App template | ✅ Done |
+| CMP-11 | Shared packages scaffold | Unblocked |
 | CMP-12 | Docker Compose / infra | Unblocked |
-| CMP-13 | ADR process + first ADR | Parallel to CMP-10 |
-| CMP-16 | Convergence — all streams | Blocked on CMP-10–13 |
+| CMP-13 | ADR process + first ADR | ✅ Done |
+| CMP-14 | Write ADR for Backstage Yarn workspace isolation | Unblocked |
+| CMP-15 | Populate Backstage software catalog | Unblocked |
+| CMP-16 | Convergence — all streams | Blocked on CMP-11, CMP-12 |
+| CMP-17 | Scaffold @cmp/web primary frontend | Unblocked |
+| CMP-18 | Scaffold @cmp/api backend service | Unblocked |
 
 ---
 
