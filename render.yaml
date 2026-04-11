@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: backstage
+    env: docker
+    rootDirectory: apps/backstage
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: production
