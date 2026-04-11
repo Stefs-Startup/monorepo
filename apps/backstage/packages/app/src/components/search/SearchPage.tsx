@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { makeStyles, Theme, Grid, Paper } from '@material-ui/core';
 
 import { CatalogSearchResultListItem } from '@backstage/plugin-catalog';
@@ -44,6 +45,25 @@ const SearchPage = () => {
   const { types } = useSearch();
   const catalogApi = useApi(catalogApiRef);
 
+  // ⚡ Bolt Optimization: Memoize the data-fetching function to prevent excessive network requests
+  // Context-heavy components with useSearch() re-render frequently on user input.
+  // By memoizing this function, we prevent SearchFilter.Select from re-evaluating it
+  // and triggering a new API call on every keystroke.
+  const getDocumentedEntities = useCallback(async () => {
+    // Return a list of entities which are documented.
+    const { items } = await catalogApi.getEntities({
+      fields: ['metadata.name'],
+      filter: {
+        'metadata.annotations.backstage.io/techdocs-ref':
+          CATALOG_FILTER_EXISTS,
+      },
+    });
+
+    const names = items.map(entity => entity.metadata.name);
+    names.sort();
+    return names;
+  }, [catalogApi]);
+
   return (
     <Page themeId="home">
       <Header title="Search" />
@@ -77,20 +97,7 @@ const SearchPage = () => {
                   className={classes.filter}
                   label="Entity"
                   name="name"
-                  values={async () => {
-                    // Return a list of entities which are documented.
-                    const { items } = await catalogApi.getEntities({
-                      fields: ['metadata.name'],
-                      filter: {
-                        'metadata.annotations.backstage.io/techdocs-ref':
-                          CATALOG_FILTER_EXISTS,
-                      },
-                    });
-
-                    const names = items.map(entity => entity.metadata.name);
-                    names.sort();
-                    return names;
-                  }}
+                  values={getDocumentedEntities}
                 />
               )}
               <SearchFilter.Select
