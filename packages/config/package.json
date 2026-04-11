@@ -1,0 +1,12 @@
+{
+  "name": "@cmp/config",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared configuration files for the CMP monorepo",
+  "scripts": {
+    "clean": "rimraf dist node_modules"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.0"
+  }
+}
