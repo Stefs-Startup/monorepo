@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: backstage
+    env: docker
+    rootDirectory: apps/backstage
+    repo: https://github.com/Stefs-Startup/monorepo
