@@ -99,8 +99,12 @@ pnpm --filter web add @cmp/ui --workspace
 | CMP-10 | App template | Unblocked |
 | CMP-11 | Shared packages scaffold | Unblocked after CMP-10 |
 | CMP-12 | Docker Compose / infra | Unblocked |
-| CMP-13 | ADR process + first ADR | Parallel to CMP-10 |
-| CMP-16 | Convergence — all streams | Blocked on CMP-10–13 |
+| CMP-13 | ADR process + first ADR | ✅ Done |
+| CMP-14 | Backstage integration | ✅ Done |
+| CMP-15 | Set up Backstage Software Templates | Unblocked |
+| CMP-16 | Convergence — all streams | Blocked on CMP-10–12 |
+| CMP-17 | Automate ADR validation checks in CI | Unblocked |
+| CMP-18 | Global CI/CD Pipeline Setup | Unblocked |
 
 ---
 
