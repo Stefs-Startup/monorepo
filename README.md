@@ -99,7 +99,9 @@ pnpm --filter web add @cmp/ui --workspace
 | CMP-10 | App template | Unblocked |
 | CMP-11 | Shared packages scaffold | Unblocked after CMP-10 |
 | CMP-12 | Docker Compose / infra | Unblocked |
-| CMP-13 | ADR process + first ADR | Parallel to CMP-10 |
+| CMP-13 | ADR process + first ADR | ✅ Done |
+| CMP-14 | Evaluate Nx for monorepo scale | Unblocked |
+| CMP-15 | Establish publishing and versioning strategy with changesets or similar tools | Unblocked |
 | CMP-16 | Convergence — all streams | Blocked on CMP-10–13 |
 
 ---
