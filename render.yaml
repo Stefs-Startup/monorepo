@@ -3,4 +3,4 @@ services:
     name: backstage
     env: docker
     rootDirectory: apps/backstage
-    dockerfilePath: Dockerfile
+    dockerfilePath: ./apps/backstage/Dockerfile
