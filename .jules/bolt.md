@@ -1,0 +1,3 @@
+## 2024-03-21 - Memoization in highly dynamic context pages
+**Learning:** Context-heavy components using `useSearch()` (e.g. `SearchPage`) re-render very frequently on user input. When inline data-fetching functions are passed to filters (like `SearchFilter.Select`) without memoization, it causes an excessive number of identical network requests during these rapid re-renders.
+**Action:** Always wrap async data-fetching inline functions passed as props to search filters in a `useCallback` hook, with appropriate dependency arrays, to prevent redundant network calls on search updates.
