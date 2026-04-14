@@ -1,0 +1,3 @@
+## 2024-05-24 - Backstage Context-Heavy Components Re-render Optimization
+**Learning:** Backstage context-heavy components like `SearchPage` using hooks such as `useSearch()` re-render very frequently due to the amount of state being managed. Passing inline asynchronous data-fetching functions as props to filters (like `SearchFilter.Select`) causes redundant network requests on every re-render and interaction.
+**Action:** Always memoize (using `useCallback`, `useAsync`, or `useMemo`) inline data-fetching functions or complex objects passed as props to child components in Backstage to prevent unnecessary continuous evaluation or network requests.
