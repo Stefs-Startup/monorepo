@@ -1,0 +1,19 @@
+{
+  "name": "@cmp/template",
+  "version": "0.0.0",
+  "private": true,
+  "description": "App template for new apps in the monorepo",
+  "scripts": {
+    "dev": "echo 'No dev script yet'",
+    "build": "tsc",
+    "test": "echo 'No tests yet'",
+    "lint": "echo 'No lint yet'",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "devDependencies": {
+    "@cmp/config": "workspace:^",
+    "rimraf": "^6.0.0",
+    "typescript": "^5.0.0"
+  }
+}
