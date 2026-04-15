@@ -16,8 +16,10 @@
     "typecheck": "turbo typecheck",
     "clean": "turbo clean && rimraf node_modules"
   },
-  "devDependencies": {
-    "rimraf": "^6.0.0",
+  "dependencies": {
     "turbo": "^2.8.17"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.0"
   }
 }
