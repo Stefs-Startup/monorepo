@@ -23,11 +23,6 @@ spec:
           type: string
           description: Unique name of the component
           ui:autofocus: true
-        owner:
-          title: Owner
-          type: string
-          description: GitHub organization or username
-          default: owner
         repoUrl:
           title: Repository Location
           type: string
@@ -44,7 +39,7 @@ spec:
         url: ./skeleton
         values:
           name: ${{ parameters.name }}
-          owner: ${{ parameters.owner }}
+          owner: ${{ (parameters.repoUrl | parseRepoUrl).owner }}
 
     - id: publish
       name: Publish
