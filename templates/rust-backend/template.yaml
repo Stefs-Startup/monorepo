@@ -16,14 +16,25 @@ spec:
     - title: Fill in some steps
       required:
         - name
+        - repoUrl
       properties:
         name:
           title: Name
           type: string
           description: Unique name of the component
           ui:autofocus: true
+        owner:
+          title: Owner
+          type: string
+          description: GitHub organization or username
+          default: owner
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
           ui:options:
-            rows: 5
+            allowedHosts:
+              - github.com
 
   steps:
     - id: fetch-base
@@ -33,6 +44,7 @@ spec:
         url: ./skeleton
         values:
           name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
 
     - id: publish
       name: Publish
@@ -41,7 +53,7 @@ spec:
         allowedHosts:
           - github.com
         description: This is ${{ parameters.name }}
-        repoUrl: ${{ steps['publish'].output.remoteUrl }}
+        repoUrl: ${{ parameters.repoUrl }}
 
     - id: register
       name: Register
