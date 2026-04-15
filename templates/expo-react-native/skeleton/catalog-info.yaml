@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}
+  description: ${{ values.name }}
+  annotations: {} # Add annotations after scaffolding if needed
+spec:
+  type: service
+  lifecycle: experimental
+  owner: user:guest
