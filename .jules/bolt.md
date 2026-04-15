@@ -1,0 +1,3 @@
+## 2024-05-24 - Memoize SearchFilter values function to prevent redundant API calls
+**Learning:** In the Backstage app codebase, context-heavy components using hooks like `useSearch()` (e.g., `SearchPage`) re-render frequently. Inline data-fetching functions passed as props to filters (like `SearchFilter.Select`) must be memoized (e.g., using `useCallback`, `useAsync`, or `useMemo`) to prevent redundant network requests on every render or interaction.
+**Action:** When working on Backstage applications, I will extract inline async functions passed to filters in context-heavy components (like `SearchPage`) into `useCallback` hooks with proper dependency arrays, preventing redundant network requests.
