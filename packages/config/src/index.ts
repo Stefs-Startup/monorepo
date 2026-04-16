@@ -1,0 +1,2 @@
+// Config entrypoint
+export {};

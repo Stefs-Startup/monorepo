@@ -1,0 +1,18 @@
+{
+  "name": "@cmp/template",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"Not implemented\"",
+    "build": "echo \"Not implemented\"",
+    "test": "echo \"Not implemented\"",
+    "lint": "echo \"Not implemented\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist node_modules"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@cmp/config": "workspace:*"
+  }
+}
