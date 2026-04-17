@@ -1,0 +1,3 @@
+## 2026-04-17 - Memoize Data Fetching Functions in Context-Heavy Components
+**Learning:** In the Backstage codebase, context-heavy components like `SearchPage` that use hooks such as `useSearch()` re-render frequently (e.g., on every keystroke). Inline async data-fetching functions passed as props to filters (like `SearchFilter.Select`) will be re-created on each render, causing redundant network requests and performance bottlenecks.
+**Action:** Always memoize inline data-fetching functions (e.g., using `useCallback`) when passing them as props to components within context-heavy environments to prevent unnecessary network requests and re-renders.
