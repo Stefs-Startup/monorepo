@@ -4,3 +4,4 @@ services:
     env: docker
     dockerfilePath: apps/backstage/Dockerfile
     dockerContext: .
+    rootDirectory: .
