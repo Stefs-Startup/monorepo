@@ -1,0 +1,13 @@
+{
+  "name": "@cmp/config",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"No dev script\"",
+    "build": "echo \"No build script\"",
+    "test": "echo \"No test script\"",
+    "lint": "echo \"No lint script\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf node_modules"
+  }
+}

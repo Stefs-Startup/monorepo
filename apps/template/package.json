@@ -1,0 +1,16 @@
+{
+  "name": "@cmp/template",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"dev script\"",
+    "build": "echo \"build script\"",
+    "test": "echo \"test script\"",
+    "lint": "echo \"lint script\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf node_modules dist"
+  },
+  "devDependencies": {
+    "@cmp/config": "workspace:*"
+  }
+}
