@@ -1,0 +1,20 @@
+{
+  "name": "@cmp/template",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Standard application template for the monorepo",
+  "scripts": {
+    "dev": "echo 'No dev step for template'",
+    "build": "echo 'No build step for template'",
+    "test": "echo 'No test step for template'",
+    "lint": "echo 'No lint step for template'",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist node_modules"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@cmp/config": "workspace:*",
+    "rimraf": "^6.0.0",
+    "typescript": "^5.0.0"
+  }
+}
