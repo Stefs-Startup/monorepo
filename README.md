@@ -96,11 +96,14 @@ pnpm --filter web add @cmp/ui --workspace
 | Ticket | Description | Status |
 |--------|-------------|--------|
 | CMP-9  | Init workspace (this) | ✅ Done |
-| CMP-10 | App template | Unblocked |
-| CMP-11 | Shared packages scaffold | Unblocked after CMP-10 |
-| CMP-12 | Docker Compose / infra | Unblocked |
-| CMP-13 | ADR process + first ADR | Parallel to CMP-10 |
-| CMP-16 | Convergence — all streams | Blocked on CMP-10–13 |
+| CMP-10 | App template | ✅ Done |
+| CMP-11 | Shared packages scaffold | ✅ Done |
+| CMP-12 | Docker Compose / infra | ✅ Done |
+| CMP-13 | ADR process + first ADR | ✅ Done |
+| CMP-16 | Convergence — all streams | ✅ Done |
+| CMP-17 | Planning: Define authentication architecture | To Do |
+| CMP-18 | Planning: Decide on database ORM strategy | To Do |
+| CMP-19 | Planning: Define CI/CD pipeline strategy | To Do |
 
 ---
 
