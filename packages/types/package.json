@@ -1,0 +1,22 @@
+{
+  "name": "@cmp/types",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared types for the CMP monorepo",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "echo 'No test step for types'",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@cmp/config": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "rimraf": "^6.0.0"
+  }
+}

@@ -2,6 +2,7 @@
   "name": "cmp-root",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "description": "Company of One — monorepo root. All apps, packages, and infrastructure live here.",
   "packageManager": "pnpm@9.12.3",
   "engines": {
@@ -17,7 +18,13 @@
     "clean": "turbo clean && rimraf node_modules"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "prettier": "^3.8.3",
     "rimraf": "^6.0.0",
-    "turbo": "^2.8.17"
+    "turbo": "^2.8.17",
+    "typescript-eslint": "^8.58.2"
   }
 }
