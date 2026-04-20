@@ -24,6 +24,7 @@ out/
 .nuxt/
 .output/
 .cache/
+.turbo/
 
 # TypeScript incremental compilation cache
 *.tsbuildinfo
