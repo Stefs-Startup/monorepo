@@ -15,6 +15,25 @@ importers:
         specifier: ^2.8.17
         version: 2.8.17
 
+  apps/template:
+    dependencies:
+      '@cmp/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+    devDependencies:
+      rimraf:
+        specifier: ^6.0.0
+        version: 6.1.3
+      typescript:
+        specifier: ^5.5.4
+        version: 5.9.3
+
+  packages/config:
+    devDependencies:
+      rimraf:
+        specifier: ^6.0.0
+        version: 6.1.3
+
 packages:
 
   balanced-match@4.0.4:
@@ -87,6 +106,11 @@ packages:
     resolution: {integrity: sha512-YwPsNSqU2f/RXU/+Kcb7cPkPZARxom4+me7LKEdN5jsvy2tpfze3zDZ4EiGrJnvOm9Avu9rK0aaYsP7qZ3iz7A==}
     hasBin: true
 
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
 snapshots:
 
   balanced-match@4.0.4: {}
@@ -147,3 +171,5 @@ snapshots:
       turbo-linux-arm64: 2.8.17
       turbo-windows-64: 2.8.17
       turbo-windows-arm64: 2.8.17
+
+  typescript@5.9.3: {}
