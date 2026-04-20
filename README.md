@@ -96,11 +96,15 @@ pnpm --filter web add @cmp/ui --workspace
 | Ticket | Description | Status |
 |--------|-------------|--------|
 | CMP-9  | Init workspace (this) | ✅ Done |
-| CMP-10 | App template | Unblocked |
-| CMP-11 | Shared packages scaffold | Unblocked after CMP-10 |
-| CMP-12 | Docker Compose / infra | Unblocked |
-| CMP-13 | ADR process + first ADR | Parallel to CMP-10 |
-| CMP-16 | Convergence — all streams | Blocked on CMP-10–13 |
+| CMP-10 | App template | ✅ Done |
+| CMP-11 | Shared packages scaffold | ✅ Done |
+| CMP-12 | Docker Compose / infra | ✅ Done |
+| CMP-13 | ADR process + first ADR | ✅ Done |
+| CMP-16 | Convergence — all streams | Unblocked |
+| CMP-17 | Create first web app using template | Unblocked |
+| CMP-18 | Implement @cmp/ui shared package | Unblocked |
+| CMP-19 | Add application services to docker-compose | Unblocked |
+| CMP-20 | Create ADR for database selection | Unblocked |
 
 ---
 
