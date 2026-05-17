@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: cmp-utils
+  description: Shared utility functions and types.
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: library
+  owner: group:engineering
+  lifecycle: experimental
+  system: cmp-monorepo
+  dependsOn:
+    - component:cmp-config

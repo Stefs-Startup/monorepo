@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: cmp-config
+  description: Shared TypeScript configuration bases for the monorepo.
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: library
+  owner: group:engineering
+  lifecycle: experimental
+  system: cmp-monorepo

@@ -1,0 +1,22 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: cmp-monorepo
+  description: The Company of One monorepo system containing all apps and packages.
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  owner: group:engineering
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: backstage
+  description: The developer portal and service catalog.
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: website
+  owner: group:engineering
+  lifecycle: experimental
+  system: cmp-monorepo

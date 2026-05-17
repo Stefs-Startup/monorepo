@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: cmp-web
+  description: The initial web application template.
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: website
+  owner: group:engineering
+  lifecycle: experimental
+  system: cmp-monorepo
+  dependsOn:
+    - component:cmp-config
+    - component:cmp-utils
