@@ -17,11 +17,22 @@
 import { test, expect } from '@playwright/test';
 
 test('App should render the welcome page', async ({ page }) => {
+  page.on('console', msg => {
+    if (msg.type() === 'error') {
+      console.error(`Page Error: ${msg.text()}`);
+    }
+  });
+
   await page.goto('/');
 
-  const enterButton = page.getByRole('button', { name: 'Enter' });
-  await expect(enterButton).toBeVisible();
-  await enterButton.click();
+  // Wait for the page to load and check if we're redirected to catalog or stay on sign-in
+  await expect(page).toHaveURL(/\/catalog|(?:\/)$/);
 
-  await expect(page.getByText('My Company Catalog')).toBeVisible();
+  // If we're on the sign-in page, click Guest
+  const guestSignIn = page.getByRole('button', { name: 'Enter' }).or(page.getByRole('button', { name: 'Guest' }));
+  if (await guestSignIn.isVisible()) {
+    await guestSignIn.click();
+  }
+
+  await expect(page.getByText('My Company Catalog')).toBeVisible({ timeout: 10000 });
 });

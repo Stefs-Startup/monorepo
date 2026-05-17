@@ -1,0 +1,22 @@
+{
+  "name": "@cmp/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Web app template",
+  "scripts": {
+    "dev": "echo \"Running dev server (placeholder)\"",
+    "build": "echo \"Building app (placeholder)\"",
+    "lint": "echo \"Linting app (placeholder)\"",
+    "test": "echo \"Testing app (placeholder)\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist node_modules"
+  },
+  "dependencies": {
+    "@cmp/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@cmp/config": "workspace:*",
+    "rimraf": "^6.0.0",
+    "typescript": "^5.6.3"
+  }
+}

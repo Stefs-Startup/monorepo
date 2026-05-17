@@ -17,6 +17,8 @@
     "clean": "turbo clean && rimraf node_modules"
   },
   "devDependencies": {
+    "@backstage/cli": "^0.34.6",
+    "@techdocs/cli": "^1.10.7",
     "rimraf": "^6.0.0",
     "turbo": "^2.8.17"
   }

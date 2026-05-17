@@ -32,13 +32,18 @@ backend:
     connection: ':memory:'
   # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
 
+auth:
+  # See https://backstage.io/docs/auth/
+  providers:
+    guest: {}
+
 integrations:
   github:
     - host: github.com
-      appId: ${GITHUB_APP_ID}
-      clientId: ${GITHUB_APP_CLIENT_ID}
-      clientSecret: ${GITHUB_APP_CLIENT_SECRET}
-      privateKey: ${GITHUB_APP_PRIVATE_KEY}
+      # appId: ${GITHUB_APP_ID}
+      # clientId: ${GITHUB_APP_CLIENT_ID}
+      # clientSecret: ${GITHUB_APP_CLIENT_SECRET}
+      # privateKey: ${GITHUB_APP_PRIVATE_KEY}
 
 proxy:
   ### Example for how to add a proxy endpoint for the frontend.
@@ -55,7 +60,7 @@ proxy:
 techdocs:
   builder: 'local' # Alternatives - 'external'
   generator:
-    runIn: 'docker' # Alternatives - 'local'
+    runIn: 'local' # Alternatives - 'docker'
   publisher:
     type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
 
@@ -69,6 +74,18 @@ catalog:
   rules:
     - allow: [Component, System, API, Resource, Location]
   locations:
+    # Local monorepo entities
+    - type: file
+      target: ../../../../catalog-info.yaml
+    - type: file
+      target: ../../../../packages/config/catalog-info.yaml
+    - type: file
+      target: ../../../../packages/utils/catalog-info.yaml
+    - type: file
+      target: ../../../../apps/web/catalog-info.yaml
+    - type: file
+      target: ../../../../infra/catalog-info.yaml
+
     # Local example data, file locations are relative to the backend process, typically `packages/backend`
     - type: file
       target: ../../examples/entities.yaml
@@ -94,15 +111,15 @@ catalog:
     #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme-corp.yaml
     #   rules:
     #     - allow: [User, Group]
-  providers:
-    githubOrg:
-      id: githubOrg
-      githubUrl: https://github.com
-      orgs: ['${GITHUB_ORG}']
-      schedule:
-        initialDelay: { seconds: 30 }
-        frequency: { hours: 1 }
-        timeout: { minutes: 50 }
+  # providers:
+  #   githubOrg:
+  #     id: githubOrg
+  #     githubUrl: https://github.com
+  #     orgs: ['${GITHUB_ORG}']
+  #     schedule:
+  #       initialDelay: { seconds: 30 }
+  #       frequency: { hours: 1 }
+  #       timeout: { minutes: 50 }
 
 kubernetes:
   # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options

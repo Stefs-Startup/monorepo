@@ -1,0 +1,5 @@
+site_name: CMP Config
+nav:
+  - Overview: index.md
+plugins:
+  - techdocs-core
