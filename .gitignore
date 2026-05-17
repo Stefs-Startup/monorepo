@@ -101,3 +101,5 @@ coverage/
 *.tfstate.*
 .terraform/
 .terraform.lock.hcl
+.env
+.turbo/
