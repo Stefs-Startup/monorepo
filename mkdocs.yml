@@ -14,8 +14,11 @@ nav:
       - Active Experiments:
           - 'EXP-002: Market Audit':
               - Proposal & Log: experiments/active/exp-002-market-audit.md
-              - Market Overview: experiments/active/exp-002-market-audit/documentation/overview.md
-              - Core Capabilities: experiments/active/exp-002-market-audit/documentation/core-capabilities.md
-              - Pricing Analysis: experiments/active/exp-002-market-audit/documentation/pricing-analysis.md
+              - Market Overview: >-
+                  experiments/active/exp-002-market-audit/documentation/overview.md
+              - Core Capabilities: >-
+                  experiments/active/exp-002-market-audit/documentation/core-capabilities.md
+              - Pricing Analysis: >-
+                  experiments/active/exp-002-market-audit/documentation/pricing-analysis.md
 plugins:
   - techdocs-core

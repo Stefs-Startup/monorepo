@@ -105,4 +105,19 @@ docs/experiments/active/exp-002-market-audit/
 
 ## ⚖️ 6. Post-Experiment Evaluation
 
-*To be filled out at the end of the experiment timeline.*
+*Filled out and signed off on 2026-05-18 by @sheldoncrosss*
+
+### 🟢 Green Gate Verification
+* **Competitors Cataloged:** 5/5 competitors (`competitor-port`, `competitor-cortex`, `competitor-compass`, `competitor-opslevel`, `competitor-configure8`) are successfully modeled and configured as high-fidelity Backstage catalog Component and API entities.
+* **TechDocs Compilation:** 100% of the competitive matrix research articles (`overview.md`, `core-capabilities.md`, `pricing-analysis.md`) compile flawlessly into HTML with `@techdocs/cli` and local MkDocs with zero warnings or parsing failures.
+
+### 🔴 Red Gate Verification
+* **Schema Validity:** Running programmatic schema audits via `@backstage/catalog-model` on all 6 competitor and system YAML catalog configurations returned 100% success with zero validation warnings or formatting errors.
+* **Workspace Typecheck:** Running TypeScript compiler validation (`tsc`) returned zero errors and compilation integrity remains pristine.
+
+### 💡 Strategic Takeaways
+The dogfooding experiment (`EXP-002`) successfully proves that we can turn a static market audit into an active, live component repository inside our developer portal. Developers and strategists can now search, navigate, and consume competitor API capabilities directly in their workspace. The results highlight key gaps in existing seat-based developer portals, providing us with a clear tactical path for our monorepo conventions and target positioning.
+
+### 🏁 Conclusion & Sign-Off
+**Decision:** `PROCEED / MERGE`  
+The experiment is declared a resounding success. We will merge these changes and transition to the next ticket (`STE-16: Target persona`).
