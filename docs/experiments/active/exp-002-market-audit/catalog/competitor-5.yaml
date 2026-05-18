@@ -1,0 +1,56 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: competitor-configure8
+  title: Configure8 (configure8.io)
+  description: A universal developer portal and catalog providing integrated environment tracking, application deployments, security posture, and cloud cost analytics.
+  tags:
+    - developer-portal
+    - idp
+    - competitor
+    - environment-tracking
+    - cloud-costs
+  links:
+    - url: https://www.configure8.io
+      title: Official Site
+      icon: web
+    - url: https://docs.configure8.io
+      title: Developer Docs
+      icon: help
+spec:
+  type: website
+  lifecycle: production
+  owner: group:product-strategy
+  system: competitor-landscape
+  providesApis:
+    - competitor-configure8-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: competitor-configure8-api
+  title: Configure8 API
+  description: Public API for Configure8, supporting service definition ingest and cloud cost mapping.
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:product-strategy
+  definition: |
+    openapi: 3.0.3
+    info:
+      title: Configure8 API
+      version: 1.0.0
+      description: Core API for configure8.io developer portal
+    paths:
+      /api/v1/applications:
+        post:
+          summary: Register a application component service
+          responses:
+            '201':
+              description: Application registered
+      /api/v1/costs/environments:
+        get:
+          summary: Retrieve cost metrics broken down by environment
+          responses:
+            '200':
+              description: Cost metrics retrieved successfully

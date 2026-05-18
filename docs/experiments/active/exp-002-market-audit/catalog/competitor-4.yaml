@@ -1,0 +1,64 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: competitor-opslevel
+  title: OpsLevel (opslevel.com)
+  description: A specialized developer portal focusing on service catalog maturity, automated rubrics, and developer self-service action triggering.
+  tags:
+    - developer-portal
+    - idp
+    - competitor
+    - service-catalog
+    - self-service
+  links:
+    - url: https://www.opslevel.com
+      title: Official Site
+      icon: web
+    - url: https://docs.opslevel.com
+      title: Developer Docs
+      icon: help
+spec:
+  type: website
+  lifecycle: production
+  owner: group:product-strategy
+  system: competitor-landscape
+  providesApis:
+    - competitor-opslevel-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: competitor-opslevel-api
+  title: OpsLevel GraphQL API
+  description: Public GraphQL API for programmatically managing services, checks, and rubrics inside OpsLevel.
+spec:
+  type: graphql
+  lifecycle: production
+  owner: group:product-strategy
+  definition: |
+    type Query {
+      service(id: ID!): Service
+      rubric: Rubric!
+    }
+    type Service {
+      name: String!
+      description: String
+      language: String
+      tier: String
+      owner: Team
+    }
+    type Rubric {
+      levels: [Level!]!
+      categories: [Category!]!
+    }
+    type Team {
+      alias: String!
+      email: String
+    }
+    type Level {
+      name: String!
+      index: Int!
+    }
+    type Category {
+      name: String!
+    }

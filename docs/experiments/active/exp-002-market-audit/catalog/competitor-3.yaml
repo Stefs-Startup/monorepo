@@ -1,0 +1,54 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: competitor-compass
+  title: Compass (Atlassian)
+  description: Atlassian's developer experience platform that tracks component sprawl, engineering health, and team ownership with deep Jira integration.
+  tags:
+    - developer-portal
+    - idp
+    - competitor
+    - atlassian
+    - jira-integration
+  links:
+    - url: https://www.atlassian.com/software/compass
+      title: Official Site
+      icon: web
+    - url: https://developer.atlassian.com/cloud/compass/
+      title: Developer Docs
+      icon: help
+spec:
+  type: website
+  lifecycle: production
+  owner: group:product-strategy
+  system: competitor-landscape
+  providesApis:
+    - competitor-compass-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: competitor-compass-api
+  title: Atlassian Compass GraphQL API
+  description: GraphQL API used to manage components, metrics, and scorecards in Atlassian Compass.
+spec:
+  type: graphql
+  lifecycle: production
+  owner: group:product-strategy
+  definition: |
+    type Query {
+      component(id: ID!): Component
+      metricDefinition(id: ID!): MetricDefinition
+    }
+    type Component {
+      id: ID!
+      name: String!
+      description: String
+      type: String!
+      ownerId: String
+    }
+    type MetricDefinition {
+      id: ID!
+      name: String!
+      schemaType: String!
+    }

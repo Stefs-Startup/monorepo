@@ -86,6 +86,20 @@ catalog:
     - type: file
       target: ../../../../infra/catalog-info.yaml
 
+    # Market Audit Dogfooding (EXP-002) Competitor Entities
+    - type: file
+      target: ../../../../docs/experiments/active/exp-002-market-audit/catalog/system.yaml
+    - type: file
+      target: ../../../../docs/experiments/active/exp-002-market-audit/catalog/competitor-1.yaml
+    - type: file
+      target: ../../../../docs/experiments/active/exp-002-market-audit/catalog/competitor-2.yaml
+    - type: file
+      target: ../../../../docs/experiments/active/exp-002-market-audit/catalog/competitor-3.yaml
+    - type: file
+      target: ../../../../docs/experiments/active/exp-002-market-audit/catalog/competitor-4.yaml
+    - type: file
+      target: ../../../../docs/experiments/active/exp-002-market-audit/catalog/competitor-5.yaml
+
     # Local example data, file locations are relative to the backend process, typically `packages/backend`
     - type: file
       target: ../../examples/entities.yaml
