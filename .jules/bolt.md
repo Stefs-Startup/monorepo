@@ -1,0 +1,3 @@
+## 2023-10-25 - Memoizing Inline Data Fetching in Backstage SearchPage
+**Learning:** Context-heavy components in Backstage that use hooks like `useSearch()` (e.g. `SearchPage`) re-render very frequently on user input. Passing inline data-fetching functions (e.g. `values={async () => { ... }}`) directly as props to filter components like `SearchFilter.Select` causes these functions to be recreated on every keystroke, leading to severe performance bottlenecks from excessive network requests.
+**Action:** Always memoize inline data-fetching functions passed as props in context-heavy UI components using `useCallback`, ensuring that network requests are only triggered when necessary rather than on every render cycle.
