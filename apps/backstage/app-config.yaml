@@ -103,6 +103,12 @@ catalog:
     - type: file
       target: ../../../../docs/experiments/active/exp-002-market-audit/catalog/competitor-5.yaml
 
+    # Target Persona Dogfooding (EXP-003) Entities
+    - type: file
+      target: ../../../../docs/experiments/active/exp-003-target-persona/catalog/personas.yaml
+      rules:
+        - allow: [User, Group]
+
     # Local example data, file locations are relative to the backend process, typically `packages/backend`
     - type: file
       target: ../../examples/entities.yaml

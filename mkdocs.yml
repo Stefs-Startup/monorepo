@@ -12,6 +12,12 @@ nav:
       - Protocol: experiments/protocol.md
       - Proposal Template: experiments/templates/proposal-template.md
       - Active Experiments:
+          - 'EXP-003: Target Persona':
+              - Proposal & Log: experiments/active/exp-003-target-persona.md
+              - Developer Persona: experiments/active/exp-003-target-persona/documentation/developer-persona.md
+              - Platform Lead: experiments/active/exp-003-target-persona/documentation/lead-persona.md
+              - ICP Framework: experiments/active/exp-003-target-persona/documentation/icp-framework.md
+      - Archived Experiments:
           - 'EXP-002: Market Audit':
               - Proposal & Log: experiments/active/exp-002-market-audit.md
               - Market Overview: >-

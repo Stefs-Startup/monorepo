@@ -1,0 +1,58 @@
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: target-personas
+  title: Target Personas & ICPs
+  description: The target buyer and user segments modeled for our Internal Developer Platform (IDP) startup.
+  tags:
+    - product-strategy
+    - target-audience
+    - developer-experience
+    - icp
+spec:
+  type: target-segment
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: persona-dan
+  title: Dan the Overwhelmed Microservice Developer
+  description: Primary user persona. A software engineer struggling under microservice cognitive overload, fragmented docs, and complex Kubernetes environments.
+  tags:
+    - user-persona
+    - backend-engineer
+    - microservices
+  links:
+    - url: http://localhost:3000/docs/default/component/backstage/experiments/active-experiments/exp-003-target-persona/documentation/developer-persona
+      title: Detailed Developer Persona Profile
+      icon: help
+spec:
+  profile:
+    displayName: Dan (Developer Persona)
+    email: dan@startup-persona.io
+    picture: https://picsum.photos/seed/dan/200
+  memberOf:
+    - target-personas
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: persona-lisa
+  title: Lisa the Strategic Platform Engineering Lead
+  description: Primary buyer persona. A platform lead or director responsible for microservice standards compliance, security scorecards, and platform ROI.
+  tags:
+    - buyer-persona
+    - platform-lead
+    - platform-engineering
+  links:
+    - url: http://localhost:3000/docs/default/component/backstage/experiments/active-experiments/exp-003-target-persona/documentation/lead-persona
+      title: Detailed Platform Lead Persona Profile
+      icon: help
+spec:
+  profile:
+    displayName: Lisa (Platform Lead Persona)
+    email: lisa@startup-persona.io
+    picture: https://picsum.photos/seed/lisa/200
+  memberOf:
+    - target-personas

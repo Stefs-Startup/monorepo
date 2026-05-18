@@ -18,7 +18,7 @@ These experiments are currently running or proposed. No code from these experime
 | ID | Title | RICE Score | Owner | Target End Date | Status |
 | :--- | :--- | :---: | :--- | :---: | :--- |
 | **EXP-001** | *Example: Backstage Self-Registration* | `45.5` | @sheldoncrosss | 2026-06-01 | `ACTIVE` |
-| **EXP-002** | **[[STE-15] Market Audit Dogfooding Experiment](active/exp-002-market-audit.md)** | `63.33` | @sheldoncrosss | 2026-06-01 | `ACTIVE` |
+| **EXP-003** | **[[STE-16] Target Persona Dogfooding Experiment](active/exp-003-target-persona.md)** | `90.0` | @sheldoncrosss | 2026-06-01 | `ACTIVE` |
 
 ---
 
@@ -29,6 +29,7 @@ Records of completed experiments. These logs are preserved as institutional know
 | ID | Title | Decision | Date Completed | Learnings Summary |
 | :--- | :--- | :--- | :---: | :--- |
 | **EXP-000** | *Sample Experiment* | `PIVOT (Purged)` | 2026-05-10 | Scaffolding in apps/exp-sample proved hypothesis false; deleted codebase. |
+| **EXP-002** | **[[STE-15] Market Audit Dogfooding Experiment](active/exp-002-market-audit.md)** | `PROCEED (Integrated)` | 2026-05-18 | Modeled top 5 direct competitors as active Backstage Component and API entities. TechDocs indexed, identifying seat-based licensing budget gap. |
 
 ---
 
