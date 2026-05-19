@@ -1,0 +1,3 @@
+## 2023-10-27 - Context-Heavy Components Need Memoization
+**Learning:** In the Backstage application, context-heavy components like `SearchPage` which consume context hooks like `useSearch()` will re-render frequently, especially on user input. When these components pass inline data-fetching functions as props down to children (like `SearchFilter.Select`), it triggers excessive network requests because the inline function is recreated on every render.
+**Action:** Always memoize data-fetching inline functions using `useCallback` when passing them as props within context-heavy components that trigger frequent re-renders on user input.
