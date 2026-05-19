@@ -11,6 +11,7 @@ nav:
       - Overview: experiments/README.md
       - Protocol: experiments/protocol.md
       - Pain Point Log: experiments/pain-points.md
+      - Distribution Strategy: experiments/distribution.md
       - Proposal Template: experiments/templates/proposal-template.md
       - Active Experiments:
           - 'EXP-003: Target Persona':
