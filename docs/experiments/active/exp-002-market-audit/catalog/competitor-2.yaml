@@ -1,0 +1,56 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: competitor-cortex
+  title: Cortex (cortex.io)
+  description: An Internal Developer Portal focusing heavily on developer scorecards, engineering standards, and GitOps-driven catalog definitions.
+  tags:
+    - developer-portal
+    - idp
+    - competitor
+    - scorecards
+    - maturity-model
+  links:
+    - url: https://www.cortex.io
+      title: Official Site
+      icon: web
+    - url: https://docs.cortex.io
+      title: Developer Docs
+      icon: help
+spec:
+  type: website
+  lifecycle: production
+  owner: group:product-strategy
+  system: competitor-landscape
+  providesApis:
+    - competitor-cortex-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: competitor-cortex-api
+  title: Cortex Core API
+  description: Public API for managing Cortex catalogs, importing scorecards, and evaluating compliance standards.
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:product-strategy
+  definition: |
+    openapi: 3.0.3
+    info:
+      title: Cortex API
+      version: 1.0.0
+      description: Core API for cortex.io developer portal
+    paths:
+      /api/v1/scorecards:
+        get:
+          summary: List all active scorecards and engineering standards
+          responses:
+            '200':
+              description: Successfully retrieved scorecards
+      /api/v1/catalog/sync:
+        post:
+          summary: Sync catalog from Git repository configuration
+          responses:
+            '202':
+              description: Sync job scheduled

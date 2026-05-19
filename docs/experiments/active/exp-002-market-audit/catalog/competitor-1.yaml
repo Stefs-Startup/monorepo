@@ -1,0 +1,56 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: competitor-port
+  title: Port (getport.io)
+  description: A modern, highly flexible Internal Developer Portal (IDP) SaaS featuring a dynamic, blueprint-driven data model and software catalog.
+  tags:
+    - developer-portal
+    - idp
+    - competitor
+    - saas
+    - blueprint-model
+  links:
+    - url: https://www.getport.io
+      title: Official Site
+      icon: web
+    - url: https://docs.getport.io
+      title: Developer Docs
+      icon: help
+spec:
+  type: website
+  lifecycle: production
+  owner: group:product-strategy
+  system: competitor-landscape
+  providesApis:
+    - competitor-port-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: competitor-port-api
+  title: Port REST API
+  description: Public REST API for Port, facilitating blueprint creation, entity ingestion, and automated action runs.
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:product-strategy
+  definition: |
+    openapi: 3.0.3
+    info:
+      title: Port API
+      version: 1.0.0
+      description: Core REST API for getport.io developer portal
+    paths:
+      /v1/blueprints:
+        post:
+          summary: Create a new blueprint schema definition
+          responses:
+            '201':
+              description: Blueprint created successfully
+      /v1/entities:
+        post:
+          summary: Upsert an entity instance matching a blueprint
+          responses:
+            '200':
+              description: Entity upserted successfully

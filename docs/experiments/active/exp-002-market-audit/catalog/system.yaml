@@ -1,0 +1,8 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: competitor-landscape
+  title: Competitor Landscape
+  description: The system grouping all mapped direct competitors in the Internal Developer Portal (IDP) and software catalog space.
+spec:
+  owner: group:product-strategy

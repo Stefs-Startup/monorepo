@@ -1,6 +1,9 @@
 app:
   title: Scaffolded Backstage App
   baseUrl: http://localhost:3000
+  listen:
+    host: 127.0.0.1
+    port: 3000
 
 organization:
   name: My Company
@@ -16,7 +19,7 @@ backend:
   listen:
     port: 7007
     # Uncomment the following host directive to bind to specific interfaces
-    # host: 127.0.0.1
+    host: 127.0.0.1
   csp:
     connect-src: ["'self'", 'http:', 'https:']
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
@@ -85,6 +88,26 @@ catalog:
       target: ../../../../apps/web/catalog-info.yaml
     - type: file
       target: ../../../../infra/catalog-info.yaml
+
+    # Market Audit Dogfooding (EXP-002) Competitor Entities
+    - type: file
+      target: ../../../../docs/experiments/active/exp-002-market-audit/catalog/system.yaml
+    - type: file
+      target: ../../../../docs/experiments/active/exp-002-market-audit/catalog/competitor-1.yaml
+    - type: file
+      target: ../../../../docs/experiments/active/exp-002-market-audit/catalog/competitor-2.yaml
+    - type: file
+      target: ../../../../docs/experiments/active/exp-002-market-audit/catalog/competitor-3.yaml
+    - type: file
+      target: ../../../../docs/experiments/active/exp-002-market-audit/catalog/competitor-4.yaml
+    - type: file
+      target: ../../../../docs/experiments/active/exp-002-market-audit/catalog/competitor-5.yaml
+
+    # Target Persona Dogfooding (EXP-003) Entities
+    - type: file
+      target: ../../../../docs/experiments/active/exp-003-target-persona/catalog/personas.yaml
+      rules:
+        - allow: [User, Group]
 
     # Local example data, file locations are relative to the backend process, typically `packages/backend`
     - type: file
