@@ -1,0 +1,21 @@
+site_name: Enterprise Full-Stack Best Practices
+nav:
+  - Overview: index.md
+  - Angular (Frontend):
+      - Architecture: enterprise-architecture.md
+      - Modern Standards: modern-angular.md
+      - Strict Boundaries: strict-boundaries.md
+      - Telemetry & Observability: telemetry-observability.md
+      - Testing & CI/CD: testing-ci-cd.md
+  - Java (Backend):
+      - Architecture: java-architecture.md
+      - Modern Standards: java-standards.md
+      - Strict Boundaries: java-boundaries.md
+      - Telemetry & Observability: java-telemetry.md
+      - Testing & CI/CD: java-testing.md
+  - Full-Stack Integration:
+      - API Contracts & CodeGen: fullstack-integration.md
+  - React, Node & Backstage Developer Guide:
+      - Rosetta Stone (Translation): stack-translation.md
+plugins:
+  - techdocs-core

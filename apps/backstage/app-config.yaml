@@ -63,7 +63,8 @@ proxy:
 techdocs:
   builder: 'local' # Alternatives - 'external'
   generator:
-    runIn: 'local' # Alternatives - 'docker'
+    runIn: 'docker' # Alternatives - 'local'
+
   publisher:
     type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
 
@@ -88,6 +89,9 @@ catalog:
       target: ../../../../apps/web/catalog-info.yaml
     - type: file
       target: ../../../../infra/catalog-info.yaml
+    - type: file
+      target: ../../../../docs/angular-best-practices/catalog-info.yaml
+
 
     # Market Audit Dogfooding (EXP-002) Competitor Entities
     - type: file
