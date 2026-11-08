@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "57027711654",
+    "project_id": "gw-cli-490302",
+    "storage_bucket": "gw-cli-490302.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:57027711654:android:f263696af8fb2c7cdada67",
+        "android_client_info": {
+          "package_name": "com.pulse.accountability"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDemoPlaceholderKeyForPublicMonorepo000"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
