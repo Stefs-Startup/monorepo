@@ -4,6 +4,28 @@ All notable architectural, UX, and domain changes to **Pulse** are tracked in th
 
 ---
 
+## [`v0.6.5` — Modern Desktop Web UX Principles (`ADR-009`) & Multi-Document Stack Best-Practices Library] — 2026-11-08
+- **Modern Desktop Web Principles (`ADR-009` in [`AGENTS.md`](../AGENTS.md), [`docs/UX_FLOW_AND_DESIGN_SYSTEM.md`](UX_FLOW_AND_DESIGN_SYSTEM.md))**:
+  - Updated desktop/web specifications (`>= 840.dp`) to prioritize modern web design principles (multi-pane split workspaces with a persistent right-hand Task Inspector, `1.dp` hairline borders, tighter `10.dp–14.dp` radii, tabular numerals, hover highlights, pointer cursors, and keyboard shortcuts `1`/`2`/`3`, `↑`/`↓`, `P`, `S`, `D`) rather than stretching mobile Material 3 chrome across a wide monitor.
+- **Framework-Specific Best-Practices Library (`docs/tech-docs/best-practices/` & Monorepo `docs/stack-best-practices/`)**:
+  - Created [`docs/tech-docs/STACK_BEST_PRACTICES.md`](tech-docs/STACK_BEST_PRACTICES.md) and 6 dedicated framework learning guides under [`docs/tech-docs/best-practices/`](tech-docs/best-practices/README.md) with concrete code examples and lessons learned from our apps:
+    - [`01_KOTLIN_PURE_DOMAIN_BEST_PRACTICES.md`](tech-docs/best-practices/01_KOTLIN_PURE_DOMAIN_BEST_PRACTICES.md)
+    - [`02_KMP_MULTIPLATFORM_BEST_PRACTICES.md`](tech-docs/best-practices/02_KMP_MULTIPLATFORM_BEST_PRACTICES.md)
+    - [`03_COMPOSE_MULTIPLATFORM_AND_DESKTOP_WEB_BEST_PRACTICES.md`](tech-docs/best-practices/03_COMPOSE_MULTIPLATFORM_AND_DESKTOP_WEB_BEST_PRACTICES.md)
+    - [`04_FIREBASE_OBSERVABILITY_AND_ZERO_PII_BEST_PRACTICES.md`](tech-docs/best-practices/04_FIREBASE_OBSERVABILITY_AND_ZERO_PII_BEST_PRACTICES.md)
+    - [`05_SPRING_BOOT_4_AND_JAVA_21_BEST_PRACTICES.md`](tech-docs/best-practices/05_SPRING_BOOT_4_AND_JAVA_21_BEST_PRACTICES.md)
+    - [`06_ANGULAR_21_SIGNALS_AND_WEB_BEST_PRACTICES.md`](tech-docs/best-practices/06_ANGULAR_21_SIGNALS_AND_WEB_BEST_PRACTICES.md)
+
+---
+
+## [`v0.6.4` — Shared Responsive Compose Multiplatform Components & Multiplatform Firebase Dashboard Observability Spec] — 2026-11-08
+- **Shared Responsive Compose Components (`EPIC-1` — Web & Mobile)**:
+  - Updated [`docs/SPRINT_ROADMAP_AND_USE_CASES.md`](SPRINT_ROADMAP_AND_USE_CASES.md) and [`docs/UX_FLOW_AND_DESIGN_SYSTEM.md`](UX_FLOW_AND_DESIGN_SYSTEM.md) to mandate 100% shared Compose Multiplatform UI components in `commonMain` (`AccountabilityHorizonCanvas.kt`, `StalledTaskLogCard.kt`, `PartnerSettingsNavigator.kt`, `PulseExpressiveTheme.kt`) with adaptive responsive layouts (`Compact < 600.dp` bottom `NavigationBar` + stacked cards on mobile; `Expanded >= 840.dp` `NavigationRail` + split-pane Horizon & Inspector on Web/Desktop).
+- **Live Firebase Dashboard Observability Across Web & Android (`EPIC-3`)**:
+  - Specified the multiplatform `PulseObservability` architecture in `commonMain` (`scrubSensitiveText`, `pseudonymizeIdentifier`, `recordBreadcrumb`, `recordNonFatal`, `sendTestSignal`) backed by `FirebaseCrashlytics` + `FirebaseAnalytics` on Android (`androidMain`) and Firebase Web JS SDK (`wasmJsMain`) reporting live events and diagnostic signals to Firebase project **`gw-cli-490302`**.
+
+---
+
 ## [`v0.6.3` — Transition Angular 21 + Spring Boot 4 to Experimental & Adopt KMP + Compose Multiplatform Web Strategy (`ADR-008`)] — 2026-11-08
 - **Experimental Stack Archive (`web/` & `backend/`)**:
   - Marked the Angular 21 (`web/`) and Spring Boot 4 / Java 21 (`backend/`) directories as an **Experimental Archive (`v0.6.0–v0.6.2`)** in [`README.md`](../README.md), [`docs/SPRINT_ROADMAP_AND_USE_CASES.md`](SPRINT_ROADMAP_AND_USE_CASES.md), and [`docs/tech-docs/TECH_STACK_RUNBOOK_AND_KNOWLEDGE_SOURCES.md`](tech-docs/TECH_STACK_RUNBOOK_AND_KNOWLEDGE_SOURCES.md), and merged the snapshot into `Stefs-Startup/monorepo` (`apps/pulse/`).
