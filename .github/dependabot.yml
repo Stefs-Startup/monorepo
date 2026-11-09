@@ -3,12 +3,13 @@
 # =============================================================================
 # Covers all active package ecosystems across the monorepo:
 #   1. GitHub Actions (.github/workflows)
-#   2. Root pnpm + Turborepo Workspaces (/, /apps/web, /packages/*)
-#   3. Backstage Isolated Yarn 4 Workspace (/apps/backstage)
-#   4. Pulse Android & Kotlin Gradle Catalog (/apps/pulse)
-#   5. Pulse Spring Boot 4 / Java 21 Backend (/apps/pulse/backend)
-#   6. Pulse Angular 21 Web App (/apps/pulse/web)
-#   7. Docker Base Images (/apps/backstage)
+#   2. Root pnpm + Turborepo Workspaces (/ — covers apps/web, packages/*)
+#   3. Pulse Android & Kotlin Gradle Catalog (/apps/pulse)
+#   4. Pulse Spring Boot 4 / Java 21 Backend (/apps/pulse/backend)
+#   5. Pulse Angular 21 Web App (/apps/pulse/web)
+#   6. Docker Compose Images (/infra)
+#
+# apps/backstage is EXPERIMENTAL and intentionally excluded until promoted.
 # =============================================================================
 
 version: 2
@@ -39,11 +40,9 @@ updates:
   # 2. Root pnpm + Turborepo Workspace
   # ---------------------------------------------------------------------------
   - package-ecosystem: "npm"
-    directories:
-      - "/"
-      - "/apps/web"
-      - "/packages/config"
-      - "/packages/utils"
+    # pnpm workspaces are resolved from the root lockfile; listing each workspace
+    # directory as well makes Dependabot open duplicate PRs for the same bump.
+    directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -63,42 +62,7 @@ updates:
           - "patch"
 
   # ---------------------------------------------------------------------------
-  # 3. Backstage Isolated Yarn 4 Monorepo (see docs/backstage-management.md)
-  # ---------------------------------------------------------------------------
-  - package-ecosystem: "npm"
-    directory: "/apps/backstage"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "America/New_York"
-    open-pull-requests-limit: 5
-    commit-message:
-      prefix: "chore(backstage)"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "backstage"
-    ignore:
-      # Pinned per docs/backstage-management.md to avoid alpha.core.metrics startup crash
-      - dependency-name: "@backstage/plugin-catalog-backend"
-        versions: ["> 3.4.0"]
-    groups:
-      backstage-packages:
-        patterns:
-          - "@backstage/*"
-        update-types:
-          - "minor"
-          - "patch"
-      backstage-tooling:
-        exclude-patterns:
-          - "@backstage/*"
-        update-types:
-          - "minor"
-          - "patch"
-
-  # ---------------------------------------------------------------------------
-  # 4. Pulse Android & Kotlin Gradle Version Catalog (apps/pulse/gradle/libs.versions.toml)
+  # 3. Pulse Android & Kotlin Gradle Version Catalog (apps/pulse/gradle/libs.versions.toml)
   # ---------------------------------------------------------------------------
   - package-ecosystem: "gradle"
     directory: "/apps/pulse"
@@ -134,7 +98,7 @@ updates:
           - "patch"
 
   # ---------------------------------------------------------------------------
-  # 5. Pulse Spring Boot 4 / Java 21 Backend (apps/pulse/backend)
+  # 4. Pulse Spring Boot 4 / Java 21 Backend (apps/pulse/backend)
   # ---------------------------------------------------------------------------
   - package-ecosystem: "gradle"
     directory: "/apps/pulse/backend"
@@ -161,7 +125,7 @@ updates:
           - "patch"
 
   # ---------------------------------------------------------------------------
-  # 6. Pulse Angular 21 Web Workspace (apps/pulse/web)
+  # 5. Pulse Angular 21 Web Workspace (apps/pulse/web)
   # ---------------------------------------------------------------------------
   - package-ecosystem: "npm"
     directory: "/apps/pulse/web"
@@ -188,10 +152,10 @@ updates:
           - "patch"
 
   # ---------------------------------------------------------------------------
-  # 7. Docker Containers (apps/backstage/Dockerfile)
+  # 6. Docker Compose Service Images (infra/docker-compose.yml)
   # ---------------------------------------------------------------------------
-  - package-ecosystem: "docker"
-    directory: "/apps/backstage"
+  - package-ecosystem: "docker-compose"
+    directory: "/infra"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -204,3 +168,9 @@ updates:
     labels:
       - "dependencies"
       - "docker"
+    ignore:
+      # Major Postgres/Redis bumps require a data migration; take them deliberately.
+      - dependency-name: "postgres"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "redis"
+        update-types: ["version-update:semver-major"]

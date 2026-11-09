@@ -2,10 +2,17 @@
 # Monorepo CI/CD Pipeline (CMP-18)
 # =============================================================================
 # Validates every PR, Merge Queue group, and main branch push across 4 gates:
-#   1. Code Quality (Turborepo Lint/Typecheck, Docs Integrity & Android Lint)
+#   1. Code Quality (Turborepo Lint/Typecheck, Markdown Docs Integrity & Android Lint)
 #   2. Build (Turborepo Packages, Pulse Android APK, Spring Boot 4 & Web Bundle)
 #   3. Test (Turborepo Tests, Pulse JUnit4/MockWebServer/WCAG Audit, JUnit5 & Vitest)
 #   4. Deploy & Distribution Gate (Artifact Verification & Deployment Placeholder)
+#
+# Stack coverage map:
+#   pnpm + Turborepo (apps/web, packages/*) ... code-quality, build, test
+#   Pulse Android / KMP (apps/pulse) .......... code-quality, build, test
+#   Pulse Spring Boot 4 (apps/pulse/backend) .. build, test
+#   Pulse Angular 21 (apps/pulse/web) ......... code-quality, build, test
+#   Backstage (apps/backstage) ................ EXPERIMENTAL — intentionally not in CI
 # =============================================================================
 
 name: Monorepo CI
@@ -70,10 +77,9 @@ jobs:
       - name: Run Turborepo workspace TypeScript typecheck
         run: pnpm run typecheck --ui=stream
 
-      - name: Verify TechDocs & ADR documentation structure
+      - name: Verify Markdown docs & ADR structure
         run: |
-          test -f mkdocs.yml
-          test -f catalog-info.yaml
+          test -f docs/README.md
           test -f docs/monorepo-conventions.md
           test -d docs/adr
           test -d docs/stack-best-practices
@@ -270,7 +276,7 @@ jobs:
             echo "| **Workspace Libraries** (\`@cmp/utils\`) | \`workspace-dist\` | ✅ Staged | Internal workspace symlink (\`workspace:*\`) |"
             echo "| **Pulse Android** (\`:app\`) | \`app-debug.apk\` (\`$APK_SIZE\`) | ✅ Staged | Pending distribution channel selection (Firebase App Distribution / GitHub Releases / Play Internal) |"
             echo "| **Pulse Web** (\`apps/pulse/web\`) | \`pulse-web-dist\` | ✅ Staged | Pending web hosting target configuration (Firebase Hosting / Cloud Run / Render) |"
-            echo "| **Backstage Portal** (\`apps/backstage\`) | \`render.yaml\` | ⏸️ Placeholder | Configured via \`render.yaml\` Docker service; web service deploy automation deferred |"
+            echo "| **Backstage Portal** (\`apps/backstage\`) | — | 🧪 Experimental | Not built in CI; excluded until the portal is promoted out of experimental |"
             echo ""
             echo "> **Mode:** \`${{ github.event_name }}\` on ref \`${{ github.ref_name }}\`"
           } >> "$GITHUB_STEP_SUMMARY"

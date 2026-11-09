@@ -8,7 +8,7 @@
 
 ## Context
 
-As the CMP monorepo expands across multiple ecosystems—including the root `pnpm` + Turborepo workspace (`apps/web`, `packages/config`, `packages/utils`), the isolated Yarn 4 Backstage portal (`apps/backstage`), and the multi-stack Pulse application (`apps/pulse` Android/Kotlin, `apps/pulse/backend` Spring Boot 4 / Java 21, and `apps/pulse/web` Angular 21)—manual local verification is no longer sufficient to guarantee branch health.
+As the CMP monorepo expands across multiple ecosystems—including the root `pnpm` + Turborepo workspace (`apps/web`, `packages/config`, `packages/utils`), the multi-stack Pulse application (`apps/pulse` Android/Kotlin, `apps/pulse/backend` Spring Boot 4 / Java 21, and `apps/pulse/web` Angular 21)—manual local verification is no longer sufficient to guarantee branch health.
 
 Furthermore, our repository ruleset (`promote & merge`) enforces a **GitHub Merge Queue (`ALLGREEN`)** on `main`, requiring automated status checks that support `pull_request`, `push`, and `merge_group` triggers, alongside automated dependency security and version maintenance across all ecosystems.
 
@@ -20,7 +20,7 @@ We will implement a unified **4-Gate GitHub Actions CI/CD Pipeline** (`.github/w
 
 1. **Gate 1 — Code Quality (`code-quality`)**:
    - Executes `pnpm run lint` and `pnpm run typecheck` across the Turborepo workspace.
-   - Verifies TechDocs (`mkdocs.yml`), Backstage catalog manifests (`catalog-info.yaml`), and ADR documentation structure.
+   - Verifies the plain-Markdown docs and ADR structure (`docs/README.md`, `docs/monorepo-conventions.md`, `docs/adr/`, `docs/stack-best-practices/`). TechDocs builds are not required.
    - Runs TypeScript static verification on `apps/pulse/web` (`tsc --noEmit`) and Android Lint (`./gradlew lintDebug`) on `apps/pulse`.
 2. **Gate 2 — Build (`build`)**:
    - Compiles all Turborepo packages and apps (`pnpm run build`).
@@ -34,7 +34,9 @@ We will implement a unified **4-Gate GitHub Actions CI/CD Pipeline** (`.github/w
    - Depends on `code-quality`, `build`, and `test`.
    - Downloads and verifies staged build artifacts (`app-debug.apk`, `pulse-web-dist`, `workspace-dist`) and publishes a deployment & distribution readiness summary to `$GITHUB_STEP_SUMMARY` while web service deployment and mobile distribution channels are finalized.
 5. **Multi-Ecosystem Dependabot (`.github/dependabot.yml`)**:
-   - Configures weekly grouped updates across `github-actions`, root `npm`/`pnpm` workspaces, `apps/backstage` (respecting the `@backstage/plugin-catalog-backend` `3.4.0` pin), `apps/pulse` Gradle version catalogs, `apps/pulse/backend` Gradle dependencies, `apps/pulse/web` npm packages, and `apps/backstage` Docker base images.
+   - Configures weekly grouped updates across `github-actions`, the root `pnpm` workspace (resolved from `/` only, which covers `apps/web` and `packages/*` without duplicate PRs), `apps/pulse` Gradle version catalogs, `apps/pulse/backend` Gradle dependencies, `apps/pulse/web` npm packages, and `infra/docker-compose.yml` service images (Postgres/Redis majors ignored).
+6. **Backstage is experimental and out of scope**:
+   - `apps/backstage` (isolated Yarn 4 / Node 24) is excluded from CI and Dependabot until it is promoted. Its `catalog-info.yaml` / `mkdocs.yml` files are not validated; plain Markdown is the documentation standard.
 
 ---
 
