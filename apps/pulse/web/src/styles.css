@@ -1,0 +1,89 @@
+/* Material 3 Expressive Organic Sage & Warm Amber Terracotta Palette (WCAG 2.2 AA Verified) */
+:root,
+[data-theme="light"] {
+  --md-primary: #14533C;
+  --md-on-primary: #FFFFFF;
+  --md-primary-container: #A9F2D0;
+  --md-on-primary-container: #002114;
+
+  --md-secondary: #7B4E24;
+  --md-on-secondary: #FFFFFF;
+  --md-secondary-container: #FFDCC2;
+  --md-on-secondary-container: #2E1500;
+
+  --md-tertiary: #345678;
+  --md-on-tertiary: #FFFFFF;
+  --md-tertiary-container: #D3E4FF;
+  --md-on-tertiary-container: #001C38;
+
+  --md-error: #BA1A1A;
+  --md-on-error: #FFFFFF;
+  --md-error-container: #FFDAD6;
+  --md-on-error-container: #410002;
+
+  --md-background: #F6FBF6;
+  --md-on-background: #171D19;
+  --md-surface: #F6FBF6;
+  --md-on-surface: #171D19;
+  --md-surface-variant: #DBE5DD;
+  --md-on-surface-variant: #353E38;
+  --md-surface-container-lowest: #FFFFFF;
+  --md-surface-container-low: #F0F5F0;
+  --md-surface-container: #EAEFEA;
+  --md-surface-container-high: #E4E9E5;
+  --md-surface-container-highest: #DFE4DF;
+  --md-outline: #6B756E;
+}
+
+[data-theme="dark"] {
+  --md-primary: #8ED5B5;
+  --md-on-primary: #00281A;
+  --md-primary-container: #005139;
+  --md-on-primary-container: #A9F2D0;
+
+  --md-secondary: #F5B885;
+  --md-on-secondary: #361D00;
+  --md-secondary-container: #633B10;
+  --md-on-secondary-container: #FFDCC2;
+
+  --md-tertiary: #A2C9FF;
+  --md-on-tertiary: #002447;
+  --md-tertiary-container: #194366;
+  --md-on-tertiary-container: #D3E4FF;
+
+  --md-error: #FFB4AB;
+  --md-on-error: #560003;
+  --md-error-container: #93000A;
+  --md-on-error-container: #FFDAD6;
+
+  --md-background: #0F1511;
+  --md-on-background: #DFE4DF;
+  --md-surface: #0F1511;
+  --md-on-surface: #DFE4DF;
+  --md-surface-variant: #404943;
+  --md-on-surface-variant: #C8D2CA;
+  --md-surface-container-lowest: #0A0F0C;
+  --md-surface-container-low: #171D19;
+  --md-surface-container: #1B211D;
+  --md-surface-container-high: #252B27;
+  --md-surface-container-highest: #303632;
+  --md-outline: #8A948D;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--md-background);
+  color: var(--md-on-background);
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select {
+  font-family: inherit;
+}
