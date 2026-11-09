@@ -261,7 +261,7 @@ jobs:
 
       - name: Execute Deploy & Distribution Placeholder
         run: |
-           APK_SIZE=$(du -h staged-artifacts/pulse-debug-apk/app-debug.apk | cut -f1)
+          APK_SIZE=$(du -h staged-artifacts/pulse-debug-apk/app-debug.apk | cut -f1)
           {
             echo "## 🚀 Monorepo Deploy & Distribution Gate"
             echo ""
