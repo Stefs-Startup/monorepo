@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 @Serializable
@@ -53,16 +54,16 @@ data class TaskItemEntity(
         get() = runCatching { TaskEnergyLevel.valueOf(energyLevel) }
             .getOrDefault(TaskEnergyLevel.FOCUSED)
 
-    fun dueLocalDate(zoneId: ZoneId = ZoneId.systemDefault()): LocalDate? =
+    fun dueLocalDate(zoneId: ZoneId = ZoneOffset.UTC): LocalDate? =
         dueEpochMillis?.let { Instant.ofEpochMilli(it).atZone(zoneId).toLocalDate() }
 
-    fun daysOverdue(today: LocalDate = LocalDate.now(), zoneId: ZoneId = ZoneId.systemDefault()): Long {
+    fun daysOverdue(today: LocalDate = LocalDate.now(), zoneId: ZoneId = ZoneOffset.UTC): Long {
         if (isCompleted) return 0
         val due = dueLocalDate(zoneId) ?: return 0
         return if (due.isBefore(today)) ChronoUnit.DAYS.between(due, today) else 0
     }
 
-    fun daysUntilDue(today: LocalDate = LocalDate.now(), zoneId: ZoneId = ZoneId.systemDefault()): Long? {
+    fun daysUntilDue(today: LocalDate = LocalDate.now(), zoneId: ZoneId = ZoneOffset.UTC): Long? {
         val due = dueLocalDate(zoneId) ?: return null
         return ChronoUnit.DAYS.between(today, due)
     }
@@ -91,7 +92,7 @@ data class TaskItemEntity(
     fun needsPreparationSoon(today: LocalDate = LocalDate.now()): Boolean {
         if (isCompleted) return false
         val daysUntil = daysUntilDue(today) ?: return (energy == TaskEnergyLevel.DEEP_WORK)
-        return daysUntil in 0..5 && (energy == TaskEnergyLevel.DEEP_WORK || notes.isNotBlank() || prepChecklistJson == "[]")
+        return daysUntil in 1..5 && (energy == TaskEnergyLevel.DEEP_WORK || notes.isNotBlank() || prepChecklistJson == "[]")
     }
 }
 
