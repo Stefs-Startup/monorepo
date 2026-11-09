@@ -4,6 +4,14 @@ All notable architectural, UX, and domain changes to **Pulse** are tracked in th
 
 ---
 
+## [`v0.6.3` — Transition Angular 21 + Spring Boot 4 to Experimental & Adopt KMP + Compose Multiplatform Web Strategy (`ADR-008`)] — 2026-11-08
+- **Experimental Stack Archive (`web/` & `backend/`)**:
+  - Marked the Angular 21 (`web/`) and Spring Boot 4 / Java 21 (`backend/`) directories as an **Experimental Archive (`v0.6.0–v0.6.2`)** in [`README.md`](../README.md), [`docs/SPRINT_ROADMAP_AND_USE_CASES.md`](SPRINT_ROADMAP_AND_USE_CASES.md), and [`docs/tech-docs/TECH_STACK_RUNBOOK_AND_KNOWLEDGE_SOURCES.md`](tech-docs/TECH_STACK_RUNBOOK_AND_KNOWLEDGE_SOURCES.md), and merged the snapshot into `Stefs-Startup/monorepo` (`apps/pulse/`).
+- **Primary Multiplatform Strategy (`ADR-008` — Kotlin Multiplatform + Compose Multiplatform `wasmJs`)**:
+  - Pivoted `EPIC-1`..`EPIC-5` in [`docs/SPRINT_ROADMAP_AND_USE_CASES.md`](SPRINT_ROADMAP_AND_USE_CASES.md) to **Kotlin Multiplatform (`commonMain`, `androidMain`, `wasmJsMain`) + Compose Multiplatform**, reusing ~95% of the native Kotlin domain engines (`UndoneAccountabilityEngine.kt`, `TaskVisualAnalyticsEngine.kt`, `ScarcityEngine.kt`, `TriageRules.kt`, `RitualGateRules.kt`, `WcagContrastEngine.kt`) and Jetpack Compose Material 3 Expressive UI (`AccountabilityHorizonCanvas.kt`, `StalledTaskLogCard.kt`, `PartnerSettingsNavigator.kt`, `PulseExpressiveTheme.kt`) directly in the browser.
+
+---
+
 ## [`v0.6.2` — Visual Focus Dashboard First (`EPIC-1`), Stickiness & Ritual Architecture (`EPIC-4`), Drive-to-Markdown Migration & Full Test Pyramid] — 2026-11-08
 - **Visual Focus Dashboard Only (`EPIC-1` UAT Focus)**:
   - Updated [`app.component.ts`](../web/src/app/app.component.ts) and [`stalled-task-card.component.ts`](../web/src/app/components/stalled-task-card/stalled-task-card.component.ts) to focus 100% on the **Visual Focus Dashboard** (`Horizon` 3-window descending bars `#1`, `#2`, `#3`..., Today's Top 3 Scarcity Strip, Selected Node Inspector with 5 direct visual triage buttons, `Undone Log`, and 4-card `Settings` navigator), saving Conversational Partner Chat for `EPIC-5`.

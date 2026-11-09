@@ -1,8 +1,8 @@
 # Pulse — Material 3 Expressive Accountability Partner for Google Tasks
 
-Pulse is a calm accountability partner for **Google Tasks** built around a **Pure Functional Core (`ADR-007`)** across two client/server stacks in this monorepo:
-- **Android Native App (`app/`)**: **Kotlin**, **Jetpack Compose (Material 3 Expressive)**, and **Room**.
-- **Web & API Stack (`web/` + `backend/`)**: **Angular 21 (`21.2.26`)** Standalone Signals SPA + **Spring Boot 4 (`4.0.9`)** on **Java 21**.
+Pulse is a calm accountability partner for **Google Tasks** built around a **Pure Functional Core (`ADR-007`)** and **Kotlin Multiplatform (KMP) + Compose Multiplatform (`ADR-008`)**:
+- **Primary Multiplatform Architecture (`app/` -> KMP `commonMain`, `androidMain`, `wasmJsMain`)**: Native **Kotlin (`2.1.0`)** domain engines + **Compose Multiplatform (Material 3 Expressive)** shared across Android and Web (`wasmJs`), bringing 95%+ of the native Android code, spring animations (`HorizontalPager`), and theme tokens directly to the browser without a separate backend.
+- **Experimental Web & API Archive (`web/` + `backend/` — `v0.6.0–v0.6.2`)**: **Angular 21 (`21.2.26`)** + **Spring Boot 4 (`4.0.9` / Java 21)** exploration preserved in the monorepo as an experimental reference.
 
 Instead of acting as a second, cluttered task manager, Pulse focuses on rescuing habitually undone work and guiding honest daily focus through a distraction-free **Visual Focus Dashboard (`EPIC-1`)** and **Daily Ritual Stickiness Loops (`EPIC-4`)**:
 1. **Single-Viewport Visual Focus Dashboard (`Horizon` — `EPIC-1`)** — Partitions your tasks into 3 analytical windows (*Habitually Undone*, *Long-Standing Drift*, *Committed & Active Flow*) ranked in strict descending order (`#1`, `#2`, `#3`...) with a 3-slot **Today's Top 3** scarcity gate, swap modal, and synchronized **Selected Task Inspector** (zero chat FAB clutter).

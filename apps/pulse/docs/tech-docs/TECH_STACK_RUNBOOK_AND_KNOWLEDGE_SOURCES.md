@@ -1,12 +1,14 @@
 # Pulse — Tech Stack, Need-to-Know Runbook & Knowledge Sources
 
-> **Docs-as-Code Provenance**: Migrated from Google Drive (`1Fz7vE46pcEZmPEuPn71tMpQcLeg_vIry6DJNUhRMlgg`) into version-controlled `docs/tech-docs/` and updated for **`v0.6.2` (Angular 21 + Spring Boot 4 / Java 21 + Android Monorepo)**.
+> **Docs-as-Code Provenance**: Migrated from Google Drive (`1Fz7vE46pcEZmPEuPn71tMpQcLeg_vIry6DJNUhRMlgg`) into version-controlled `docs/tech-docs/` and updated for **`v0.6.3` (`ADR-008`: Kotlin Multiplatform + Compose Multiplatform Web Strategy; Angular 21 + Spring Boot 4 Archived as Experimental)**.
 
 ---
 
-## 1. Architectural Philosophy & Multi-Platform Technology Stack
+## 1. Architectural Philosophy & Multi-Platform Technology Stack (`ADR-007` & `ADR-008`)
 
-Pulse is architected around a **Pure Functional Core (`ADR-007`)**, **Material 3 Expressive UI**, **WCAG 2.2 Level AA accessibility verification**, and **zero-PII telemetry**. Every business rule, classification heuristic, descending Horizon bar calculation, scarcity gate, and color-contrast formula is isolated inside stateless domain engines with zero framework or Android `Context` dependencies.
+Pulse is architected around a **Pure Functional Core (`ADR-007`)**, **Kotlin Multiplatform + Compose Multiplatform (`ADR-008`)**, **Material 3 Expressive UI**, **WCAG 2.2 Level AA accessibility verification**, and **zero-PII telemetry**.
+- **Primary Strategy (`ADR-008` — KMP + Compose Multiplatform `wasmJs` & Android)**: ~95% of the native Kotlin codebase (`UndoneAccountabilityEngine.kt`, `TaskVisualAnalyticsEngine.kt`, `ScarcityEngine.kt`, `TriageRules.kt`, `RitualGateRules.kt`, `WcagContrastEngine.kt`, `AccountabilityHorizonCanvas.kt`, `StalledTaskLogCard.kt`, `PartnerSettingsNavigator.kt`, `PulseExpressiveTheme.kt`) is shared across Android and Web (`wasmJs`) with identical Material 3 Expressive visuals, spring physics, and single-source-of-truth domain logic.
+- **Experimental Archive (`web/` + `backend/` — `v0.6.0–v0.6.2`)**: The Angular 21 + Spring Boot 4 (Java 21) stack remains in the monorepo as a self-contained experimental exploration.
 
 ### 1.1 Web & Backend Stack (`web/` + `backend/`)
 
