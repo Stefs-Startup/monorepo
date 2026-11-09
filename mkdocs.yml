@@ -7,6 +7,14 @@ nav:
       - '0001: pnpm Workspaces': adr/0001-use-pnpm-workspaces.md
       - '0002: Monorepo vs Polyrepo': adr/0002-monorepo-over-polyrepo.md
   - Backstage Management: backstage-management.md
+  - Stack Best Practices (All Frameworks):
+      - Overview: stack-best-practices/README.md
+      - '1. Kotlin 2.1 & Pure Functional Domain': stack-best-practices/01_KOTLIN_PURE_DOMAIN_BEST_PRACTICES.md
+      - '2. Kotlin Multiplatform (KMP)': stack-best-practices/02_KMP_MULTIPLATFORM_BEST_PRACTICES.md
+      - '3. Compose Multiplatform & Desktop Web UX': stack-best-practices/03_COMPOSE_MULTIPLATFORM_AND_DESKTOP_WEB_BEST_PRACTICES.md
+      - '4. Firebase & Zero-PII Observability': stack-best-practices/04_FIREBASE_OBSERVABILITY_AND_ZERO_PII_BEST_PRACTICES.md
+      - '5. Spring Boot 4 & Java 21': stack-best-practices/05_SPRING_BOOT_4_AND_JAVA_21_BEST_PRACTICES.md
+      - '6. Angular 21 Standalone Signals': stack-best-practices/06_ANGULAR_21_SIGNALS_AND_WEB_BEST_PRACTICES.md
   - Experiments:
       - Overview: experiments/README.md
       - Protocol: experiments/protocol.md

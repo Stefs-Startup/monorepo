@@ -20,8 +20,15 @@ Per [`AGENTS.md`](AGENTS.md), **no version or sprint story is considered Done** 
 - **[`docs/SPRINT_ROADMAP_AND_USE_CASES.md`](docs/SPRINT_ROADMAP_AND_USE_CASES.md)** — Executive Epic Streams (`EPIC-1`..`EPIC-5`), Prime Use Cases (`UC-1`..`UC-5`), and internal compartmentalized technical tickets (`TKT-xxx`).
 - **[`docs/UX_FLOW_AND_DESIGN_SYSTEM.md`](docs/UX_FLOW_AND_DESIGN_SYSTEM.md)** — Visual Focus Dashboard interaction diagram (`mermaid`), navigation architecture, and Material 3 Expressive token contrast specification.
 - **[`docs/CHANGELOG.md`](docs/CHANGELOG.md)** — Version-by-version release history linked to Git commits and Prime Use Cases.
-- **Technical Reference Library (`docs/tech-docs/`)**:
-  - **[`docs/tech-docs/FULL_STATE_DEBRIEF_AND_VERIFICATION_REPORT.md`](docs/tech-docs/FULL_STATE_DEBRIEF_AND_VERIFICATION_REPORT.md)** — Migrated from Google Drive (`1HOPr0cj2NqOZrRwHn0j-k8rfi8vZonUrk0uQB9PQtaE`) and updated with the 3-tier Test Pyramid & `v0.6.2` Visual Focus readiness matrix.
+- **Technical Reference & Stack Best-Practices Library (`docs/tech-docs/`)**:
+  - **[`docs/tech-docs/STACK_BEST_PRACTICES.md`](docs/tech-docs/STACK_BEST_PRACTICES.md) & [`docs/tech-docs/best-practices/`](docs/tech-docs/best-practices/README.md)** — Dedicated, human-readable best-practice guides with real examples from our apps for each stack:
+    1. [Kotlin (`2.1+`) & Pure Functional Domain](docs/tech-docs/best-practices/01_KOTLIN_PURE_DOMAIN_BEST_PRACTICES.md)
+    2. [Kotlin Multiplatform (`KMP`) Architecture](docs/tech-docs/best-practices/02_KMP_MULTIPLATFORM_BEST_PRACTICES.md)
+    3. [Compose Multiplatform & Modern Desktop Web UX (`ADR-009`)](docs/tech-docs/best-practices/03_COMPOSE_MULTIPLATFORM_AND_DESKTOP_WEB_BEST_PRACTICES.md)
+    4. [Firebase Crashlytics, Analytics & Zero-PII Observability](docs/tech-docs/best-practices/04_FIREBASE_OBSERVABILITY_AND_ZERO_PII_BEST_PRACTICES.md)
+    5. [Spring Boot 4 & Modern Java 21 Backend](docs/tech-docs/best-practices/05_SPRING_BOOT_4_AND_JAVA_21_BEST_PRACTICES.md)
+    6. [Angular 21 Standalone Signals & Modern Web](docs/tech-docs/best-practices/06_ANGULAR_21_SIGNALS_AND_WEB_BEST_PRACTICES.md)
+  - **[`docs/tech-docs/FULL_STATE_DEBRIEF_AND_VERIFICATION_REPORT.md`](docs/tech-docs/FULL_STATE_DEBRIEF_AND_VERIFICATION_REPORT.md)** — Migrated from Google Drive (`1HOPr0cj2NqOZrRwHn0j-k8rfi8vZonUrk0uQB9PQtaE`) and updated with the 3-tier Test Pyramid & Visual Focus readiness matrix.
   - **[`docs/tech-docs/TECH_STACK_RUNBOOK_AND_KNOWLEDGE_SOURCES.md`](docs/tech-docs/TECH_STACK_RUNBOOK_AND_KNOWLEDGE_SOURCES.md)** — Migrated from Google Drive (`1Fz7vE46pcEZmPEuPn71tMpQcLeg_vIry6DJNUhRMlgg`) and updated for the Angular 21 + Spring Boot 4 / Java 21 + Android stack.
   - **[`docs/tech-docs/STICKINESS_AND_HABITUAL_RITUAL_ARCHITECTURE.md`](docs/tech-docs/STICKINESS_AND_HABITUAL_RITUAL_ARCHITECTURE.md)** — Behavioral design & pure functional specification for `EPIC-4` (Morning Anchor, Evening Shutdown, and Zero-Guilt Consistency Streaks).
 
