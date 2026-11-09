@@ -8,10 +8,10 @@ Pulse is a calm accountability partner for Google Tasks. The full product overvi
 | Component | Path | Toolchain | CI commands |
 | :--- | :--- | :--- | :--- |
 | `pulse-android` | `apps/pulse` (`:app`) | Gradle wrapper, JDK 17, Android SDK 35 | `./gradlew lintDebug assembleDebug testDebugUnitTest` |
-| `pulse-backend` | `apps/pulse/backend` | Standalone Gradle build, Java 21 toolchain | `./gradlew classes testClasses test` |
-| `pulse-web` | `apps/pulse/web` | npm (`package-lock.json`), Angular 21, Vitest | `npm ci && npx tsc --noEmit && npm run build && npm test` |
+| `pulse-backend` | `apps/pulse/backend` | Standalone Gradle build, Java 21 toolchain | `./gradlew assemble testClasses`, then `test` |
+| `pulse-web` | `apps/pulse/web` | npm (`package-lock.json`), Angular 21, Vitest | `npm ci`, then `npm run typecheck`, `build`, `test` |
 
-All three are built and tested by `.github/workflows/ci.yml` and kept current by `.github/dependabot.yml`
+All three are auto-discovered by `.github/workflows/ci.yml` (via the reusable Node and Gradle workflows) and kept current by `.github/dependabot.yml`
 (see [ADR-0003](../../../docs/adr/0003-monorepo-ci-cd-and-dependabot.md)).
 
 ## Contents

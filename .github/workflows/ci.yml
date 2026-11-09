@@ -1,18 +1,18 @@
 # =============================================================================
 # Monorepo CI/CD Pipeline (CMP-18)
 # =============================================================================
-# Validates every PR, Merge Queue group, and main branch push across 4 gates:
-#   1. Code Quality (Turborepo Lint/Typecheck, Markdown Docs Integrity & Android Lint)
-#   2. Build (Turborepo Packages, Pulse Android APK, Spring Boot 4 & Web Bundle)
-#   3. Test (Turborepo Tests, Pulse JUnit4/MockWebServer/WCAG Audit, JUnit5 & Vitest)
-#   4. Deploy & Distribution Gate (Artifact Verification & Deployment Placeholder)
+# 1. Discover — .github/scripts/discover_projects.py finds every project by
+#    convention (gradlew → Gradle, package.json + lockfile → Node) and honours
+#    .github/ci-projects.json (excludes such as experimental apps/backstage).
+# 2. One reusable language workflow per discovered project, each running the
+#    Code Quality → Build → Test gates:
+#      .github/workflows/reusable-node.yml    (npm / pnpm + Turborepo / yarn)
+#      .github/workflows/reusable-gradle.yml  (Java, Kotlin, Spring Boot, Android)
+# 3. Deploy & Distribution — the single required status check: fails if any
+#    project failed, then summarises the staged artifacts.
 #
-# Stack coverage map:
-#   pnpm + Turborepo (apps/web, packages/*) ... code-quality, build, test
-#   Pulse Android / KMP (apps/pulse) .......... code-quality, build, test
-#   Pulse Spring Boot 4 (apps/pulse/backend) .. build, test
-#   Pulse Angular 21 (apps/pulse/web) ......... code-quality, build, test
-#   Backstage (apps/backstage) ................ EXPERIMENTAL — intentionally not in CI
+# Adding an app needs no change here. The reusable workflows can also be called
+# from other repositories in the organization (see each file's header).
 # =============================================================================
 
 name: Monorepo CI
@@ -35,47 +35,25 @@ permissions:
   contents: read
 
 jobs:
-  # ---------------------------------------------------------------------------
-  # 1. Code Quality — Linting, Typechecking, Docs & Static Analysis
-  # ---------------------------------------------------------------------------
-  code-quality:
-    name: Code Quality
+  discover:
+    name: Discover Projects
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
+    outputs:
+      gradle: ${{ steps.discover.outputs.gradle }}
+      node: ${{ steps.discover.outputs.node }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.12.3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: ".nvmrc"
-          cache: "pnpm"
-
-      - name: Setup Java (JDK 17 & 21)
-        uses: actions/setup-java@v5
-        with:
-          distribution: "temurin"
-          java-version: |
-            17
-            21
-
-      - name: Setup Gradle Cache
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Install root pnpm workspace dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run Turborepo workspace linters
-        run: pnpm run lint --ui=stream
-
-      - name: Run Turborepo workspace TypeScript typecheck
-        run: pnpm run typecheck --ui=stream
+      - name: Discover projects
+        id: discover
+        run: |
+          {
+            echo '```'
+            python3 -I .github/scripts/discover_projects.py
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Verify Markdown docs & ADR structure
         run: |
@@ -85,198 +63,85 @@ jobs:
           test -d docs/stack-best-practices
           echo "Documentation structure verified."
 
-      - name: Run Pulse Web TypeScript & Angular compiler check
-        working-directory: apps/pulse/web
-        run: |
-          npm ci
-          npx tsc --noEmit
+  gradle:
+    name: Gradle · ${{ matrix.project.path }}
+    needs: discover
+    if: needs.discover.outputs.gradle != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJSON(needs.discover.outputs.gradle) }}
+    uses: ./.github/workflows/reusable-gradle.yml
+    with:
+      working-directory: ${{ matrix.project.path }}
+      project-type: ${{ matrix.project.project-type }}
+      java-version: ${{ matrix.project.java-version }}
+      quality-tasks: ${{ matrix.project.quality-tasks }}
+      build-tasks: ${{ matrix.project.build-tasks }}
+      test-tasks: ${{ matrix.project.test-tasks }}
+      artifact-name: ${{ matrix.project.artifact-name }}
 
-      - name: Run Pulse Android Lint
-        working-directory: apps/pulse
-        run: ./gradlew lintDebug --no-daemon
-
-      - name: Upload Android Lint Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pulse-android-lint-report
-          path: apps/pulse/app/build/reports/lint-results-debug.html
-          retention-days: 7
-
-  # ---------------------------------------------------------------------------
-  # 2. Build — Compile & Package Workspace Libraries, Mobile APK & Web Bundles
-  # ---------------------------------------------------------------------------
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.12.3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: ".nvmrc"
-          cache: "pnpm"
-
-      - name: Setup Java (JDK 17 & 21)
-        uses: actions/setup-java@v5
-        with:
-          distribution: "temurin"
-          java-version: |
-            17
-            21
-
-      - name: Setup Gradle Cache
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Install root pnpm workspace dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build Turborepo workspace packages & apps
-        run: pnpm run build --ui=stream
-
-      - name: Build Pulse Android Debug APK
-        working-directory: apps/pulse
-        run: ./gradlew assembleDebug --no-daemon
-
-      - name: Build Pulse Spring Boot 4 Backend (Java 21)
-        working-directory: apps/pulse/backend
-        run: ./gradlew classes testClasses --no-daemon
-
-      - name: Build Pulse Web Production Bundle
-        working-directory: apps/pulse/web
-        run: |
-          npm ci
-          npm run build
-
-      - name: Upload Workspace Dist Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: workspace-dist
-          path: packages/utils/dist
-          retention-days: 7
-
-      - name: Upload Pulse Android Debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: pulse-debug-apk
-          path: apps/pulse/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 7
-
-      - name: Upload Pulse Web Production Bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: pulse-web-dist
-          path: apps/pulse/web/dist/pulse-web
-          retention-days: 7
+  node:
+    name: Node · ${{ matrix.project.path }}
+    needs: discover
+    if: needs.discover.outputs.node != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJSON(needs.discover.outputs.node) }}
+    uses: ./.github/workflows/reusable-node.yml
+    with:
+      working-directory: ${{ matrix.project.path }}
+      node-version: ${{ matrix.project.node-version }}
+      scripts: ${{ matrix.project.scripts }}
+      artifact-name: ${{ matrix.project.artifact-name }}
+      artifact-paths: ${{ matrix.project.artifact-paths }}
 
   # ---------------------------------------------------------------------------
-  # 3. Test — Unit, Contract, Integration & WCAG 2.2 AA Accessibility Suites
-  # ---------------------------------------------------------------------------
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.12.3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: ".nvmrc"
-          cache: "pnpm"
-
-      - name: Setup Java (JDK 17 & 21)
-        uses: actions/setup-java@v5
-        with:
-          distribution: "temurin"
-          java-version: |
-            17
-            21
-
-      - name: Setup Gradle Cache
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Install root pnpm workspace dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run Turborepo workspace test suite
-        run: pnpm run test --ui=stream
-
-      - name: Run Pulse Android Unit, MockWebServer Contract & WCAG 2.2 AA Tests
-        working-directory: apps/pulse
-        run: ./gradlew testDebugUnitTest --no-daemon
-
-      - name: Run Pulse Spring Boot 4 / Java 21 Backend Tests
-        working-directory: apps/pulse/backend
-        run: ./gradlew test --no-daemon
-
-      - name: Run Pulse Web Vitest Suite
-        working-directory: apps/pulse/web
-        run: |
-          npm ci
-          npm test
-
-      - name: Upload Pulse Test Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pulse-test-reports
-          path: |
-            apps/pulse/app/build/reports/tests/testDebugUnitTest
-            apps/pulse/backend/build/reports/tests/test
-          retention-days: 7
-
-  # ---------------------------------------------------------------------------
-  # 4. Deploy & Distribution Gate (Placeholder)
+  # Deploy & Distribution Gate (Placeholder) — mark this as the required check.
   # ---------------------------------------------------------------------------
   deploy:
     name: Deploy & Distribution
     needs:
-      - code-quality
-      - build
-      - test
+      - discover
+      - gradle
+      - node
+    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Require every project to pass
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          if echo "$RESULTS" | jq -e 'any(.[]; .result == "failure" or .result == "cancelled")' > /dev/null; then
+            echo "::error::One or more CI jobs failed or were cancelled."
+            exit 1
+          fi
+
       - name: Download staged build artifacts
         uses: actions/download-artifact@v4
         with:
           path: staged-artifacts
 
-      - name: Verify staged distribution artifacts
+      - name: Summarise staged distribution artifacts
         run: |
-          ls -la staged-artifacts
-          test -f staged-artifacts/pulse-debug-apk/app-debug.apk
-          test -d staged-artifacts/pulse-web-dist
-          test -d staged-artifacts/workspace-dist
-          echo "All staged artifacts verified and ready for distribution."
-
-      - name: Execute Deploy & Distribution Placeholder
-        run: |
-          APK_SIZE=$(du -h staged-artifacts/pulse-debug-apk/app-debug.apk | cut -f1)
+          mkdir -p staged-artifacts
           {
             echo "## 🚀 Monorepo Deploy & Distribution Gate"
             echo ""
-            echo "| Target | Artifact | Status | Distribution Strategy |"
-            echo "| :--- | :--- | :--- | :--- |"
-            echo "| **Workspace Libraries** (\`@cmp/utils\`) | \`workspace-dist\` | ✅ Staged | Internal workspace symlink (\`workspace:*\`) |"
-            echo "| **Pulse Android** (\`:app\`) | \`app-debug.apk\` (\`$APK_SIZE\`) | ✅ Staged | Pending distribution channel selection (Firebase App Distribution / GitHub Releases / Play Internal) |"
-            echo "| **Pulse Web** (\`apps/pulse/web\`) | \`pulse-web-dist\` | ✅ Staged | Pending web hosting target configuration (Firebase Hosting / Cloud Run / Render) |"
-            echo "| **Backstage Portal** (\`apps/backstage\`) | — | 🧪 Experimental | Not built in CI; excluded until the portal is promoted out of experimental |"
+            echo "| Artifact | Files | Size |"
+            echo "| :--- | ---: | ---: |"
+            for dir in staged-artifacts/*/; do
+              [ -d "$dir" ] || continue
+              name=$(basename "$dir")
+              case "$name" in *-reports) continue ;; esac
+              echo "| \`$name\` | $(find "$dir" -type f | wc -l) | $(du -sh "$dir" | cut -f1) |"
+            done
+            echo ""
+            echo "Distribution channels (Firebase App Distribution, GitHub Releases, Play Internal, web hosting) are not wired up yet."
+            echo "\`apps/backstage\` is experimental and excluded via \`.github/ci-projects.json\`."
             echo ""
             echo "> **Mode:** \`${{ github.event_name }}\` on ref \`${{ github.ref_name }}\`"
           } >> "$GITHUB_STEP_SUMMARY"

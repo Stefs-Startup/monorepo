@@ -1,0 +1,160 @@
+# =============================================================================
+# Reusable Workflow — Gradle (Java, Kotlin, Spring Boot, Android)
+# =============================================================================
+# Runs the standard quality → build → test gates for one Gradle build (a
+# directory with a Gradle wrapper). Android builds are detected from the build
+# scripts and get Android defaults; anything else gets plain JVM defaults. Any
+# task list can be overridden, and an empty list skips that gate.
+#
+# Usage from any repository in the organization:
+#
+#   jobs:
+#     api:
+#       uses: Stefs-Startup/monorepo/.github/workflows/reusable-gradle.yml@main
+#       with:
+#         working-directory: services/api   # optional, defaults to "."
+#
+# Defaults            quality      build                   test
+#   android           lintDebug    assembleDebug           testDebugUnitTest
+#   jvm               (none)       assemble testClasses    test
+# =============================================================================
+
+name: Reusable · Gradle
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: Directory containing gradlew.
+        type: string
+        default: "."
+      java-version:
+        description: JDK(s) to install, newline-separated; the last one becomes JAVA_HOME. Toolchains can use any of them.
+        type: string
+        default: "21"
+      project-type:
+        description: "auto | android | jvm"
+        type: string
+        default: "auto"
+      quality-tasks:
+        description: Gradle tasks for the quality gate. "default" = type default, "" = skip.
+        type: string
+        default: "default"
+      build-tasks:
+        description: Gradle tasks for the build gate. "default" = type default, "" = skip.
+        type: string
+        default: "default"
+      test-tasks:
+        description: Gradle tasks for the test gate. "default" = type default, "" = skip.
+        type: string
+        default: "default"
+      artifact-name:
+        description: Name for the uploaded build outputs. Empty = gradle-<working-directory>.
+        type: string
+        default: ""
+      timeout-minutes:
+        type: number
+        default: 30
+
+permissions:
+  contents: read
+
+jobs:
+  gradle:
+    name: Quality · Build · Test
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: ${{ inputs.java-version }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Resolve project type & tasks
+        id: plan
+        env:
+          TYPE: ${{ inputs.project-type }}
+          QUALITY: ${{ inputs.quality-tasks }}
+          BUILD: ${{ inputs.build-tasks }}
+          TEST: ${{ inputs.test-tasks }}
+          INPUT_ARTIFACT: ${{ inputs.artifact-name }}
+          WORKDIR: ${{ inputs.working-directory }}
+        run: |
+          test -f gradlew || { echo "::error::No gradlew in $WORKDIR"; exit 1; }
+          chmod +x gradlew
+
+          if [ "$TYPE" = "auto" ]; then
+            # Applied Android plugin or android {} block; version catalogs are ignored on purpose.
+            if grep -rqsE --include='*.gradle' --include='*.gradle.kts' \
+                 'com\.android\.|libs\.plugins\.android\b|^\s*android\s*\{' .; then
+              TYPE=android
+            else
+              TYPE=jvm
+            fi
+          fi
+
+          if [ "$TYPE" = "android" ]; then
+            d_quality="lintDebug"; d_build="assembleDebug"; d_test="testDebugUnitTest"
+          else
+            d_quality="";          d_build="assemble testClasses"; d_test="test"
+          fi
+          if [ "$QUALITY" = "default" ]; then QUALITY="$d_quality"; fi
+          if [ "$BUILD" = "default" ];   then BUILD="$d_build"; fi
+          if [ "$TEST" = "default" ];    then TEST="$d_test"; fi
+
+          slug=$(echo "$WORKDIR" | tr -c 'A-Za-z0-9\n' '-' | sed 's/^-*//;s/-*$//')
+          name="$INPUT_ARTIFACT"
+          if [ -z "$name" ]; then name="gradle-${slug:-root}"; fi
+
+          {
+            echo "type=$TYPE"
+            echo "quality=$QUALITY"
+            echo "build=$BUILD"
+            echo "test=$TEST"
+            echo "artifact=$name"
+          } >> "$GITHUB_OUTPUT"
+          echo "Gradle $TYPE build in $WORKDIR — quality: '${QUALITY:-skip}', build: '${BUILD:-skip}', test: '${TEST:-skip}'"
+
+      - name: "Gate 1 · Code Quality"
+        if: steps.plan.outputs.quality != ''
+        run: ./gradlew ${{ steps.plan.outputs.quality }} --no-daemon --stacktrace
+
+      - name: "Gate 2 · Build"
+        if: steps.plan.outputs.build != ''
+        run: ./gradlew ${{ steps.plan.outputs.build }} --no-daemon --stacktrace
+
+      - name: "Gate 3 · Test"
+        if: steps.plan.outputs.test != ''
+        run: ./gradlew ${{ steps.plan.outputs.test }} --no-daemon --stacktrace
+
+      - name: Upload build outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.plan.outputs.artifact }}
+          path: |
+            ${{ inputs.working-directory }}/**/build/outputs/apk/**/*.apk
+            ${{ inputs.working-directory }}/**/build/outputs/bundle/**/*.aab
+            ${{ inputs.working-directory }}/**/build/libs/*.jar
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.plan.outputs.artifact }}-reports
+          path: |
+            ${{ inputs.working-directory }}/**/build/reports/**
+            ${{ inputs.working-directory }}/**/build/test-results/**
+          if-no-files-found: ignore
+          retention-days: 7

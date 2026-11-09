@@ -11,6 +11,7 @@ about this monorepo — its architecture, conventions, processes, and decisions.
 |-----------------|---------|
 | [`adr/`](./adr/) | Architecture Decision Records — immutable log of *why* decisions were made |
 | [`monorepo-conventions.md`](./monorepo-conventions.md) | Naming rules, structure patterns, and coding conventions for this repo |
+| [`ci-reusable-workflows.md`](./ci-reusable-workflows.md) | Org-wide reusable CI workflows (Node, Gradle) and how monorepo projects are auto-discovered |
 | [`stack-best-practices/`](./stack-best-practices/README.md) | Framework-by-framework learning guides & best practices (Kotlin 2.1, KMP, Compose Multiplatform + Modern Desktop Web UX, Firebase Zero-PII Observability, Spring Boot 4 + Java 21, and Angular 21 Signals) with real examples from our apps |
 | [`angular-best-practices/`](./angular-best-practices/docs/index.md) | Enterprise Angular & Java/Spring Boot TechDocs portal |
 

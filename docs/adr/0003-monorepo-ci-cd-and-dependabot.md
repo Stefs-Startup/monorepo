@@ -16,23 +16,16 @@ Furthermore, our repository ruleset (`promote & merge`) enforces a **GitHub Merg
 
 ## Decision
 
-We will implement a unified **4-Gate GitHub Actions CI/CD Pipeline** (`.github/workflows/ci.yml`) and a **Multi-Ecosystem Dependabot Configuration** (`.github/dependabot.yml`):
+We will implement **reusable, language-level GitHub Actions workflows** that any repository in the organization can call, a **convention-based monorepo CI** (`.github/workflows/ci.yml`) that calls them once per discovered project, and a **Multi-Ecosystem Dependabot Configuration** (`.github/dependabot.yml`):
 
-1. **Gate 1 — Code Quality (`code-quality`)**:
-   - Executes `pnpm run lint` and `pnpm run typecheck` across the Turborepo workspace.
-   - Verifies the plain-Markdown docs and ADR structure (`docs/README.md`, `docs/monorepo-conventions.md`, `docs/adr/`, `docs/stack-best-practices/`). TechDocs builds are not required.
-   - Runs TypeScript static verification on `apps/pulse/web` (`tsc --noEmit`) and Android Lint (`./gradlew lintDebug`) on `apps/pulse`.
-2. **Gate 2 — Build (`build`)**:
-   - Compiles all Turborepo packages and apps (`pnpm run build`).
-   - Assembles the Pulse Android Debug APK (`./gradlew assembleDebug`), compiles the Pulse Spring Boot 4 / Java 21 backend (`./gradlew classes testClasses`), and builds the Pulse Web production bundle (`npm run build`).
-   - Uploads built distribution artifacts (`workspace-dist`, `pulse-debug-apk`, `pulse-web-dist`) for downstream verification and distribution.
-3. **Gate 3 — Test (`test`)**:
-   - Runs Turborepo workspace tests (`pnpm run test`).
-   - Executes the Pulse JUnit 4 + `MockWebServer` contract suite + automated 18/18 WCAG 2.2 AA `ColorContrastAuditTest` (`./gradlew testDebugUnitTest`).
-   - Executes the Pulse Spring Boot 4 JUnit 5 test suite (`./gradlew test`) and Angular 21 Vitest suite (`npm test`).
-4. **Gate 4 — Deploy & Distribution (`deploy`)**:
-   - Depends on `code-quality`, `build`, and `test`.
-   - Downloads and verifies staged build artifacts (`app-debug.apk`, `pulse-web-dist`, `workspace-dist`) and publishes a deployment & distribution readiness summary to `$GITHUB_STEP_SUMMARY` while web service deployment and mobile distribution channels are finalized.
+1. **Reusable language workflows (`on: workflow_call`)** — each runs Gate 1 Code Quality → Gate 2 Build → Gate 3 Test for one project directory and uploads its build outputs:
+   - [`reusable-node.yml`](../../.github/workflows/reusable-node.yml): JavaScript/TypeScript. Detects npm / pnpm / yarn from the lockfile and the Node version from `.nvmrc` / `.node-version`, then runs whichever of the `lint`, `typecheck`, `build`, `test` scripts exist. Turborepo roots work unchanged because their scripts call `turbo`.
+   - [`reusable-gradle.yml`](../../.github/workflows/reusable-gradle.yml): Java, Kotlin, Spring Boot, Android. Detects Android from the build scripts; defaults are `lintDebug` / `assembleDebug` / `testDebugUnitTest` (Android) and — / `assemble testClasses` / `test` (JVM). Every task list can be overridden or skipped.
+   - Other repositories call them with `uses: Stefs-Startup/monorepo/.github/workflows/reusable-<language>.yml@main`. See [CI Reusable Workflows](../ci-reusable-workflows.md).
+2. **Project discovery** — [`discover_projects.py`](../../.github/scripts/discover_projects.py) lists every tracked `gradlew` (Gradle build) and every `package.json` with its own lockfile (Node project, including the root pnpm workspace), minus the `exclude` list in [`.github/ci-projects.json`](../../.github/ci-projects.json). Adding an app needs no workflow change; `overrides` exist for projects that cannot follow the defaults.
+   - Current result: `.` (pnpm + Turborepo: `apps/web`, `packages/*`), `apps/pulse` (Android), `apps/pulse/backend` (Spring Boot 4 / Java 21), `apps/pulse/web` (Angular 21, npm).
+3. **Docs check** — verifies the plain-Markdown docs and ADR structure (`docs/README.md`, `docs/monorepo-conventions.md`, `docs/adr/`, `docs/stack-best-practices/`). TechDocs builds are not required.
+4. **Gate 4 — Deploy & Distribution (`deploy`)** — the single required status check. It fails if any discovered project failed or was cancelled, then summarises the staged artifacts in `$GITHUB_STEP_SUMMARY` while distribution channels are finalised.
 5. **Multi-Ecosystem Dependabot (`.github/dependabot.yml`)**:
    - Configures weekly grouped updates across `github-actions`, the root `pnpm` workspace (resolved from `/` only, which covers `apps/web` and `packages/*` without duplicate PRs), `apps/pulse` Gradle version catalogs, `apps/pulse/backend` Gradle dependencies, `apps/pulse/web` npm packages, and `infra/docker-compose.yml` service images (Postgres/Redis majors ignored).
 6. **Backstage is experimental and out of scope**:
@@ -43,12 +36,16 @@ We will implement a unified **4-Gate GitHub Actions CI/CD Pipeline** (`.github/w
 ## Rationale
 
 - **Merge Queue Compatible**: Triggering on `merge_group` in addition to `pull_request` and `push` ensures the `promote & merge` ruleset can automatically validate and squash-merge queued PRs.
-- **Explicit Separation of Concerns**: Splitting `code-quality`, `build`, `test`, and `deploy` into distinct jobs provides immediate diagnostic clarity in PR checks while running `code-quality`, `build`, and `test` in parallel for fast feedback.
+- **Reusable across the organization**: Language workflows are written once and called by every repository, so new projects inherit the same gates without copying YAML.
+- **Zero-touch onboarding**: Convention-based discovery means a new app is built and tested on its first PR; one job per project runs in parallel and names the failing project directly in PR checks.
+- **Stable required check**: Matrix job names change as projects are added, so branch protection only requires `Deploy & Distribution`.
 - **Artifact-First Distribution Gate**: Staging build outputs as GitHub Actions artifacts allows us to plug in Firebase App Distribution, GitHub Releases, Firebase Hosting, Render, or Cloud Run in the `deploy` job without restructuring upstream build/test steps.
 
 ---
 
 ## Consequences
 
-- Every Pull Request and Merge Queue entry is validated across Node 20 (`pnpm`), JDK 17/21 (`Gradle`), and Android SDK toolchains before landing on `main`.
-- Dependabot automatically opens grouped, Conventional Commit (`chore(...)`) pull requests every Monday, which are themselves validated by the 4-gate CI pipeline.
+- Every Pull Request and Merge Queue entry is validated across Node (`pnpm`/`npm`/`yarn`), JDK 21 (`Gradle`), and Android SDK toolchains before landing on `main`.
+- The `promote & merge` ruleset should require only the `Deploy & Distribution` check.
+- For other repositories to call the reusable workflows while this repository is private, enable *Settings → Actions → General → Access → Accessible from repositories in the organization*.
+- Dependabot automatically opens grouped, Conventional Commit (`chore(...)`) pull requests every Monday, which are themselves validated by the same CI pipeline.

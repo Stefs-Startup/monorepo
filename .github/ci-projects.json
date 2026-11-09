@@ -1,0 +1,7 @@
+{
+  "$comment": "Read by .github/scripts/discover_projects.py. New apps need no entry here: any directory with a Gradle wrapper (gradlew) or a package.json + lockfile outside the root pnpm workspace is picked up automatically. Use 'exclude' for experimental projects and 'overrides' only when a project cannot follow the default task conventions documented in docs/adr/0003-monorepo-ci-cd-and-dependabot.md.",
+  "exclude": [
+    "apps/backstage"
+  ],
+  "overrides": {}
+}
