@@ -1,6 +1,9 @@
 # Pulse Engineering & Collaboration Constitution
 
-## 1. Incremental Pairing, Docs-as-Code & User Acceptance Gate
+## 1. Incremental Pairing, Epic-Stream Planning & User Acceptance Gate
+- **User-Facing Epic Streams vs. Agent-Internal Technical Ticketing**:
+  - **Present Epic Streams Only to the User**: When discussing roadmap planning, sprint priorities, or progress with the user, present high-level **Epic Streams** (`EPIC-1`..`EPIC-N`) framed around user value and User Acceptance Testing (UAT) checkpoints.
+  - **Self-Managed Compartmentalized Technical Tickets (`TKT-xxx`)**: The agent is responsible for decomposing each Epic Stream into small, compartmentalized technical tickets (`TKT-xxx`) internally, executing the engineering and verification work, and presenting self-contained slices for user review and acceptance.
 - **No Unreviewed Multi-Feature Jumps**: Never bundle multiple unrequested features or architectural layers in a single turn.
 - **Explicit Acceptance Criteria (AC)**: Every technical change must define clear, deterministic Acceptance Criteria before implementation and pause for explicit user acceptance after verification.
 - **Mandatory Docs-as-Code Release Gate**: No version or increment is considered **Done** until its corresponding in-repository documentation (`README.md`, `docs/UX_FLOW_AND_DESIGN_SYSTEM.md`, `docs/SPRINT_ROADMAP_AND_USE_CASES.md`, and `docs/CHANGELOG.md`) is updated in the same Git commit/version, mapping the change to Prime Use Cases and recording the exact version/commit state.

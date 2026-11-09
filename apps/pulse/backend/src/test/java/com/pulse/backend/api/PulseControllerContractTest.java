@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -20,31 +21,24 @@ class PulseControllerContractTest {
     private MockMvc mockMvc;
 
     @Test
-    void getStateReturnsThreeHorizonWindowsAndWcagAudit() throws Exception {
+    void getStateReturnsThreeHorizonWindowsInDescendingOrderAndWcagAudit() throws Exception {
+        mockMvc.perform(post("/api/v1/pulse/demo/reset"))
+                .andExpect(status().isOk());
+
         mockMvc.perform(get("/api/v1/pulse/state"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.horizon.windows.length()").value(3))
                 .andExpect(jsonPath("$.horizon.windows[0].windowType").value("HABITUALLY_UNDONE"))
+                .andExpect(jsonPath("$.horizon.windows[0].items[0].deferCount").value(5))
+                .andExpect(jsonPath("$.horizon.windows[0].items[1].deferCount").value(4))
+                .andExpect(jsonPath("$.horizon.windows[0].items[2].deferCount").value(2))
                 .andExpect(jsonPath("$.horizon.windows[1].windowType").value("LONG_STANDING_DRIFT"))
                 .andExpect(jsonPath("$.horizon.windows[2].windowType").value("ACTIVE_FLOW"))
-                .andExpect(jsonPath("$.wcagContrastAudit").isArray());
+                .andExpect(jsonPath("$.wcagContrastAudit.length()").value(18));
     }
 
     @Test
-    void postChatAppendsPartnerReplyWithoutMutatingTaskIdleDays() throws Exception {
-        mockMvc.perform(post("/api/v1/pulse/demo/reset"))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(post("/api/v1/pulse/tasks/task-tax-receipts/chat")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"message\":\"It feels too big to start today\"}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.conversationThreadsByTaskId['task-tax-receipts'].length()").value(3))
-                .andExpect(jsonPath("$.conversationThreadsByTaskId['task-tax-receipts'][2].suggestedActionCode").value("SHRINK_TO_5M"));
-    }
-
-    @Test
-    void triageEnforcesTop3ScarcityCapAndTriggersSwapGate() throws Exception {
+    void triageEnforcesTop3ScarcityCapAndExecutesSwapFlow() throws Exception {
         mockMvc.perform(post("/api/v1/pulse/demo/reset"))
                 .andExpect(status().isOk());
 
@@ -63,5 +57,37 @@ class PulseControllerContractTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.swapRequired").value(true))
                 .andExpect(jsonPath("$.pendingSwapCandidateTaskId").value("task-dentist-call"));
+
+        // Executing swap replaces the selected Top-3 task and clears swapRequired:
+        mockMvc.perform(post("/api/v1/pulse/tasks/swap")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"toRemoveTaskId\":\"task-top3-contract\",\"toAddTaskId\":\"task-dentist-call\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.swapRequired").value(false))
+                .andExpect(jsonPath("$.top3Commitments.length()").value(3));
+    }
+
+    @Test
+    void visualDashboardTriageActionsShrinkAndParkAndReturn404ForUnknownTask() throws Exception {
+        mockMvc.perform(post("/api/v1/pulse/demo/reset"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/v1/pulse/tasks/task-tax-receipts/triage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"action\":\"SHRINK_TO_5M\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.top3Commitments[0].task.title").value("5m starter: Consolidate Q3 expense receipts & CPA export"));
+
+        mockMvc.perform(put("/api/v1/pulse/settings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"partnerTone\":\"Direct & Minimalist\",\"aiStreamingEnabled\":false,\"connectedGoogleAccount\":\"stefan@pulse.local\",\"lastSyncStatus\":\"Synced\",\"morningRitualTime\":\"08:00\",\"eveningShutdownTime\":\"17:30\",\"zeroPiiTelemetryEnabled\":true}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.settings.morningRitualTime").value("08:00"))
+                .andExpect(jsonPath("$.settings.eveningShutdownTime").value("17:30"));
+
+        mockMvc.perform(post("/api/v1/pulse/tasks/non-existent-task/triage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"action\":\"COMPLETE\"}"))
+                .andExpect(status().isNotFound());
     }
 }

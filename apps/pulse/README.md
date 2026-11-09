@@ -4,11 +4,11 @@ Pulse is a calm accountability partner for **Google Tasks** built around a **Pur
 - **Android Native App (`app/`)**: **Kotlin**, **Jetpack Compose (Material 3 Expressive)**, and **Room**.
 - **Web & API Stack (`web/` + `backend/`)**: **Angular 21 (`21.2.26`)** Standalone Signals SPA + **Spring Boot 4 (`4.0.9`)** on **Java 21**.
 
-Instead of acting as a second, cluttered task manager, Pulse focuses on rescuing habitually undone work and guiding honest daily focus:
-1. **Single-Viewport Swipeable Horizon (`Horizon`)** — Partitions your tasks into 3 analytical windows (*Habitually Undone*, *Long-Standing Drift*, *Committed & Active Flow*) ranked in strict descending order (`#1`, `#2`, `#3`...) with a 3-slot **Today's Top 3** strip.
-2. **FAB-Routed Reactive Partner Chat (`Reflect` FAB)** — Tapping any task bar or the `Reflect` Extended FAB launches the decoupled, swappable partner chat overlay ([`PartnerChatComponent.kt`](app/src/main/java/com/pulse/accountability/ui/components/chat/PartnerChatComponent.kt) / [`partner-chat-overlay.component.ts`](web/src/app/components/partner-chat/partner-chat-overlay.component.ts)) to talk through blockers, shrink daunting work into a 5-minute starter step, or commit to Today's Top 3.
-3. **Structured Audit Trail (`Undone Log`)** — Dedicated secondary surface using reusable [`StalledTaskLogCard.kt`](app/src/main/java/com/pulse/accountability/ui/components/StalledTaskLogCard.kt) / [`stalled-task-card.component.ts`](web/src/app/components/stalled-task-card/stalled-task-card.component.ts) cards for 1-tap triage of chronically deferred (`2x+`) and neglected (`5d+`) tasks.
-4. **Categorized Multi-Page Settings (`Settings`)** — Clean 4-card index ([`PartnerSettingsNavigator.kt`](app/src/main/java/com/pulse/accountability/ui/screens/settings/PartnerSettingsNavigator.kt) / [`settings-navigator.component.ts`](web/src/app/components/settings-navigator/settings-navigator.component.ts)) covering *Partner Persona & AI*, *Google Tasks Sync*, *Cadence & Rituals*, and *Privacy & Diagnostics*.
+Instead of acting as a second, cluttered task manager, Pulse focuses on rescuing habitually undone work and guiding honest daily focus through a distraction-free **Visual Focus Dashboard (`EPIC-1`)** and **Daily Ritual Stickiness Loops (`EPIC-4`)**:
+1. **Single-Viewport Visual Focus Dashboard (`Horizon` — `EPIC-1`)** — Partitions your tasks into 3 analytical windows (*Habitually Undone*, *Long-Standing Drift*, *Committed & Active Flow*) ranked in strict descending order (`#1`, `#2`, `#3`...) with a 3-slot **Today's Top 3** scarcity gate, swap modal, and synchronized **Selected Task Inspector** (zero chat FAB clutter).
+2. **Structured Visual Audit Trail (`Undone Log` — `EPIC-1`)** — Dedicated secondary surface using reusable [`StalledTaskLogCard.kt`](app/src/main/java/com/pulse/accountability/ui/components/StalledTaskLogCard.kt) / [`stalled-task-card.component.ts`](web/src/app/components/stalled-task-card/stalled-task-card.component.ts) cards for 1-tap visual triage (*Pin to Top 3*, *Shrink to 5m Starter*, *Tomorrow*, *Park Someday*, *Done ✓*).
+3. **Categorized Multi-Page Settings (`Settings` — `EPIC-3`)** — Clean 4-card index ([`PartnerSettingsNavigator.kt`](app/src/main/java/com/pulse/accountability/ui/screens/settings/PartnerSettingsNavigator.kt) / [`settings-navigator.component.ts`](web/src/app/components/settings-navigator/settings-navigator.component.ts)) covering *Partner Persona & AI*, *Google Tasks Sync*, *Cadence & Rituals*, and *Privacy & Diagnostics*.
+4. **Habitual & Ritual Stickiness (`EPIC-4`) & Deferred Chat (`EPIC-5`)** — Morning Anchor & Evening Honest Shutdown ritual tie-ins ([`docs/tech-docs/STICKINESS_AND_HABITUAL_RITUAL_ARCHITECTURE.md`](docs/tech-docs/STICKINESS_AND_HABITUAL_RITUAL_ARCHITECTURE.md)) keep users engaged daily, while conversational Partner Chat is saved for `EPIC-5`.
 
 ---
 
@@ -16,10 +16,14 @@ Instead of acting as a second, cluttered task manager, Pulse focuses on rescuing
 
 Per [`AGENTS.md`](AGENTS.md), **no version or sprint story is considered Done** unless its in-repository documentation and changelog entry are updated and committed in lockstep with the code:
 
-- **[`AGENTS.md`](AGENTS.md)** — Engineering Constitution, Pure Functional Core rules, WCAG 2.2 AA accessibility gate, and Mandatory Docs-as-Code Release Gate.
-- **[`docs/SPRINT_ROADMAP_AND_USE_CASES.md`](docs/SPRINT_ROADMAP_AND_USE_CASES.md)** — The 5 Prime Use Cases (`UC-1`..`UC-5`), Closed-Loop Feedback Architecture, and Multi-Sprint Plan (`Sprint 1: v0.6.0`, `Sprint 2: v0.7.0`) with deterministic Acceptance Criteria.
-- **[`docs/UX_FLOW_AND_DESIGN_SYSTEM.md`](docs/UX_FLOW_AND_DESIGN_SYSTEM.md)** — Living UX flow, navigation architecture, and Material 3 Expressive token contrast specification.
+- **[`AGENTS.md`](AGENTS.md)** — Engineering Constitution, Epic-Stream planning rules, Pure Functional Core (`ADR-007`), Test Pyramid, and WCAG 2.2 AA accessibility gate.
+- **[`docs/SPRINT_ROADMAP_AND_USE_CASES.md`](docs/SPRINT_ROADMAP_AND_USE_CASES.md)** — Executive Epic Streams (`EPIC-1`..`EPIC-5`), Prime Use Cases (`UC-1`..`UC-5`), and internal compartmentalized technical tickets (`TKT-xxx`).
+- **[`docs/UX_FLOW_AND_DESIGN_SYSTEM.md`](docs/UX_FLOW_AND_DESIGN_SYSTEM.md)** — Visual Focus Dashboard interaction diagram (`mermaid`), navigation architecture, and Material 3 Expressive token contrast specification.
 - **[`docs/CHANGELOG.md`](docs/CHANGELOG.md)** — Version-by-version release history linked to Git commits and Prime Use Cases.
+- **Technical Reference Library (`docs/tech-docs/`)**:
+  - **[`docs/tech-docs/FULL_STATE_DEBRIEF_AND_VERIFICATION_REPORT.md`](docs/tech-docs/FULL_STATE_DEBRIEF_AND_VERIFICATION_REPORT.md)** — Migrated from Google Drive (`1HOPr0cj2NqOZrRwHn0j-k8rfi8vZonUrk0uQB9PQtaE`) and updated with the 3-tier Test Pyramid & `v0.6.2` Visual Focus readiness matrix.
+  - **[`docs/tech-docs/TECH_STACK_RUNBOOK_AND_KNOWLEDGE_SOURCES.md`](docs/tech-docs/TECH_STACK_RUNBOOK_AND_KNOWLEDGE_SOURCES.md)** — Migrated from Google Drive (`1Fz7vE46pcEZmPEuPn71tMpQcLeg_vIry6DJNUhRMlgg`) and updated for the Angular 21 + Spring Boot 4 / Java 21 + Android stack.
+  - **[`docs/tech-docs/STICKINESS_AND_HABITUAL_RITUAL_ARCHITECTURE.md`](docs/tech-docs/STICKINESS_AND_HABITUAL_RITUAL_ARCHITECTURE.md)** — Behavioral design & pure functional specification for `EPIC-4` (Morning Anchor, Evening Shutdown, and Zero-Guilt Consistency Streaks).
 
 ---
 

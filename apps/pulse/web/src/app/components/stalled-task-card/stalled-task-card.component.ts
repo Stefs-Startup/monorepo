@@ -41,22 +41,14 @@ import { TaskAccountabilityStatus } from '../../models/pulse.models';
           <button
             type="button"
             class="action-btn primary-action"
-            aria-label="Talk through task with partner"
-            (click)="reflect.emit(item.task.id)"
+            aria-label="Commit task to Today's Top 3"
+            (click)="triage.emit({ taskId: item.task.id, action: 'COMMIT_TODAY' })"
           >
-            Talk it through
+            {{ item.task.commitment === 'TODAY_TOP_3' ? 'Unpin Top 3' : 'Pin to Top 3' }}
           </button>
           <button
             type="button"
             class="action-btn secondary-action"
-            aria-label="Commit task to Today's Top 3"
-            (click)="triage.emit({ taskId: item.task.id, action: 'COMMIT_TODAY' })"
-          >
-            {{ item.task.commitment === 'TODAY_TOP_3' ? 'Unpin Top 3' : 'Commit Top 3' }}
-          </button>
-          <button
-            type="button"
-            class="action-btn tonal-action"
             aria-label="Shrink task to 5 minute starter"
             (click)="triage.emit({ taskId: item.task.id, action: 'SHRINK_TO_5M' })"
           >
@@ -69,6 +61,14 @@ import { TaskAccountabilityStatus } from '../../models/pulse.models';
             (click)="triage.emit({ taskId: item.task.id, action: 'RESCHEDULE' })"
           >
             Tomorrow
+          </button>
+          <button
+            type="button"
+            class="action-btn tonal-action"
+            aria-label="Park task in Someday"
+            (click)="triage.emit({ taskId: item.task.id, action: 'PARK_SOMEDAY' })"
+          >
+            Park Someday
           </button>
           <button
             type="button"
@@ -186,6 +186,5 @@ import { TaskAccountabilityStatus } from '../../models/pulse.models';
 })
 export class StalledTaskCardComponent {
   @Input() status: TaskAccountabilityStatus | null = null;
-  @Output() reflect = new EventEmitter<string>();
   @Output() triage = new EventEmitter<{ taskId: string; action: string }>();
 }

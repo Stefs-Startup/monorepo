@@ -1,82 +1,109 @@
-# Pulse UX Flow, Navigation & Accessibility Specification
+# Pulse UX Flow, Visual Focus Dashboard & Accessibility Specification
 
-## 1. Core Product Philosophy (MLP)
-Pulse is a calm, candid **accountability partner for Google Tasks**—not a second task manager.
-- **No Task-Creation Clutter**: Users already create tasks in Google Tasks. Pulse does not render a `"Commit Task"` FAB or duplicate task-entry forms.
-- **No App-Name Vanity Branding**: The primary screen never wastes vertical real estate advertising `"Pulse • Accountability"`. Headers are compact, contextual, and quiet.
-- **Interactive Visual Primary + Conversational Partner via FAB**: The main surface is a calming, analytical 2D task visualization (**Accountability Horizon**), while the warm conversational partner chat is routed through a dedicated **Reflect FAB** (`ExtendedFloatingActionButton`).
+## 1. Core Product Philosophy (Visual Focus MLP — `v0.6.2`)
+Pulse is a calm, candid **visual accountability dashboard for Google Tasks**—not a second task manager:
+- **100% Visual Focus Dashboard First (`EPIC-1`)**: The active interface commits solely to visual clarity—partitioning tasks into 3 descending Horizon windows, enforcing a 3-slot Today's Top 3 scarcity gate, and providing 1-tap visual triage. Conversational Partner Chat is intentionally saved for a later milestone (`EPIC-5`) so zero chat FABs or drawers distract from visual focus.
+- **No Task-Creation Clutter**: Users already create tasks in Google Tasks. Pulse never renders a `"Commit Task"` FAB or duplicate task-entry forms.
+- **No App-Name Vanity Branding**: Primary screen headers never waste vertical real estate advertising `"Pulse • Accountability"`. Headers are compact (`64px` / `64.dp`), contextual (`"Horizon"`, `"Undone Log"`, `"Settings"`), and quiet.
+- **Habitual & Ritual Stickiness (`EPIC-4`)**: Visual cues tie directly into the user's daily rhythm (**Morning Anchor** to lock in Today's Top 3 and **Evening Honest Shutdown** to celebrate completed work or consciously triage leftovers).
 
 ---
 
-## 2. Information Architecture & Material 3 Navigation
+## 2. Information Architecture & Interaction Diagram (`v0.6.2`)
 
-Pulse uses a standard **Material 3 Bottom `NavigationBar`** with 3 destinations, a compact **Material 3 `TopAppBar`**, and a **Reflect Chat FAB**:
+Pulse uses a standard **Material 3 Bottom `NavigationBar`** with 3 destinations and a compact **Material 3 `TopAppBar`**:
 
 ```mermaid
 flowchart LR
-    subgraph BottomNav["Material 3 NavigationBar"]
-        Tab1["1. Horizon (Home)\nInteractive Analytical Visual + Inspector"]
-        Tab2["2. Undone Log\nHabitually Undone & Long-Standing Cards"]
-        Tab3["3. Settings\nGoogle Sync & Partner Tone"]
+    subgraph TopBar["Compact 64px Material 3 TopAppBar"]
+        Title["Contextual Title\n('Horizon' | 'Undone Log' | 'Settings')"]
+        ThemeBtn["Light / Dark Toggle"]
+        SyncBtn["Sync Google Tasks"]
     end
-    FAB["Reflect (N) FAB"] -->|"Opens ModalBottomSheet"| ChatSheet["Conversational Partner Chat\nContext Pill + Chat Stream + Quick Chips"]
-    Tab1 -->|"Tap node -> 'Reflect with Partner'"| ChatSheet
-    Tab2 -->|"Tap 'Talk it through' on card"| ChatSheet
+
+    subgraph BottomNav["Material 3 Bottom NavigationBar (3 Destinations)"]
+        Tab1["1. Horizon (Home)\nVisual Focus Dashboard"]
+        Tab2["2. Undone Log\nHabitual & Drifting Audit Cards"]
+        Tab3["3. Settings\n4-Card Categorized Navigator"]
+    end
+
+    subgraph VisualDashboard["Horizon Visual Focus Loop (EPIC-1)"]
+        Top3Strip["Today's Top 3 Scarcity Strip\n(3 Slots Locked / Open)"]
+        Windows["3 Descending Analytical Windows\n1. Habitually Undone (2x+ deferred)\n2. Long-Standing Drift (5d+ idle)\n3. Committed & Active Flow"]
+        Inspector["Selected Task Inspector Card\nAge • Idle • Deferrals • Notes"]
+        TriageActions["1-Tap Visual Focus Actions\nPin/Unpin Top 3 • Shrink to 5m • Tomorrow • Park • Done"]
+        SwapGate["Top-3 Scarcity Swap Modal\n(Triggered when pinning 4th task)"]
+    end
+
+    subgraph Stickiness["Ritual & Habitual Stickiness (EPIC-4)"]
+        MorningAnchor["Morning Anchor Ritual\nLock Today's Top 3"]
+        EveningShutdown["Evening Honest Shutdown\nClose Loops Without Guilt"]
+    end
+
+    Tab1 --> Top3Strip
+    Tab1 --> Windows
+    Windows -->|"Select ranked bar (#1, #2, #3...)"| Inspector
+    Inspector --> TriageActions
+    Tab2 -->|"1-tap card action"| TriageActions
+    TriageActions -->|"If Top 3 < 3"| Top3Strip
+    TriageActions -->|"If Top 3 == 3"| SwapGate
+    SwapGate -->|"Swap commitment"| Top3Strip
+    MorningAnchor -.->|"Habitual Cue"| Top3Strip
+    EveningShutdown -.->|"End-of-Day Closure"| Tab2
 ```
 
 ### TopAppBar Structure
-- **Component**: Standard single-row Material 3 `TopAppBar` (`64.dp` height).
+- **Component**: Standard single-row Material 3 `TopAppBar` (`64px` / `64.dp` height).
 - **Title**: Contextual destination title only (`"Horizon"`, `"Undone Log"`, or `"Settings"`).
-- **Trailing Action**: Single semantic `"Sync Google Tasks"` `IconButton` (`48.dp` target, `contentDescription = "Sync Google Tasks"`) on `Horizon` and `Undone Log`.
+- **Trailing Actions**: Theme toggle (`Light` / `Dark`) and semantic `"Sync Google Tasks"` button (`48px` minimum touch target, explicit `aria-label` / `contentDescription`).
 
-### Destination 1: `Horizon` (Primary Home Screen — Swipeable Analytical Window Carousel)
-1. **Window Selector Chips + Swipeable Horizon Window Carousel (`AccountabilityHorizonCanvas.kt` + `TaskVisualAnalyticsEngine.kt`)**:
-   - No top stat-box clutter and no duplicate task log below the fold.
-   - Open tasks are partitioned into **3 swipeable `HorizontalPager` Window Cards**, each ordered in **strict descending order** (`#1`, `#2`, `#3`...):
+### Destination 1: `Horizon` (Primary Visual Focus Dashboard)
+1. **Today's Top 3 Scarcity Strip**:
+   - Displays the 3 daily non-negotiable slots (`#1`, `#2`, `#3`) at the top of the viewport.
+   - Tapping a filled slot selects that task in the Inspector below; attempting to pin a 4th task opens the **Top-3 Scarcity Swap Modal**.
+2. **3-Window Analytical Selector + Descending Bar Card (`TaskVisualAnalyticsEngine`)**:
+   - Open tasks are partitioned into **3 analytical Window Cards**, each ordered in **strict descending order** (`#1`, `#2`, `#3`...):
      - **Window 1 — `Habitually Undone` (`Habitual`)**: Tasks deferred `2×+`, cascading in descending order of deferral count.
      - **Window 2 — `Long-Standing Drift` (`Drifting`)**: Tasks untouched for `5+` days or overdue, cascading in descending order of drift age.
      - **Window 3 — `Committed & Active Flow` (`Active`)**: Today's locked `Top 3` commitments first, then active tasks in descending order of age.
-   - Tapping any descending bar row (or swiping to a new window) selects that task and updates the **Selected Node Inspector Card** immediately below.
-2. **Selected Node Inspector Card**:
-   - Displays full task title, analytical badges (`Habitually Undone` / `Long-Standing`, `Deferrals: N×`, `Age: Xd • Idle: Yd`), last reflection note, and 1-tap actions (`"Reflect with Partner"` or `"Done"`).
+   - Tapping any descending bar row selects that task and updates the **Selected Node Inspector Card** immediately below.
+3. **Selected Node Inspector Card (Direct Visual Triage)**:
+   - Displays full task title, analytical badge (`Deferred N×`, `Xd untouched`, `Committed Today`), age/idle/deferral metrics, and 5 direct 1-tap visual actions:
+     - `Pin to Top 3` / `Unpin Top 3`
+     - `Shrink to 5m Starter`
+     - `Tomorrow`
+     - `Park Someday`
+     - `Done ✓`
 
-### Conversational Partner Chat (Routed Through the `Reflect` FAB via Swappable `PartnerChatOverlay`)
-- Triggered from the bottom-right **`Reflect` Extended FAB** (or any `"Reflect with Partner"` / `"Talk it through"` button).
-- Encapsulated in a standalone, swappable reactive component ([`PartnerChatComponent.kt`](file:///Users/stefan/Documents/antigravity/sharp-euclid/app/src/main/java/com/pulse/accountability/ui/components/chat/PartnerChatComponent.kt)) driven by a pure UI model (`PartnerChatUiModel` via `PartnerChatMapper.fromUiState(...)`) and a single event sink (`(PartnerChatEvent) -> Unit`):
-  1. **Full-Viewport Reactive Surface**: Opens as a full-screen overlay with `TopAppBar` (`Close` button, `"Reflect"` title, and `"Next task"` switcher), `imePadding()`, and `rememberLazyListState()` auto-scrolling (`LaunchedEffect(model.messages.size)`).
-  2. **Per-Task Thread Persistence (`conversationThreadsByTaskId`)**: Closing and reopening the `Reflect` FAB preserves your active conversation thread for each task.
-  3. **Reusable Primitives**: Stalled task cards across `Horizon` and `Undone Log` share [`StalledTaskLogCard.kt`](file:///Users/stefan/Documents/antigravity/sharp-euclid/app/src/main/java/com/pulse/accountability/ui/components/StalledTaskLogCard.kt), and quick-reply chips are rendered from a data-driven `List<QuickReplySpec>`.
-
-### Destination 2: `Undone Log` (Structured Cards-with-Bubbles Audit Trail)
-- Renders individual task cards with status bubbles (`Deferred 4×`, `Habitually Undone`, `8d untouched`, last reflection note), followed by `Committed Today (Top 3)` and `Active Backlog`.
+### Destination 2: `Undone Log` (Structured Visual Audit Trail)
+- Renders reusable [`StalledTaskCardComponent`](file:///Users/stefan/Documents/antigravity/sharp-euclid/web/src/app/components/stalled-task-card/stalled-task-card.component.ts) / [`StalledTaskLogCard.kt`](file:///Users/stefan/Documents/antigravity/sharp-euclid/app/src/main/java/com/pulse/accountability/ui/components/StalledTaskLogCard.kt) cards grouped by:
+  1. `Habitually Undone (Deferred 2×+)`
+  2. `Long-Standing Drift (5d+ Untouched / Overdue)`
+  3. `Committed Today (Top 3)`
+- Every card exposes the same 1-tap visual triage actions (`Pin to Top 3`, `Shrink to 5m`, `Tomorrow`, `Park Someday`, `Done ✓`).
 
 ### Destination 3: `Settings` (Multi-Page Categorized Settings Navigator)
-- Implemented in [`PartnerSettingsNavigator.kt`](file:///Users/stefan/Documents/antigravity/sharp-euclid/app/src/main/java/com/pulse/accountability/ui/screens/settings/PartnerSettingsNavigator.kt) (Android) and [`settings-navigator.component.ts`](file:///Users/stefan/Documents/antigravity/sharp-euclid/web/src/app/components/settings-navigator/settings-navigator.component.ts) (Angular 21) with animated/signal page transitions instead of a single crowded scroll page:
+- Implemented in [`settings-navigator.component.ts`](file:///Users/stefan/Documents/antigravity/sharp-euclid/web/src/app/components/settings-navigator/settings-navigator.component.ts) (Angular 21) and [`PartnerSettingsNavigator.kt`](file:///Users/stefan/Documents/antigravity/sharp-euclid/app/src/main/java/com/pulse/accountability/ui/screens/settings/PartnerSettingsNavigator.kt) (Android):
   - **Root Index (`SettingsSubPage.INDEX`)**: 4 clean category navigation cards (`Partner Persona & AI`, `Google Tasks Sync`, `Cadence & Rituals`, `Privacy & Diagnostics`).
   - **Dedicated Sub-Pages**: Each category opens its own focused single-purpose page with an explicit back header.
 
-### Angular 21 + Spring Boot 4 Full-Stack Web Architecture (`web/` & `backend/`)
-- **Angular 21 Standalone Signals SPA (`web/`)**:
-  - [`app.component.ts`](file:///Users/stefan/Documents/antigravity/sharp-euclid/web/src/app/app.component.ts): Renders the compact `TopAppBar` (`64px`), Today's Top 3 Scarcity Strip, 3-Window Horizon selector (`Habitual`, `Drifting`, `Active`) with strict descending rank bars (`#1`, `#2`, `#3`...), Selected Node Inspector, bottom 3-tab `NavigationBar`, and `Reflect` Extended FAB.
-  - [`partner-chat-overlay.component.ts`](file:///Users/stefan/Documents/antigravity/sharp-euclid/web/src/app/components/partner-chat/partner-chat-overlay.component.ts): Standalone reactive chat drawer preserving per-task reflection threads.
-  - [`stalled-task-card.component.ts`](file:///Users/stefan/Documents/antigravity/sharp-euclid/web/src/app/components/stalled-task-card/stalled-task-card.component.ts): Reusable card component for the `Undone Log`.
-- **Spring Boot 4.0.9 + Java 21 Backend (`backend/`)**:
-  - Pure Java 21 domain engines ([`UndoneAccountabilityEngine.java`](file:///Users/stefan/Documents/antigravity/sharp-euclid/backend/src/main/java/com/pulse/backend/domain/UndoneAccountabilityEngine.java), [`TaskVisualAnalyticsEngine.java`](file:///Users/stefan/Documents/antigravity/sharp-euclid/backend/src/main/java/com/pulse/backend/domain/TaskVisualAnalyticsEngine.java), [`ScarcityEngine.java`](file:///Users/stefan/Documents/antigravity/sharp-euclid/backend/src/main/java/com/pulse/backend/domain/ScarcityEngine.java), [`TriageRules.java`](file:///Users/stefan/Documents/antigravity/sharp-euclid/backend/src/main/java/com/pulse/backend/domain/TriageRules.java), [`WcagContrastEngine.java`](file:///Users/stefan/Documents/antigravity/sharp-euclid/backend/src/main/java/com/pulse/backend/domain/WcagContrastEngine.java)) exposed via [`PulseController.java`](file:///Users/stefan/Documents/antigravity/sharp-euclid/backend/src/main/java/com/pulse/backend/api/PulseController.java) (`/api/v1/pulse`).
+### Deferred Milestone (`EPIC-5`): Conversational Partner Chat
+- The standalone reactive chat components ([`partner-chat-overlay.component.ts`](file:///Users/stefan/Documents/antigravity/sharp-euclid/web/src/app/components/partner-chat/partner-chat-overlay.component.ts) and [`PartnerChatComponent.kt`](file:///Users/stefan/Documents/antigravity/sharp-euclid/app/src/main/java/com/pulse/accountability/ui/components/chat/PartnerChatComponent.kt)) remain modular and decoupled in the codebase for `EPIC-5`, but are intentionally omitted from the active `v0.6.2` Visual Focus Dashboard.
 
 ---
 
 ## 3. WCAG 2.2 Level AA Color Contrast & Accessibility Architecture
 
-All color tokens in [`PulseExpressiveTheme.kt`](file:///Users/stefan/Documents/antigravity/sharp-euclid/app/src/main/java/com/pulse/accountability/ui/theme/PulseExpressiveTheme.kt) are governed by pure functional WCAG 2.2 contrast mathematics ([`WcagContrastEngine.kt`](file:///Users/stefan/Documents/antigravity/sharp-euclid/app/src/main/java/com/pulse/accountability/ui/theme/WcagContrastEngine.kt)) and verified in JUnit (`WcagContrastEngineTest`):
+All color tokens in [`styles.css`](file:///Users/stefan/Documents/antigravity/sharp-euclid/web/src/styles.css) and [`PulseExpressiveTheme.kt`](file:///Users/stefan/Documents/antigravity/sharp-euclid/app/src/main/java/com/pulse/accountability/ui/theme/PulseExpressiveTheme.kt) are governed by pure functional WCAG 2.2 contrast mathematics ([`WcagContrastEngine.java`](file:///Users/stefan/Documents/antigravity/sharp-euclid/backend/src/main/java/com/pulse/backend/domain/WcagContrastEngine.java), [`pulse-domain.engine.ts`](file:///Users/stefan/Documents/antigravity/sharp-euclid/web/src/app/domain/pulse-domain.engine.ts), [`WcagContrastEngine.kt`](file:///Users/stefan/Documents/antigravity/sharp-euclid/app/src/main/java/com/pulse/accountability/ui/theme/WcagContrastEngine.kt)) and verified in automated unit tests:
 
 | Token Pair (Foreground / Background) | WCAG 2.2 AA Requirement | Light Scheme Ratio | Dark Scheme Ratio |
 | :--- | :--- | :--- | :--- |
-| `onBackground` / `background` | `>= 4.5:1` (SC 1.4.3) | `>= 14.0:1` | `>= 13.5:1` |
-| `onSurface` / `surface` | `>= 4.5:1` (SC 1.4.3) | `>= 14.0:1` | `>= 13.5:1` |
-| `onSurfaceVariant` / `surfaceContainerHigh` | `>= 4.5:1` (SC 1.4.3) | `>= 6.5:1` | `>= 7.0:1` |
-| `onPrimary` / `primary` (Reflect FAB) | `>= 4.5:1` (SC 1.4.3) | `>= 8.5:1` | `>= 7.5:1` |
-| `onPrimaryContainer` / `primaryContainer` | `>= 4.5:1` (SC 1.4.3) | `>= 11.0:1` | `>= 8.0:1` |
-| `onSecondaryContainer` / `secondaryContainer` | `>= 4.5:1` (SC 1.4.3) | `>= 10.5:1` | `>= 7.5:1` |
-| `onTertiaryContainer` / `tertiaryContainer` | `>= 4.5:1` (SC 1.4.3) | `>= 11.0:1` | `>= 7.5:1` |
-| `onErrorContainer` / `errorContainer` | `>= 4.5:1` (SC 1.4.3) | `>= 10.0:1` | `>= 7.5:1` |
-| `onError` / `error` | `>= 4.5:1` (SC 1.4.3) | `>= 5.5:1` | `>= 5.5:1` |
+| `onBackground` / `background` | `>= 4.5:1` (SC 1.4.3) | `15.92:1` | `14.56:1` |
+| `onSurface` / `surface` | `>= 4.5:1` (SC 1.4.3) | `15.92:1` | `14.56:1` |
+| `onSurfaceVariant` / `surfaceContainerHigh` | `>= 4.5:1` (SC 1.4.3) | `8.74:1` | `9.21:1` |
+| `onPrimary` / `primary` | `>= 4.5:1` (SC 1.4.3) | `9.11:1` | `10.31:1` |
+| `onPrimaryContainer` / `primaryContainer` | `>= 4.5:1` (SC 1.4.3) | `13.42:1` | `8.64:1` |
+| `onSecondaryContainer` / `secondaryContainer` | `>= 4.5:1` (SC 1.4.3) | `12.69:1` | `7.89:1` |
+| `onTertiaryContainer` / `tertiaryContainer` | `>= 4.5:1` (SC 1.4.3) | `13.51:1` | `7.98:1` |
+| `onErrorContainer` / `errorContainer` | `>= 4.5:1` (SC 1.4.3) | `11.61:1` | `7.79:1` |
+| `onError` / `error` | `>= 4.5:1` (SC 1.4.3) | `5.74:1` | `9.62:1` |

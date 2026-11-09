@@ -1,96 +1,83 @@
-# Pulse — Sprint Roadmap, Prime Use Cases & Feedback Loop (Docs-as-Code)
+# Pulse — Epic Stream Roadmap, Prime Use Cases & Internal Agent Ticketing (Docs-as-Code)
 
-> **Docs-as-Code Governance**: This document is version-controlled alongside the Kotlin source tree. **No sprint story or version release is considered Done** until its Prime Use Cases, Acceptance Criteria, Feedback Loop signals, and [`docs/CHANGELOG.md`](CHANGELOG.md) entry are updated and committed in lockstep with the code.
-
----
-
-## 1. Docs-as-Code Definition of Done (Release Gate)
-
-Every version (`v0.x.y` / Git commit increment) must pass all 5 mandatory gates before completion:
-
-1. **Pure Functional Unit & Contract Gate**: `./gradlew testDebugUnitTest` passes 100% of pure domain, mapper, contract (`MockWebServer`), and zero-PII scrubber tests.
-2. **WCAG 2.2 AA Accessibility Gate**: [`WcagContrastEngineTest.kt`](../app/src/test/java/com/pulse/accountability/ui/theme/WcagContrastEngineTest.kt) verifies `>= 4.5:1` normal text and `>= 3.0:1` UI component contrast across Light and Dark schemes.
-3. **Dual-Target E2E Device Gate**: Verified on `emulator-5554` (`Resizable_Experimental`) and physical `Pixel 8 Pro` hardware with zero fatal/non-fatal crashes in logcat.
-4. **Prime Use Case & Feedback Loop Verification**: The increment is validated against the 5 Prime Use Cases below and emits structured zero-PII breadcrumbs via [`PulseObservability.kt`](../app/src/main/java/com/pulse/accountability/util/PulseObservability.kt).
-5. **Docs-as-Code Synchronization**:
-   - [`README.md`](../README.md) reflects current architecture and run instructions.
-   - [`docs/UX_FLOW_AND_DESIGN_SYSTEM.md`](UX_FLOW_AND_DESIGN_SYSTEM.md) reflects any UI/UX component or flow changes.
-   - [`docs/SPRINT_ROADMAP_AND_USE_CASES.md`](SPRINT_ROADMAP_AND_USE_CASES.md) updates story status.
-   - [`docs/CHANGELOG.md`](CHANGELOG.md) records the version tag, commit hash, changed files, and verified ACs.
+> **Planning Governance (`AGENTS.md` §1)**:
+> - **User-Facing Layer (Section 2 & Section 3)**: Product planning is presented to the user strictly as outcome-driven **Epic Streams (`EPIC-1`..`EPIC-5`)** with clear User Acceptance Testing (UAT) checkpoints.
+> - **Visual Focus First (`v0.6.2`)**: The initial web & mobile focus commits **solely to the Visual Focus Dashboard** (`Horizon`, `Undone Log`, `Settings`). Conversational Partner Chat is intentionally deferred to `EPIC-5`.
+> - **Agent-Internal Layer (Section 5)**: Low-level technical decomposition, class/API wiring, and test harnesses are self-organized by the engineering agent into compartmentalized technical tickets (`TKT-xxx`) so each slice can be reviewed and user-accepted independently.
 
 ---
 
-## 2. Prime Use Cases (Critical User Journeys)
+## 1. Docs-as-Code Definition of Done & Test Pyramid Gate
 
-Pulse exists as a calm, honest accountability partner for **Google Tasks**—not a second task manager. All engineering work serves these 5 Prime Use Cases:
+Every compartmentalized increment (`v0.x.y` / Git commit) must pass all 5 mandatory gates before requesting User Acceptance:
+
+1. **Test Pyramid Gate (Unit -> Integration/Contract -> E2E)**:
+   - **Tier 1 (Pure Unit Tests)**: Backend JUnit 5 (`cd backend && ./gradlew test`), Web Vitest (`cd web && npm test`), and Android JUnit 4 (`./gradlew testDebugUnitTest`) cover 100% of pure domain, scarcity, contrast, and PII-scrubber functions.
+   - **Tier 2 (Component & HTTP Contract Tests)**: Spring Boot `MockMvc` (`PulseControllerContractTest`), Android `MockWebServer` (`GoogleTasksSyncContractTest`), and Angular visual dashboard component/state specs verify JSON contracts, status codes (`200`, `400`, `401`, `403`, `404`), and UI state transitions.
+   - **Tier 3 (Live E2E Runtime Verification)**: Verified against the live Angular 21 (`http://localhost:4200`) + Spring Boot 4 (`http://localhost:8080`) stack and/or Android targets (`emulator-5554` & `Pixel 8 Pro`).
+2. **WCAG 2.2 AA Accessibility Gate**: Deterministic contrast ratio tests verify `>= 4.5:1` normal text and `>= 3.0:1` UI component contrast across Light and Dark schemes.
+3. **Visual Focus Restraint Gate**: Zero chat FAB or chat drawer clutter on the initial Visual Focus Dashboard (`EPIC-1`).
+4. **Prime Use Case & Zero-PII Telemetry Gate**: Validated against the Prime Use Cases below with structured zero-PII breadcrumbs (`PulseObservability`).
+5. **Docs-as-Code Synchronization**: `README.md`, `docs/UX_FLOW_AND_DESIGN_SYSTEM.md`, `docs/SPRINT_ROADMAP_AND_USE_CASES.md`, `docs/CHANGELOG.md`, and `docs/tech-docs/*` updated in lockstep.
+
+---
+
+## 2. Executive Epic Streams (User-Facing Roadmap & UAT Checkpoints)
+
+| Epic ID | Epic Stream | User Outcome & Value | Prime Use Cases | Current Status & User Acceptance Checkpoint |
+| :--- | :--- | :--- | :--- | :--- |
+| **`EPIC-1`** | **Visual Focus Dashboard & Top-3 Scarcity Experience** | Open Pulse to a calm, distraction-free **Visual Focus Dashboard**: 3 descending analytical Horizon windows (*Habitually Undone*, *Long-Standing Drift*, *Committed & Active Flow*), a synchronized Selected Task Inspector, a strict 3-slot **Today's Top 3** scarcity gate with swap dialog, and 1-tap `Undone Log` triage (*Pin Top 3*, *Shrink to 5m*, *Tomorrow*, *Park Someday*, *Done*)—with zero chat clutter. | `UC-1`, `UC-2` | **Ready for UAT (`v0.6.2`)** — Live on `http://localhost:4200` (Angular 21 + Spring Boot 4). All unit, contract, and E2E tests passing. |
+| **`EPIC-2`** | **Frictionless Two-Way Google Tasks Sync** | Connect Google Tasks once and have every visual dashboard action (*Done*, *Shrink to 5m*, *Tomorrow*, *Park*) sync reliably back to Google Tasks API v1 with transparent status and error recovery. | `UC-3` | **Next Up (After `EPIC-1` UAT)** — Delivered in compartmentalized slices: OAuth connection, write-back queue, and diagnostic remediation banner. |
+| **`EPIC-3`** | **Calm Multi-Page Customization & Privacy Diagnostics** | Configure ritual times, Google Tasks sync, and inspect live WCAG 2.2 AA contrast & zero-PII telemetry breadcrumbs across a clean 4-card Settings navigator. | `UC-4` | **Ready for UAT (`v0.6.2`)** — 4-card Settings Navigator & live WCAG/telemetry inspector verified on Web & Android. |
+| **`EPIC-4`** | **App Stickiness, Daily Ritual Loops & Habitual Engagement Tie-Ins** | Build lasting daily engagement through behavioral habit loops: a 60-second **Morning Anchor Ritual** (locking Today's Top 3), an **Evening Honest Shutdown Ritual** (celebrating wins & triaging leftovers without guilt), **Implementation Intentions** (`"When [cue], I will start my 5m step"`), and zero-guilt **Consistency & Momentum Streaks** that pull the user back into the Visual Focus Dashboard every day. | `UC-5` | **Planned (Spec Complete in [`docs/tech-docs/STICKINESS_AND_HABITUAL_RITUAL_ARCHITECTURE.md`](tech-docs/STICKINESS_AND_HABITUAL_RITUAL_ARCHITECTURE.md))** — Ready to execute in compartmentalized slices. |
+| **`EPIC-5`** | **Conversational Partner Chat & Live AI Coaching (Saved for Later)** | Optional reactive chat overlay and streaming AI coaching for talking through complex task blockers once the core Visual Focus Dashboard and Ritual Stickiness loops are established. | `UC-6` (Deferred) | **Saved for Later** — Intentionally decoupled and parked out of the active UI so `EPIC-1`..`EPIC-4` stay 100% focused on the visual dashboard and habitual stickiness. |
+
+---
+
+## 3. Prime Use Cases (Critical User Journeys)
 
 | ID | Prime Use Case | User Goal & Trigger | Primary Surface & Components | Deterministic Acceptance Criteria (AC) |
 | :--- | :--- | :--- | :--- | :--- |
-| **UC-1** | **Single-Viewport Horizon Assessment** | User opens Pulse to immediately understand their task drift without cognitive overload or scrolling through cluttered tables. | **Horizon** tab (`InteractiveHorizonHomeScreen`, [`AccountabilityHorizonCanvas.kt`](../app/src/main/java/com/pulse/accountability/ui/components/AccountabilityHorizonCanvas.kt)) | • Renders on a single viewport with zero top stat-box clutter.<br>• Partitions tasks into 3 swipeable `HorizontalPager` cards (*Habitually Undone*, *Long-Standing Drift*, *Committed & Active Flow*).<br>• Tasks inside every card are sorted in **strict descending order** (`#1`, `#2`, `#3`...) by stall severity. |
-| **UC-2** | **Contextual Partner Reflection via FAB** | User taps a stalled task bar or the `Reflect` Extended FAB to talk through *why* a task is stuck and choose a concrete next move. | **Reflect FAB Overlay** ([`PartnerChatComponent.kt`](../app/src/main/java/com/pulse/accountability/ui/components/chat/PartnerChatComponent.kt)) | • Launches decoupled `PartnerChatOverlay` with active task context banner.<br>• Quick-reply chips and text input append messages and auto-scroll via `rememberLazyListState()` within `<100ms`.<br>• Conversation threads persist per-task across task switches without mutating task idle timestamps. |
-| **UC-3** | **Zero-Guilt Stalled Task Triage & Top-3 Scarcity** | User rescues a chronically deferred (`3x+`) or idle (`5d+`) task by shrinking it, committing it to Today's Top 3, deferring intentionally, or parking it. | **Undone Log** tab ([`StalledTaskLogCard.kt`](../app/src/main/java/com/pulse/accountability/ui/components/StalledTaskLogCard.kt)) & **Horizon** | • `ScarcityEngine` enforces a hard cap of `3` pinned tasks in Today's Top 3.<br>• 1-tap triage actions (*Commit to Top 3*, *Shrink to 5m*, *Defer*, *Complete*) update Room state immediately and emit `PulseObservability` breadcrumbs. |
-| **UC-4** | **Frictionless Native Google Tasks Sync** | User connects their Google account in 1 tap and syncs real Google Tasks lists with transparent error diagnostics if OAuth or network fails. | **Onboarding** & **Settings -> Google Tasks Sync** ([`GoogleAuthCredentialHelper.kt`](../app/src/main/java/com/pulse/accountability/data/auth/GoogleAuthCredentialHelper.kt)) | • Native system account picker + `GoogleAuthUtil.getToken()` with `oauth2:https://www.googleapis.com/auth/tasks`.<br>• Any OAuth/HTTP failure is classified by [`GoogleAuthDiagnostics.kt`](../app/src/main/java/com/pulse/accountability/data/auth/GoogleAuthDiagnostics.kt) and surfaced with actionable remediation. |
-| **UC-5** | **Calm Multi-Page Partner Customization** | User tunes partner tone, ritual cadence, Google sync, or privacy diagnostics without scrolling a monolithic settings wall. | **Settings** tab ([`PartnerSettingsNavigator.kt`](../app/src/main/java/com/pulse/accountability/ui/screens/settings/PartnerSettingsNavigator.kt)) | • Clean 4-card index screen (*Partner Persona & AI*, *Google Tasks Sync*, *Cadence & Rituals*, *Privacy & Diagnostics*) with dedicated sub-pages and system Back navigation. |
+| **UC-1** | **Single-Viewport Visual Horizon Assessment** | Immediately see task drift and today's focus on a single visual dashboard without scrolling cluttered tables or chat threads. | **Horizon** tab ([`app.component.ts`](../web/src/app/app.component.ts), [`AccountabilityHorizonCanvas.kt`](../app/src/main/java/com/pulse/accountability/ui/components/AccountabilityHorizonCanvas.kt)) | • Renders 3 analytical windows (*Habitually Undone*, *Long-Standing Drift*, *Committed & Active Flow*) in strict descending order (`#1`, `#2`, `#3`...).<br>• Selecting any bar updates the **Selected Task Inspector** immediately.<br>• Zero chat FAB or task-creation clutter. |
+| **UC-2** | **Zero-Guilt Visual Triage & Top-3 Scarcity** | Rescue a chronically deferred (`2x+`) or idle (`5d+`) task in 1 tap from either the Horizon Inspector or `Undone Log`. | **Horizon Inspector** & **Undone Log** ([`stalled-task-card.component.ts`](../web/src/app/components/stalled-task-card/stalled-task-card.component.ts)) | • `ScarcityEngine` enforces a hard cap of `3` tasks in Today's Top 3 (prompting a swap modal on the 4th).<br>• 1-tap visual actions (*Pin to Top 3*, *Shrink to 5m Starter*, *Tomorrow*, *Park Someday*, *Done ✓*) update state immediately and emit zero-PII breadcrumbs. |
+| **UC-3** | **Frictionless Google Tasks Sync** | Keep the Visual Focus Dashboard and Google Tasks in lockstep. | **TopAppBar Sync** & **Settings -> Google Tasks Sync** | • Syncs task lists and queues write-back mutations with actionable remediation via `GoogleAuthDiagnostics`. |
+| **UC-4** | **Calm Multi-Page Customization & Diagnostics** | Tune cadence windows, sync, and inspect privacy/accessibility health without a monolithic settings wall. | **Settings** tab ([`settings-navigator.component.ts`](../web/src/app/components/settings-navigator/settings-navigator.component.ts)) | • 4-card Settings index with dedicated sub-pages and explicit Back navigation. |
+| **UC-5** | **Daily Ritual Stickiness & Habitual Engagement Loop** | Form a sticky daily habit of anchoring the morning in Top 3 priorities and closing open loops each evening. | **Morning Anchor Banner**, **Evening Shutdown Flow**, & **Momentum Strip** (`EPIC-4`) | • Pure `RitualGateRules` & `HabitStreakEngine` trigger Morning Anchor / Evening Shutdown states based on local time and configured ritual windows.<br>• Tracks zero-guilt consistency streaks (`daysAnchoredThisWeek`) and 5-minute starter cue tie-ins. |
 
 ---
 
-## 3. Closed-Loop Feedback Architecture
+## 4. Closed-Loop Feedback & Stickiness Architecture
 
-To prevent regressions and ensure every sprint is grounded in real usage on the `Pixel 8 Pro`, Pulse operates a 4-stage continuous feedback loop:
-
-```
-[1. In-App Signals & Zero-PII Telemetry]
-   • PartnerChatOverlay quick-reply selection & resolution rate (Did reflection lead to Top-3 Commit, 5m Shrink, or Completion?)
-   • PulseObservability breadcrumbs (onboarding_step, oauth_result, sync_latency, chat_turn, triage_action)
-   • Manual "Send Diagnostic Report Now" trigger in Settings -> Privacy & Diagnostics
-          │
-          ▼
-[2. Automated Diagnostic Classification]
-   • GoogleAuthDiagnostics & HTTP contract classifiers bucket failure modes (OAuth SHA-1 mismatch, 401 token expiry, 429 rate limit)
-   • UI regressions caught via dual-device visual inspection (emulator-5554 + Pixel 8 Pro)
-          │
-          ▼
-[3. Docs-as-Code Triage & Sprint Backlog Refinement]
-   • Friction points are logged against Prime Use Cases (UC-1..UC-5) in docs/SPRINT_ROADMAP_AND_USE_CASES.md
-   • Every bug or UX critique converts into a pure unit/contract test + deterministic AC before code changes begin
-          │
-          ▼
-[4. Versioned Release & Changelog Verification]
-   • Code + Tests + Docs committed atomically and recorded in docs/CHANGELOG.md
+```mermaid
+flowchart TD
+    Cue["1. Habitual Cue\nMorning Anchor Window (08:30) or Evening Shutdown (18:00)"] --> Routine["2. Visual Focus Routine\nInspect Descending Horizon (#1..#N) & Lock Today's Top 3"]
+    Routine --> Action["3. 1-Tap Visual Triage\nPin Top 3 • Shrink to 5m • Tomorrow • Park • Done"]
+    Action --> Reward["4. Immediate Visual Reward\nClarity Ratio ↑ • Top-3 Slot Completed • Zero-Guilt Streak"]
+    Reward --> Telemetry["5. Zero-PII Telemetry & UAT Loop\nPulseObservability Breadcrumbs Inform Next Epic Slice"]
 ```
 
 ---
 
-## 4. Multi-Sprint Plan & Backlog
+## 5. Agent-Internal Technical Ticketing Queue (Self-Managed Compartmentalized Parts)
 
-### Baseline Completed: Sprint 0 — Foundation, Horizon Carousel & Modular UI (`v0.5.0` / Commit `1508793`)
-- [x] **S0-1**: Pure domain engines (`UndoneAccountabilityEngine`, `ScarcityEngine`, `TaskVisualAnalyticsEngine`, `WcagContrastEngine`).
-- [x] **S0-2**: Single-viewport 3-window swipeable `HorizontalPager` Horizon Carousel in strict descending order (`UC-1`).
-- [x] **S0-3**: Decoupled, swappable [`PartnerChatComponent.kt`](../app/src/main/java/com/pulse/accountability/ui/components/chat/PartnerChatComponent.kt) routed via the `Reflect` FAB (`UC-2`).
-- [x] **S0-4**: Reusable [`StalledTaskLogCard.kt`](../app/src/main/java/com/pulse/accountability/ui/components/StalledTaskLogCard.kt) in `Undone Log` (`UC-3`) and 4-page [`PartnerSettingsNavigator.kt`](../app/src/main/java/com/pulse/accountability/ui/screens/settings/PartnerSettingsNavigator.kt) (`UC-5`).
+> *Maintained internally by the engineering agent to deliver small, isolated, user-acceptable slices.*
 
-### Completed: Full-Stack Web & API Increment — Angular 21 + Spring Boot 4 (`v0.6.0`)
-- [x] **WEB-1 (`UC-1`, `UC-3`)**: Pure Java 21 domain engines (`UndoneAccountabilityEngine`, `TaskVisualAnalyticsEngine`, `ScarcityEngine`, `TriageRules`, `WcagContrastEngine`, `PulseObservability`) in `backend/` with Spring Boot `4.0.9` REST endpoints (`/api/v1/pulse/*`) and JUnit 5 + `MockMvc` contract tests.
-- [x] **WEB-2 (`UC-1`, `UC-2`, `UC-3`, `UC-5`)**: Angular `21.2.26` standalone signals SPA in `web/` implementing the Material 3 Expressive `Horizon`, `Reflect` Partner Chat Overlay, `Undone Log`, and 4-card `Settings` navigator with Vitest unit & WCAG 2.2 AA verification.
+### Epic Stream 1 (`EPIC-1`): Visual Focus Dashboard & Top-3 Scarcity Experience
+- [x] **`TKT-101` (Backend Pure Domain & REST Contract)**: Java 21 `UndoneAccountabilityEngine`, `TaskVisualAnalyticsEngine`, `ScarcityEngine`, `TriageRules`, `WcagContrastEngine` + Spring Boot 4 `/api/v1/pulse` endpoints & JUnit 5 `MockMvc` contract suite.
+- [x] **`TKT-102` (Pure Visual Focus Dashboard UI — Zero Chat Clutter)**: Angular 21 `AppComponent` & `StalledTaskCardComponent` focused 100% on the Top-3 Scarcity Strip, 3 descending Horizon windows, Selected Node Inspector with 5 direct visual triage buttons, `Undone Log`, and Top-3 Swap Modal.
+- [x] **`TKT-103` (Full Test Pyramid Verification)**: Unit tests (JUnit 5 + Vitest + JUnit 4), HTTP/Component contract tests (`PulseControllerContractTest` + `pulse-visual-dashboard.spec.ts`), and live E2E verification on `http://localhost:4200`.
 
----
+### Epic Stream 2 (`EPIC-2`): Frictionless Two-Way Google Tasks Sync
+- [ ] **`TKT-201` (Two-Way Write-Back Client & Retry Queue)**: Queue `PATCH`/`POST` mutations to Google Tasks API v1 on completion, deferral, or 5m shrink with `MockWebServer` contract tests.
+- [ ] **`TKT-202` (Web & Android OAuth Connection Diagnostics)**: Surface OAuth status and 1-click reconnect guidance via `GoogleAuthDiagnostics`.
 
-### Sprint 1 — Live AI Partner & Two-Way Google Tasks Write-Back (`Target: v0.6.0`)
-**Sprint Goal**: Upgrade the FAB Partner Chat from deterministic heuristics to live streaming AI coaching (with instant fallback) and make local triage mutations write back to Google Tasks API v1 reliably.
+### Epic Stream 3 (`EPIC-3`): Calm Multi-Page Customization & Privacy Diagnostics
+- [x] **`TKT-301` (4-Card Categorized Settings Navigator)**: `SettingsNavigatorComponent` (Web) and `PartnerSettingsNavigator` (Android) with live WCAG 2.2 AA contrast & zero-PII breadcrumb inspector.
 
-| Story ID | Prime Use Case | Story Description | Deterministic Acceptance Criteria (AC) |
-| :--- | :--- | :--- | :--- |
-| **S1-1** | `UC-2` | **Pluggable `PartnerChatEngine` Interface & Gemini 2.5 Flash Adapter** | 1. Define a pure `PartnerChatEngine` interface consumed by `PulseViewModel` so heuristic, cloud (`Gemini 2.5 Flash`), or on-device (`LiteRT-LM`) backends swap with zero changes to [`PartnerChatComponent.kt`](../app/src/main/java/com/pulse/accountability/ui/components/chat/PartnerChatComponent.kt).<br>2. Contract test (`MockWebServer`) verifies streaming/REST response parsing, timeout handling, and automatic fallback to `HeuristicPartnerChatEngine` when offline or unconfigured.<br>3. Update `docs/CHANGELOG.md` and `docs/UX_FLOW_AND_DESIGN_SYSTEM.md`. |
-| **S1-2** | `UC-2` | **Persistent Room Chat Threads & Reflection Outcome Tagging** | 1. Persist `ConversationMessage` threads in Room (`PulseDatabase`) keyed by `taskId` so reflections survive app restarts.<br>2. Record explicit feedback outcome tags (`COMMITTED_TOP_3`, `SHRUNK_5M`, `DEFERRED`, `DISMISSED`) via `PulseObservability.recordBreadcrumb()` when a chat session concludes.<br>3. Unit tests verify thread persistence and zero-PII breadcrumb scrubbing. |
-| **S1-3** | `UC-3`, `UC-4` | **Two-Way Google Tasks Write-Back & Offline Sync Queue** | 1. Completing a task, deferring a due date, or shrinking a task into a 5-minute starter step queues a `PATCH`/`POST` mutation to `tasks.googleapis.com/tasks/v1` via [`GoogleTasksApiClient.kt`](../app/src/main/java/com/pulse/accountability/data/remote/GoogleTasksApiClient.kt).<br>2. `MockWebServer` contract tests verify `200 OK`, `401 Unauthorized` token refresh retry, and offline queue replay.<br>3. Verified end-to-end on `Pixel 8 Pro` against live Google Tasks. |
+### Epic Stream 4 (`EPIC-4`): App Stickiness, Daily Ritual Loops & Habitual Engagement Tie-Ins
+- [ ] **`TKT-401` (Pure `HabitualStickinessEngine` & `RitualGateRules` Port)**: Pure Java 21 & TypeScript engine computing active ritual state (`MORNING_ANCHOR_DUE`, `FOCUS_IN_FLOW`, `EVENING_SHUTDOWN_DUE`), weekly anchor consistency (`daysAnchored / 7`), and implementation-intention prompts (`"If-Then"` 5-minute starter cues).
+- [ ] **`TKT-402` (Morning Anchor & Evening Honest Shutdown Visual Banner)**: Interactive ritual card at the top of the `Horizon` dashboard that guides locking in 3 tasks each morning and reviewing/closing open loops each evening.
+- [ ] **`TKT-403` (Zero-Guilt Momentum Strip & Habit Cue Tie-Ins)**: Visual momentum indicator celebrating consecutive days of honest triage (completing, shrinking, or consciously parking stalled tasks) without punitive streak-breaking guilt.
 
----
-
-### Sprint 2 — Proactive Ritual Cadence, In-App Feedback Loop & CI/CD (`Target: v0.7.0`)
-**Sprint Goal**: Close the daily accountability loop with scheduled notifications, background sync, an in-app partner helpfulness feedback signal, and automated GitHub Actions CI.
-
-| Story ID | Prime Use Case | Story Description | Deterministic Acceptance Criteria (AC) |
-| :--- | :--- | :--- | :--- |
-| **S2-1** | `UC-4`, `UC-5` | **WorkManager Periodic Sync & Ritual Notification Scheduler** | 1. Schedule periodic background Google Tasks sync and Morning Anchor / Evening Shutdown notifications based on user preferences in `Settings -> Cadence & Rituals`.<br>2. Tapping a notification deep-links directly into the `PartnerChatOverlay` focused on the `#1` Habitually Undone task.<br>3. Unit tests verify pure schedule calculation and quiet-hours suppression. |
-| **S2-2** | `UC-2`, `UC-5` | **In-App Partner Feedback Loop (Thumbs Up/Down + Friction Tag)** | 1. Add lightweight, non-intrusive feedback controls on partner reflection turns (`Helpful` / `Missed the mark` with 1-tap reason chip: *Too wordy*, *Wrong tone*, *Not actionable*).<br>2. Aggregate feedback locally in Room to automatically adjust default partner prompt parameters and surface summary counts in `Settings -> Privacy & Diagnostics`.<br>3. Pure unit tests verify feedback-to-prompt adaptation logic. |
-| **S2-3** | `All UCs` | **GitHub Actions CI & Docs-as-Code Linter (`Stef-Startup`)** | 1. After explicit user confirmation, configure `.github/workflows/ci.yml` to run `./gradlew testDebugUnitTest` (including `WcagContrastEngineTest`) on every PR/push.<br>2. Add a CI check verifying that `docs/CHANGELOG.md` is updated whenever files under `app/src/main/` change. |
+### Epic Stream 5 (`EPIC-5` — Saved for Later): Conversational Partner Chat & Live AI Coaching
+- [ ] **`TKT-501` (Re-enable Partner Chat Overlay & Live Streaming AI)**: Parked until `EPIC-1`..`EPIC-4` are user-accepted.

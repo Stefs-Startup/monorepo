@@ -4,6 +4,30 @@ All notable architectural, UX, and domain changes to **Pulse** are tracked in th
 
 ---
 
+## [`v0.6.2` — Visual Focus Dashboard First (`EPIC-1`), Stickiness & Ritual Architecture (`EPIC-4`), Drive-to-Markdown Migration & Full Test Pyramid] — 2026-11-08
+- **Visual Focus Dashboard Only (`EPIC-1` UAT Focus)**:
+  - Updated [`app.component.ts`](../web/src/app/app.component.ts) and [`stalled-task-card.component.ts`](../web/src/app/components/stalled-task-card/stalled-task-card.component.ts) to focus 100% on the **Visual Focus Dashboard** (`Horizon` 3-window descending bars `#1`, `#2`, `#3`..., Today's Top 3 Scarcity Strip, Selected Node Inspector with 5 direct visual triage buttons, `Undone Log`, and 4-card `Settings` navigator), saving Conversational Partner Chat for `EPIC-5`.
+- **`EPIC-4` Reframed Around App Stickiness, Daily Ritual Loops & Habitual Tie-Ins**:
+  - Updated [`docs/SPRINT_ROADMAP_AND_USE_CASES.md`](SPRINT_ROADMAP_AND_USE_CASES.md) and authored [`docs/tech-docs/STICKINESS_AND_HABITUAL_RITUAL_ARCHITECTURE.md`](tech-docs/STICKINESS_AND_HABITUAL_RITUAL_ARCHITECTURE.md) specifying the Morning Anchor (`08:30`), Evening Honest Shutdown (`18:00`), Implementation Intentions (`"If-Then"` 5m starter cues), and Rolling 7-Day Zero-Guilt Consistency Pulse.
+- **Updated Interaction Diagram & Google Drive Docs Migration (`docs/tech-docs/`)**:
+  - Updated the Mermaid interaction diagram in [`docs/UX_FLOW_AND_DESIGN_SYSTEM.md`](UX_FLOW_AND_DESIGN_SYSTEM.md) to reflect the pure Visual Focus Dashboard + Ritual Stickiness loop.
+  - Migrated Google Drive technical documents (`1HOPr0cj2NqOZrRwHn0j-k8rfi8vZonUrk0uQB9PQtaE` and `1Fz7vE46pcEZmPEuPn71tMpQcLeg_vIry6DJNUhRMlgg`) into version-controlled Markdown under `docs/tech-docs/`: [`FULL_STATE_DEBRIEF_AND_VERIFICATION_REPORT.md`](tech-docs/FULL_STATE_DEBRIEF_AND_VERIFICATION_REPORT.md) and [`TECH_STACK_RUNBOOK_AND_KNOWLEDGE_SOURCES.md`](tech-docs/TECH_STACK_RUNBOOK_AND_KNOWLEDGE_SOURCES.md).
+- **Full 3-Tier Test Pyramid Verification**:
+  - **Tier 1 (Pure Unit)**: JUnit 5 (`backend`), Vitest (`pulse-domain.engine.spec.ts`), and JUnit 4 (`app`).
+  - **Tier 2 (Component & HTTP Contract)**: Added [`pulse-visual-dashboard.spec.ts`](../web/src/app/pulse-visual-dashboard.spec.ts) (4/4 component & state contract tests) and expanded [`PulseControllerContractTest.java`](../backend/src/test/java/com/pulse/backend/api/PulseControllerContractTest.java) (`MockMvc` descending window order, Top-3 swap execution, 5m shrink, settings update, and 404 error contract).
+  - **Tier 3 (Live E2E)**: Verified live Angular 21 (`http://localhost:4200`) + Spring Boot 4 (`http://localhost:8080`) end-to-end.
+
+---
+
+## [`v0.6.1` — Epic-Stream Planning Governance & Live Website E2E Verification] — 2026-11-08
+- **Planning & Governance ([`AGENTS.md`](../AGENTS.md), [`docs/SPRINT_ROADMAP_AND_USE_CASES.md`](SPRINT_ROADMAP_AND_USE_CASES.md))**:
+  - Updated Section 1 of `AGENTS.md` and restructured `docs/SPRINT_ROADMAP_AND_USE_CASES.md` so the user is presented strictly with high-level **Epic Streams (`EPIC-1`..`EPIC-4`)** and UAT checkpoints, while the agent self-organizes compartmentalized technical tickets (`TKT-101`..`TKT-402`) internally.
+- **Website Testing (`web/` & `backend/`)**:
+  - Expanded [`pulse-domain.engine.spec.ts`](../web/src/app/domain/pulse-domain.engine.spec.ts) (5/5 Vitest tests passing) alongside JUnit 5 + `MockMvc` backend tests (6/6 test suites passing).
+  - Verified live Angular 21 (`http://localhost:4200`) + Spring Boot 4 (`http://localhost:8080`) end-to-end proxy, 3-window Horizon ordering, Top-3 scarcity gate, `Reflect` chat reply generation, and 18/18 WCAG 2.2 AA contrast pairs.
+
+---
+
 ## [`v0.6.0` — Full-Stack Angular 21 + Spring Boot 4 (Java 21) Web & API Companion] — 2026-11-07
 - **Prime Use Cases**: `UC-1` (Single-Viewport Horizon Assessment), `UC-2` (Contextual Partner Reflection via FAB), `UC-3` (Zero-Guilt Stalled Task Triage & Top-3 Scarcity), `UC-5` (Calm Multi-Page Partner Customization), WCAG 2.2 AA Accessibility Gate
 - **Spring Boot 4.0.9 + Java 21 Backend (`backend/`)**:

@@ -1,6 +1,5 @@
 import { Component, OnInit, computed, inject } from '@angular/core';
 import { NavTab, PulseStateService } from './services/pulse-state.service';
-import { PartnerChatOverlayComponent } from './components/partner-chat/partner-chat-overlay.component';
 import { StalledTaskCardComponent } from './components/stalled-task-card/stalled-task-card.component';
 import { SettingsNavigatorComponent } from './components/settings-navigator/settings-navigator.component';
 
@@ -8,7 +7,6 @@ import { SettingsNavigatorComponent } from './components/settings-navigator/sett
   selector: 'app-root',
   standalone: true,
   imports: [
-    PartnerChatOverlayComponent,
     StalledTaskCardComponent,
     SettingsNavigatorComponent
   ],
@@ -50,7 +48,7 @@ import { SettingsNavigatorComponent } from './components/settings-navigator/sett
         <span>{{ state.dashboard().statusBanner }}</span>
       </div>
 
-      <!-- Main Viewport -->
+      <!-- Main Viewport (Pure Visual Dashboard for Focus — Zero Chat Clutter) -->
       <main class="viewport-content">
         @switch (state.activeTab()) {
           @case ('HORIZON') {
@@ -150,7 +148,7 @@ import { SettingsNavigatorComponent } from './components/settings-navigator/sett
                 </article>
               }
 
-              <!-- Selected Node Inspector Card -->
+              <!-- Selected Node Inspector Card (Direct Visual Triage & Focus Controls) -->
               @if (state.selectedTaskStatus(); as selected) {
                 <aside class="inspector-card" aria-label="Selected Task Inspector">
                   <div class="inspector-top">
@@ -169,14 +167,6 @@ import { SettingsNavigatorComponent } from './components/settings-navigator/sett
                     <button
                       type="button"
                       class="inspector-btn primary"
-                      aria-label="Reflect with Partner on selected task"
-                      (click)="state.openReflectChat(selected.task.id)"
-                    >
-                      Reflect with Partner
-                    </button>
-                    <button
-                      type="button"
-                      class="inspector-btn secondary"
                       aria-label="Commit or Unpin selected task in Today's Top 3"
                       (click)="state.triageTask(selected.task.id, 'COMMIT_TODAY')"
                     >
@@ -184,11 +174,27 @@ import { SettingsNavigatorComponent } from './components/settings-navigator/sett
                     </button>
                     <button
                       type="button"
-                      class="inspector-btn tonal"
+                      class="inspector-btn secondary"
                       aria-label="Shrink selected task to 5 minute starter"
                       (click)="state.triageTask(selected.task.id, 'SHRINK_TO_5M')"
                     >
-                      Shrink to 5m
+                      Shrink to 5m Starter
+                    </button>
+                    <button
+                      type="button"
+                      class="inspector-btn tonal"
+                      aria-label="Reschedule selected task for tomorrow"
+                      (click)="state.triageTask(selected.task.id, 'RESCHEDULE')"
+                    >
+                      Tomorrow
+                    </button>
+                    <button
+                      type="button"
+                      class="inspector-btn tonal"
+                      aria-label="Park selected task in Someday"
+                      (click)="state.triageTask(selected.task.id, 'PARK_SOMEDAY')"
+                    >
+                      Park Someday
                     </button>
                     <button
                       type="button"
@@ -214,7 +220,6 @@ import { SettingsNavigatorComponent } from './components/settings-navigator/sett
                   @for (item of state.dashboard().habituallyUndone; track item.task.id) {
                     <app-stalled-task-card
                       [status]="item"
-                      (reflect)="state.openReflectChat($event)"
                       (triage)="state.triageTask($event.taskId, $event.action)"
                     />
                   }
@@ -229,7 +234,6 @@ import { SettingsNavigatorComponent } from './components/settings-navigator/sett
                   @for (item of state.dashboard().longStandingDrift; track item.task.id) {
                     <app-stalled-task-card
                       [status]="item"
-                      (reflect)="state.openReflectChat($event)"
                       (triage)="state.triageTask($event.taskId, $event.action)"
                     />
                   }
@@ -244,7 +248,6 @@ import { SettingsNavigatorComponent } from './components/settings-navigator/sett
                   @for (item of state.dashboard().top3Commitments; track item.task.id) {
                     <app-stalled-task-card
                       [status]="item"
-                      (reflect)="state.openReflectChat($event)"
                       (triage)="state.triageTask($event.taskId, $event.action)"
                     />
                   }
@@ -264,16 +267,6 @@ import { SettingsNavigatorComponent } from './components/settings-navigator/sett
           }
         }
       </main>
-
-      <!-- Dedicated Reflect Extended FAB (No Task-Creation Clutter) -->
-      <button
-        type="button"
-        class="reflect-fab"
-        aria-label="Open Reflect Partner Chat"
-        (click)="state.openReflectChat()"
-      >
-        ✦ Reflect ({{ stalledCount() }})
-      </button>
 
       <!-- Standard Material 3 Bottom NavigationBar -->
       <nav class="bottom-nav-bar" aria-label="Primary Navigation">
@@ -334,19 +327,6 @@ import { SettingsNavigatorComponent } from './components/settings-navigator/sett
             </button>
           </div>
         </div>
-      }
-
-      <!-- Decoupled Reactive Partner Chat Overlay -->
-      @if (state.isChatOpen()) {
-        <app-partner-chat-overlay
-          [activeStatus]="state.selectedTaskStatus()"
-          [messages]="state.activeChatThread()"
-          [quickReplies]="state.dashboard().quickReplies"
-          (close)="state.closeReflectChat()"
-          (nextTask)="state.cycleNextStalledTask()"
-          (sendMessage)="onSendChat($event)"
-          (applyAction)="onApplySuggestedAction($event)"
-        />
       }
     </div>
   `,
@@ -687,22 +667,6 @@ import { SettingsNavigatorComponent } from './components/settings-navigator/sett
       flex-direction: column;
       gap: 12px;
     }
-    .reflect-fab {
-      position: fixed;
-      right: 24px;
-      bottom: 88px;
-      min-height: 56px;
-      padding: 0 22px;
-      border-radius: 18px;
-      border: none;
-      background: var(--md-primary);
-      color: var(--md-on-primary);
-      font-size: 0.96rem;
-      font-weight: 800;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
-      cursor: pointer;
-      z-index: 30;
-    }
     .bottom-nav-bar {
       position: fixed;
       bottom: 0;
@@ -799,29 +763,11 @@ export class AppComponent implements OnInit {
     }
   });
 
-  readonly stalledCount = computed(
-    () =>
-      this.state.dashboard().habituallyUndone.length +
-      this.state.dashboard().longStandingDrift.length
-  );
-
   ngOnInit(): void {
     this.state.loadState();
   }
 
   setTab(tab: NavTab): void {
     this.state.activeTab.set(tab);
-  }
-
-  onSendChat(message: string): void {
-    const active = this.state.selectedTaskStatus();
-    if (!active) return;
-    this.state.sendChatMessage(active.task.id, message);
-  }
-
-  onApplySuggestedAction(actionCode: string): void {
-    const active = this.state.selectedTaskStatus();
-    if (!active) return;
-    this.state.triageTask(active.task.id, actionCode);
   }
 }
