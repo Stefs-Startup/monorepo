@@ -4,6 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --proxy-config proxy.conf.json",
+    "lint": "node scripts/lint-angular.mjs",
+    "typecheck": "tsc --noEmit",
     "build": "ng build",
     "test": "vitest run"
   },

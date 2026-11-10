@@ -55,16 +55,16 @@ describe('Pulse Visual Focus Dashboard — Tier 2 Component & State Contract Sui
       zeroPiiTelemetryEnabled: true
     };
 
-    let emitted: PartnerSettingsDto | null = null;
+    const emittedEvents: PartnerSettingsDto[] = [];
     nav.saveSettings.subscribe((updated) => {
-      emitted = updated;
+      emittedEvents.push(updated);
     });
 
     nav.updateMorningTime('07:45');
-    expect(emitted?.morningRitualTime).toBe('07:45');
+    expect(emittedEvents[0]?.morningRitualTime).toBe('07:45');
 
     nav.updateEveningTime('17:30');
-    expect(emitted?.eveningShutdownTime).toBe('17:30');
+    expect(emittedEvents[1]?.eveningShutdownTime).toBe('17:30');
   });
 
   it('emits direct visual triage actions from StalledTaskCardComponent', () => {
