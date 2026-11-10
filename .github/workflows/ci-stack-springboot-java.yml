@@ -1,0 +1,169 @@
+# =============================================================================
+# Stack CI Pipeline — Spring Boot 4 & Modern Java 21 Backend
+# =============================================================================
+# Validates Spring Boot 4 + Java 21 backend applications in the monorepo:
+#   - apps/pulse/backend (com.pulse:backend — Spring Boot 4.0.9, Java 21, JUnit 5, MockMvc)
+#
+# Executes 4 strict gates:
+#   1. Gate 1 — Code Quality (Java 21 -Xlint compiler checks + ADR-007 pure domain boundary audit)
+#   2. Gate 2 — Build (bootJar + testClasses executable Spring Boot 4 artifact)
+#   3. Gate 3 — Test (JUnit 5 pure domain, WCAG 2.2 AA, ArchitectureBoundaryTest & MockMvc contracts)
+#   4. Gate 4 — Deploy & Distribution Readiness
+# =============================================================================
+
+name: "Stack CI · Spring Boot 4 / Java 21"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/pulse/backend/**"
+      - ".github/workflows/ci-stack-springboot-java.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "apps/pulse/backend/**"
+      - ".github/workflows/ci-stack-springboot-java.yml"
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  code-quality:
+    name: "Gate 1 · Code Quality & Domain Boundaries (apps/pulse/backend)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/pulse/backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run Java 21 compiler lint & ADR-007 pure domain boundary audit
+        run: |
+          chmod +x gradlew
+          ./gradlew codeQuality --no-daemon --stacktrace
+
+  build:
+    name: "Gate 2 · Build Spring Boot 4 JAR (apps/pulse/backend)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/pulse/backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build executable Spring Boot 4 JAR & test classes
+        run: |
+          chmod +x gradlew
+          ./gradlew bootJar testClasses --no-daemon --stacktrace
+
+      - name: Upload Spring Boot 4 executable JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: pulse-springboot-backend-jar
+          path: apps/pulse/backend/build/libs/*.jar
+          retention-days: 7
+
+  test:
+    name: "Gate 3 · Test (JUnit 5 + MockMvc · apps/pulse/backend)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/pulse/backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run JUnit 5 pure domain, Architecture, WCAG 2.2 AA & MockMvc contract tests
+        run: |
+          chmod +x gradlew
+          ./gradlew test --no-daemon --stacktrace
+
+      - name: Upload JUnit 5 test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pulse-springboot-backend-reports
+          path: |
+            apps/pulse/backend/build/reports/tests/**
+            apps/pulse/backend/build/test-results/test/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+  deploy:
+    name: "Gate 4 · Deploy & Distribution (Spring Boot 4 / Java 21)"
+    needs:
+      - code-quality
+      - build
+      - test
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Require all upstream gates to pass
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          if echo "$RESULTS" | jq -e 'any(.[]; .result != "success")' > /dev/null; then
+            echo "::error::One or more Spring Boot 4 / Java 21 CI gates failed."
+            exit 1
+          fi
+
+      - name: Download staged Spring Boot 4 JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: pulse-springboot-backend-jar
+          path: staged-springboot-backend
+
+      - name: Publish Stack Readiness Summary
+        run: |
+          {
+            echo "## ☕ Spring Boot 4 + Java 21 Stack CI Summary"
+            echo ""
+            echo "| App | Path | Quality (Java 21 + ADR-007) | Build (\`bootJar\`) | Test (JUnit 5 + \`MockMvc\`) |"
+            echo "| :--- | :--- | :---: | :---: | :---: |"
+            echo "| \`pulse-backend\` | \`apps/pulse/backend\` | ✅ | ✅ (\`backend-0.6.0.jar\`) | ✅ |"
+            echo ""
+            echo "Staged artifacts: \`$(ls -1 staged-springboot-backend | tr '\n' ' ')\` (\`$(du -sh staged-springboot-backend | cut -f1)\`)"
+          } >> "$GITHUB_STEP_SUMMARY"
