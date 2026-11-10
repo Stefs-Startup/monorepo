@@ -2,12 +2,13 @@
   "name": "@cmp/web",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "description": "Web app template",
   "scripts": {
-    "dev": "echo \"Running dev server (placeholder)\"",
-    "build": "echo \"Building app (placeholder)\"",
-    "lint": "echo \"Linting app (placeholder)\"",
-    "test": "echo \"Testing app (placeholder)\"",
+    "dev": "tsc -w -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "tsc --noEmit && node --input-type=module -e \"import fs from 'node:fs';const src=fs.readFileSync('src/index.ts','utf8');if(src.includes('@ts-ignore')){console.error('Disallowed @ts-ignore');process.exit(1);}console.log('@cmp/web lint passed.');\"",
+    "test": "tsc -p tsconfig.json && node dist/index.test.js",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist node_modules"
   },

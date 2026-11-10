@@ -98,6 +98,9 @@ jobs:
             if grep -rqsE --include='*.gradle' --include='*.gradle.kts' \
                  'com\.android\.|libs\.plugins\.android\b|^\s*android\s*\{' .; then
               TYPE=android
+            elif grep -rqsE --include='*.gradle' --include='*.gradle.kts' \
+                 'kotlin\(\s*"multiplatform"\s*\)|org\.jetbrains\.kotlin\.multiplatform' .; then
+              TYPE=kmp
             else
               TYPE=jvm
             fi
@@ -105,8 +108,11 @@ jobs:
 
           if [ "$TYPE" = "android" ]; then
             d_quality="lintDebug"; d_build="assembleDebug"; d_test="testDebugUnitTest"
+          elif [ "$TYPE" = "kmp" ]; then
+            d_quality="codeQuality"; d_build="jvmJar compileProductionExecutableKotlinWasmJs"; d_test="jvmTest"
           else
-            d_quality="";          d_build="assemble testClasses"; d_test="test"
+            if grep -rqs 'tasks\.register("codeQuality")' .; then d_quality="codeQuality"; else d_quality=""; fi
+            d_build="assemble testClasses"; d_test="test"
           fi
           if [ "$QUALITY" = "default" ]; then QUALITY="$d_quality"; fi
           if [ "$BUILD" = "default" ];   then BUILD="$d_build"; fi

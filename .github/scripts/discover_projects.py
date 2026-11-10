@@ -38,6 +38,7 @@ DEFAULT_NODE = "20"
 # Applied Android plugin or `android { }` block in a build script. Version catalogs are
 # deliberately ignored: a catalog may declare Android plugins a JVM build never applies.
 ANDROID_PATTERN = re.compile(r"com\.android\.|libs\.plugins\.android\b|^\s*android\s*\{", re.MULTILINE)
+KMP_PATTERN = re.compile(r'kotlin\(\s*"multiplatform"\s*\)|org\.jetbrains\.kotlin\.multiplatform', re.MULTILINE)
 
 
 def tracked_files() -> list[PurePosixPath]:
@@ -99,12 +100,14 @@ def discover_gradle(files: list[PurePosixPath], excludes: list[str]) -> list[dic
             and f.name.endswith((".gradle", ".gradle.kts"))
         ]
         is_android = any(ANDROID_PATTERN.search((ROOT / f).read_text(errors="ignore")) for f in build_files)
+        is_kmp = any(KMP_PATTERN.search((ROOT / f).read_text(errors="ignore")) for f in build_files)
+        project_type = "android" if is_android else ("kmp" if is_kmp else "jvm")
         projects.append(
             {
                 "path": str(root),
                 "artifact-name": f"gradle-{slug(root)}",
                 # Inputs of reusable-gradle.yml ("default" = that workflow's per-type default).
-                "project-type": "android" if is_android else "jvm",
+                "project-type": project_type,
                 "java-version": DEFAULT_JAVA,
                 "quality-tasks": "default",
                 "build-tasks": "default",
