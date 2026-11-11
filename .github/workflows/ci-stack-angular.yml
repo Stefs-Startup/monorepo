@@ -46,10 +46,10 @@ jobs:
         working-directory: apps/pulse/web
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
@@ -73,10 +73,10 @@ jobs:
         working-directory: apps/pulse/web
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
@@ -95,7 +95,7 @@ jobs:
           echo "Verified Angular 21 production bundle."
 
       - name: Upload Angular production bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pulse-angular-web-dist
           path: apps/pulse/web/dist/pulse-web/**
@@ -110,10 +110,10 @@ jobs:
         working-directory: apps/pulse/web
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
@@ -148,7 +148,7 @@ jobs:
           fi
 
       - name: Download staged Angular production bundle
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: pulse-angular-web-dist
           path: staged-angular-web

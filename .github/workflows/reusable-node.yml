@@ -63,7 +63,7 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Detect package manager & Node version
         id: detect
@@ -98,13 +98,13 @@ jobs:
 
       - name: Setup pnpm
         if: steps.detect.outputs.pm == 'pnpm'
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: ${{ inputs.pnpm-version }}
           package_json_file: ${{ inputs.working-directory }}/package.json
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ steps.detect.outputs.node }}
           # Yarn Berry needs Corepack before setup-node can resolve its cache dir.
@@ -154,7 +154,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Upload build output
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.detect.outputs.artifact }}
           path: ${{ steps.paths.outputs.list }}
