@@ -7,6 +7,6 @@
     "clean": "rimraf dist node_modules"
   },
   "devDependencies": {
-    "rimraf": "^6.0.0"
+    "rimraf": "^6.1.4"
   }
 }
