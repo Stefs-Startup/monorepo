@@ -97,10 +97,9 @@ jobs:
           '
 
       - name: Lint @cmp/utils & @cmp/web via Turborepo
-        run: |
-          pnpm --filter @cmp/utils run lint
-          pnpm --filter @cmp/web run lint
-          pnpm run lint
+        # Run through Turborepo so `dependsOn: ["^build"]` builds @cmp/utils
+        # (dist/ types) before @cmp/web is type-checked.
+        run: pnpm run lint
 
       - name: Typecheck all pnpm workspaces
         run: pnpm run typecheck
