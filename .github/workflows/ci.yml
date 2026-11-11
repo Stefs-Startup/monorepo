@@ -44,7 +44,7 @@ jobs:
       node: ${{ steps.discover.outputs.node }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Discover projects
         id: discover
@@ -121,7 +121,7 @@ jobs:
           fi
 
       - name: Download staged build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: staged-artifacts
 

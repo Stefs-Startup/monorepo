@@ -46,16 +46,16 @@ jobs:
         working-directory: apps/pulse/backend
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Java 21 (Temurin)
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: "temurin"
           java-version: "21"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Run Java 21 compiler lint & ADR-007 pure domain boundary audit
         run: |
@@ -71,16 +71,16 @@ jobs:
         working-directory: apps/pulse/backend
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Java 21 (Temurin)
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: "temurin"
           java-version: "21"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build executable Spring Boot 4 JAR & test classes
         run: |
@@ -88,7 +88,7 @@ jobs:
           ./gradlew bootJar testClasses --no-daemon --stacktrace
 
       - name: Upload Spring Boot 4 executable JAR
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pulse-springboot-backend-jar
           path: apps/pulse/backend/build/libs/*.jar
@@ -103,16 +103,16 @@ jobs:
         working-directory: apps/pulse/backend
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Java 21 (Temurin)
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: "temurin"
           java-version: "21"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Run JUnit 5 pure domain, Architecture, WCAG 2.2 AA & MockMvc contract tests
         run: |
@@ -121,7 +121,7 @@ jobs:
 
       - name: Upload JUnit 5 test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pulse-springboot-backend-reports
           path: |
@@ -151,7 +151,7 @@ jobs:
           fi
 
       - name: Download staged Spring Boot 4 JAR
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: pulse-springboot-backend-jar
           path: staged-springboot-backend
