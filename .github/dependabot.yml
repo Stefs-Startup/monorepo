@@ -107,6 +107,8 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "gradle"
         update-types: ["version-update:semver-major"]
+      - dependency-name: "com.squareup.okhttp3:*"
+        update-types: ["version-update:semver-major"]
 
   # ---------------------------------------------------------------------------
   # 4. Pulse Spring Boot 4 / Java 21 Backend (apps/pulse/backend)
@@ -136,6 +138,8 @@ updates:
           - "*"
     ignore:
       - dependency-name: "gradle"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "com.squareup.okhttp3:*"
         update-types: ["version-update:semver-major"]
 
   # ---------------------------------------------------------------------------
