@@ -2,7 +2,7 @@
   "name": "cmp-root",
   "version": "0.0.0",
   "private": true,
-  "description": "Company of One — monorepo root. All apps, packages, and infrastructure live here.",
+  "description": "Company of One \u2014 monorepo root. All apps, packages, and infrastructure live here.",
   "packageManager": "pnpm@9.12.3",
   "engines": {
     "node": ">=20",
@@ -14,11 +14,15 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "typecheck": "turbo typecheck",
-    "clean": "turbo clean && rimraf node_modules"
+    "clean": "turbo clean && rimraf node_modules",
+    "check": "scripts/check.sh --changed",
+    "check:all": "scripts/check.sh --all",
+    "prepare": "lefthook install"
   },
   "devDependencies": {
     "@backstage/cli": "^0.34.6",
     "@techdocs/cli": "^1.10.7",
+    "lefthook": "^1.11.0",
     "rimraf": "^6.0.0",
     "turbo": "^2.8.17"
   }
