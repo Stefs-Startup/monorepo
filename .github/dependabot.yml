@@ -1,0 +1,176 @@
+# =============================================================================
+# Dependabot Configuration — Company of One Monorepo (CMP-18)
+# =============================================================================
+# Covers all active package ecosystems across the monorepo:
+#   1. GitHub Actions (.github/workflows)
+#   2. Root pnpm + Turborepo Workspaces (/ — covers apps/web, packages/*)
+#   3. Pulse Android & Kotlin Gradle Catalog (/apps/pulse)
+#   4. Pulse Spring Boot 4 / Java 21 Backend (/apps/pulse/backend)
+#   5. Pulse Angular 21 Web App (/apps/pulse/web)
+#   6. Docker Compose Images (/infra)
+#
+# apps/backstage is EXPERIMENTAL and intentionally excluded until promoted.
+# =============================================================================
+
+version: 2
+updates:
+  # ---------------------------------------------------------------------------
+  # 1. GitHub Actions Workflows
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(ci)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "ci"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # ---------------------------------------------------------------------------
+  # 2. Root pnpm + Turborepo Workspace
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "npm"
+    # pnpm workspaces are resolved from the root lockfile; listing each workspace
+    # directory as well makes Dependabot open duplicate PRs for the same bump.
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "workspace"
+    groups:
+      workspace-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ---------------------------------------------------------------------------
+  # 3. Pulse Android & Kotlin Gradle Version Catalog (apps/pulse/gradle/libs.versions.toml)
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "gradle"
+    directory: "/apps/pulse"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(pulse)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "pulse"
+      - "gradle"
+    groups:
+      androidx-and-compose:
+        patterns:
+          - "androidx.*"
+          - "org.jetbrains.kotlin*"
+          - "com.google.devtools.ksp*"
+        update-types:
+          - "minor"
+          - "patch"
+      pulse-runtime-libs:
+        exclude-patterns:
+          - "androidx.*"
+          - "org.jetbrains.kotlin*"
+          - "com.google.devtools.ksp*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ---------------------------------------------------------------------------
+  # 4. Pulse Spring Boot 4 / Java 21 Backend (apps/pulse/backend)
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "gradle"
+    directory: "/apps/pulse/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(pulse-backend)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "pulse"
+      - "gradle"
+    groups:
+      spring-boot:
+        patterns:
+          - "org.springframework.*"
+          - "io.spring.*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ---------------------------------------------------------------------------
+  # 5. Pulse Angular 21 Web Workspace (apps/pulse/web)
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "npm"
+    directory: "/apps/pulse/web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(pulse-web)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "pulse"
+    groups:
+      angular-framework:
+        patterns:
+          - "@angular/*"
+          - "rxjs"
+          - "zone.js"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ---------------------------------------------------------------------------
+  # 6. Docker Compose Service Images (infra/docker-compose.yml)
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "docker-compose"
+    directory: "/infra"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(docker)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "docker"
+    ignore:
+      # Major Postgres/Redis bumps require a data migration; take them deliberately.
+      - dependency-name: "postgres"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "redis"
+        update-types: ["version-update:semver-major"]

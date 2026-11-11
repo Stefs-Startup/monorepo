@@ -1,0 +1,147 @@
+# =============================================================================
+# Monorepo CI/CD Pipeline (CMP-18)
+# =============================================================================
+# 1. Discover — .github/scripts/discover_projects.py finds every project by
+#    convention (gradlew → Gradle, package.json + lockfile → Node) and honours
+#    .github/ci-projects.json (excludes such as experimental apps/backstage).
+# 2. One reusable language workflow per discovered project, each running the
+#    Code Quality → Build → Test gates:
+#      .github/workflows/reusable-node.yml    (npm / pnpm + Turborepo / yarn)
+#      .github/workflows/reusable-gradle.yml  (Java, Kotlin, Spring Boot, Android)
+# 3. Deploy & Distribution — the single required status check: fails if any
+#    project failed, then summarises the staged artifacts.
+#
+# Adding an app needs no change here. The reusable workflows can also be called
+# from other repositories in the organization (see each file's header).
+# =============================================================================
+
+name: Monorepo CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    name: Discover Projects
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      gradle: ${{ steps.discover.outputs.gradle }}
+      node: ${{ steps.discover.outputs.node }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Discover projects
+        id: discover
+        run: |
+          {
+            echo '```'
+            python3 -I .github/scripts/discover_projects.py
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify Markdown docs & ADR structure
+        run: |
+          test -f docs/README.md
+          test -f docs/monorepo-conventions.md
+          test -d docs/adr
+          test -d docs/stack-best-practices
+          echo "Documentation structure verified."
+
+  gradle:
+    name: Gradle · ${{ matrix.project.path }}
+    needs: discover
+    if: needs.discover.outputs.gradle != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJSON(needs.discover.outputs.gradle) }}
+    uses: ./.github/workflows/reusable-gradle.yml
+    with:
+      working-directory: ${{ matrix.project.path }}
+      project-type: ${{ matrix.project.project-type }}
+      java-version: ${{ matrix.project.java-version }}
+      quality-tasks: ${{ matrix.project.quality-tasks }}
+      build-tasks: ${{ matrix.project.build-tasks }}
+      test-tasks: ${{ matrix.project.test-tasks }}
+      artifact-name: ${{ matrix.project.artifact-name }}
+
+  node:
+    name: Node · ${{ matrix.project.path }}
+    needs: discover
+    if: needs.discover.outputs.node != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJSON(needs.discover.outputs.node) }}
+    uses: ./.github/workflows/reusable-node.yml
+    with:
+      working-directory: ${{ matrix.project.path }}
+      node-version: ${{ matrix.project.node-version }}
+      scripts: ${{ matrix.project.scripts }}
+      artifact-name: ${{ matrix.project.artifact-name }}
+      artifact-paths: ${{ matrix.project.artifact-paths }}
+
+  # ---------------------------------------------------------------------------
+  # Deploy & Distribution Gate (Placeholder) — mark this as the required check.
+  # ---------------------------------------------------------------------------
+  deploy:
+    name: Deploy & Distribution
+    needs:
+      - discover
+      - gradle
+      - node
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Require every project to pass
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          if echo "$RESULTS" | jq -e 'any(.[]; .result == "failure" or .result == "cancelled")' > /dev/null; then
+            echo "::error::One or more CI jobs failed or were cancelled."
+            exit 1
+          fi
+
+      - name: Download staged build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: staged-artifacts
+
+      - name: Summarise staged distribution artifacts
+        run: |
+          mkdir -p staged-artifacts
+          {
+            echo "## 🚀 Monorepo Deploy & Distribution Gate"
+            echo ""
+            echo "| Artifact | Files | Size |"
+            echo "| :--- | ---: | ---: |"
+            for dir in staged-artifacts/*/; do
+              [ -d "$dir" ] || continue
+              name=$(basename "$dir")
+              case "$name" in *-reports) continue ;; esac
+              echo "| \`$name\` | $(find "$dir" -type f | wc -l) | $(du -sh "$dir" | cut -f1) |"
+            done
+            echo ""
+            echo "Distribution channels (Firebase App Distribution, GitHub Releases, Play Internal, web hosting) are not wired up yet."
+            echo "\`apps/backstage\` is experimental and excluded via \`.github/ci-projects.json\`."
+            echo ""
+            echo "> **Mode:** \`${{ github.event_name }}\` on ref \`${{ github.ref_name }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

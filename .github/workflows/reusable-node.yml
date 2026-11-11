@@ -1,0 +1,162 @@
+# =============================================================================
+# Reusable Workflow — Node.js / TypeScript (npm, pnpm, yarn)
+# =============================================================================
+# Runs the standard quality → build → test gates for one Node project. The
+# package manager is detected from the lockfile, and each script runs only if
+# the project's package.json defines it. Turborepo roots work unchanged, since
+# their `lint` / `build` / ... scripts call `turbo`.
+#
+# Usage from any repository in the organization:
+#
+#   jobs:
+#     web:
+#       uses: Stefs-Startup/monorepo/.github/workflows/reusable-node.yml@main
+#       with:
+#         working-directory: apps/web     # optional, defaults to "."
+#
+# Script contract (all optional): lint, typecheck, build, test.
+# =============================================================================
+
+name: Reusable · Node
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: Project directory containing package.json and its lockfile.
+        type: string
+        default: "."
+      node-version:
+        description: Node.js version. Empty = <dir>/.nvmrc, <dir>/.node-version, then the repo-root .nvmrc.
+        type: string
+        default: ""
+      scripts:
+        description: Space-separated package.json scripts to run in order (missing ones are skipped).
+        type: string
+        default: "lint typecheck build test"
+      pnpm-version:
+        description: pnpm version, only needed when package.json has no "packageManager" field.
+        type: string
+        default: ""
+      artifact-name:
+        description: Name for the uploaded build output. Empty = node-<working-directory>.
+        type: string
+        default: ""
+      artifact-paths:
+        description: Newline-separated build output globs, relative to working-directory.
+        type: string
+        default: "dist"
+      timeout-minutes:
+        type: number
+        default: 25
+
+permissions:
+  contents: read
+
+jobs:
+  node:
+    name: Quality · Build · Test
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect package manager & Node version
+        id: detect
+        env:
+          INPUT_NODE: ${{ inputs.node-version }}
+          INPUT_ARTIFACT: ${{ inputs.artifact-name }}
+          WORKDIR: ${{ inputs.working-directory }}
+        run: |
+          if   [ -f pnpm-lock.yaml ];    then pm=pnpm; lock=pnpm-lock.yaml
+          elif [ -f yarn.lock ];         then pm=yarn; lock=yarn.lock
+          elif [ -f package-lock.json ]; then pm=npm;  lock=package-lock.json
+          else echo "::error::No lockfile in $WORKDIR (expected pnpm-lock.yaml, yarn.lock or package-lock.json)"; exit 1
+          fi
+
+          node="$INPUT_NODE"
+          for f in .nvmrc .node-version "$GITHUB_WORKSPACE/.nvmrc" "$GITHUB_WORKSPACE/.node-version"; do
+            if [ -z "$node" ] && [ -f "$f" ]; then node=$(tr -d 'v[:space:]' < "$f"); fi
+          done
+          node="${node:-lts/*}"
+
+          slug=$(echo "$WORKDIR" | tr -c 'A-Za-z0-9\n' '-' | sed 's/^-*//;s/-*$//')
+          name="$INPUT_ARTIFACT"
+          if [ -z "$name" ]; then name="node-${slug:-root}"; fi
+
+          {
+            echo "pm=$pm"
+            echo "lockfile=$WORKDIR/$lock"
+            echo "node=$node"
+            echo "artifact=$name"
+          } >> "$GITHUB_OUTPUT"
+          echo "Detected $pm (Node $node) in $WORKDIR"
+
+      - name: Setup pnpm
+        if: steps.detect.outputs.pm == 'pnpm'
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ inputs.pnpm-version }}
+          package_json_file: ${{ inputs.working-directory }}/package.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.detect.outputs.node }}
+          # Yarn Berry needs Corepack before setup-node can resolve its cache dir.
+          cache: ${{ steps.detect.outputs.pm != 'yarn' && steps.detect.outputs.pm || '' }}
+          cache-dependency-path: ${{ steps.detect.outputs.lockfile }}
+
+      - name: Enable Corepack (yarn)
+        if: steps.detect.outputs.pm == 'yarn'
+        run: corepack enable
+
+      - name: Install dependencies
+        env:
+          PM: ${{ steps.detect.outputs.pm }}
+        run: |
+          case "$PM" in
+            pnpm) pnpm install --frozen-lockfile ;;
+            yarn) if yarn --version | grep -q '^1\.'; then yarn install --frozen-lockfile; else yarn install --immutable; fi ;;
+            npm)  npm ci ;;
+          esac
+
+      - name: Run scripts (${{ inputs.scripts }})
+        env:
+          PM: ${{ steps.detect.outputs.pm }}
+          SCRIPTS: ${{ inputs.scripts }}
+          CI: "true"
+        run: |
+          for script in $SCRIPTS; do
+            if jq -e --arg s "$script" '.scripts[$s] // empty' package.json > /dev/null; then
+              echo "::group::$PM run $script"
+              "$PM" run "$script"
+              echo "::endgroup::"
+            else
+              echo "Skipping '$script' (not defined in package.json)"
+            fi
+          done
+
+      - name: Resolve artifact paths
+        id: paths
+        env:
+          WORKDIR: ${{ inputs.working-directory }}
+          PATHS: ${{ inputs.artifact-paths }}
+        run: |
+          {
+            echo "list<<EOF"
+            while IFS= read -r p; do [ -n "$p" ] && echo "$WORKDIR/$p"; done <<< "$PATHS"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.detect.outputs.artifact }}
+          path: ${{ steps.paths.outputs.list }}
+          if-no-files-found: ignore
+          retention-days: 7

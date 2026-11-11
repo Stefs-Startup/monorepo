@@ -102,7 +102,7 @@ pnpm --filter web add @cmp/ui --workspace
 | CMP-13 | ADR process + first ADR | ✅ Done |
 | CMP-16 | Convergence — all streams | Unblocked |
 | CMP-17 | Initial UI component library | Planned |
-| CMP-18 | CI/CD Pipeline Configuration | Planned |
+| CMP-18 | CI/CD Pipeline & Dependabot Configuration | ✅ Done |
 | CMP-19 | Database schemas and ORM integration | Planned |
 
 ---
