@@ -28,15 +28,15 @@
     "new": "backstage-cli new"
   },
   "devDependencies": {
-    "@backstage/cli": "^0.35.4",
+    "@backstage/cli": "^0.36.7",
     "@backstage/e2e-test-utils": "^0.1.2",
     "@jest/environment-jsdom-abstract": "^30.0.0",
     "@playwright/test": "^1.32.3",
     "@types/jest": "^30.0.0",
-    "jest": "^30.2.0",
-    "jsdom": "^27.1.0",
-    "node-gyp": "^10.0.0",
-    "prettier": "^2.3.2",
+    "jest": "^30.5.2",
+    "jsdom": "^31.0.0",
+    "node-gyp": "^13.1.0",
+    "prettier": "^3.9.10",
     "typescript": "~5.8.0"
   },
   "resolutions": {
