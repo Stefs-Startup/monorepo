@@ -99,6 +99,14 @@ updates:
       # Kotlin and KSP versions must stay lockstep with Android Gradle Plugin (AGP 8.7.3)
       - dependency-name: "org.jetbrains.kotlin*"
       - dependency-name: "com.google.devtools.ksp*"
+      - dependency-name: "com.android.application"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "com.android.library"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "com.android.tools.build:gradle"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "gradle"
+        update-types: ["version-update:semver-major"]
 
   # ---------------------------------------------------------------------------
   # 4. Pulse Spring Boot 4 / Java 21 Backend (apps/pulse/backend)
@@ -126,6 +134,9 @@ updates:
       backend-deps:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "gradle"
+        update-types: ["version-update:semver-major"]
 
   # ---------------------------------------------------------------------------
   # 5. Pulse Angular 21 Web Workspace (apps/pulse/web)
@@ -155,6 +166,8 @@ updates:
       - dependency-name: "@angular/*"
         update-types: ["version-update:semver-major"]
       - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vitest"
         update-types: ["version-update:semver-major"]
 
   # ---------------------------------------------------------------------------
