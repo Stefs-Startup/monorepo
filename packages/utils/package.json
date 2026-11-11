@@ -2,16 +2,17 @@
   "name": "@cmp/utils",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "description": "Shared utilities for the CMP monorepo",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
     "dev": "tsc -w -p tsconfig.build.json",
     "build": "tsc -p tsconfig.build.json",
-    "lint": "echo \"Linting @cmp/utils (placeholder)\"",
-    "test": "echo \"Testing @cmp/utils (placeholder)\"",
+    "lint": "tsc --noEmit && node --input-type=module -e \"import fs from 'node:fs';const src=fs.readFileSync('src/index.ts','utf8');if(src.includes('@ts-ignore')){console.error('Disallowed @ts-ignore');process.exit(1);}console.log('@cmp/utils lint passed.');\"",
+    "test": "tsc -p tsconfig.json && node dist/src/index.test.js",
     "typecheck": "tsc --noEmit",
-    "clean": "rimraf dist node_modules"
+    "clean": "rimraf dist node_modules tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo"
   },
   "devDependencies": {
     "@cmp/config": "workspace:*",
