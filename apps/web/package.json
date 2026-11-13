@@ -3,12 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Web app template",
+  "description": "Web app product slice consuming @cmp/utils",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "dev": "tsc -w -p tsconfig.build.json",
     "build": "tsc -p tsconfig.build.json",
     "lint": "tsc --noEmit && node --input-type=module -e \"import fs from 'node:fs';const src=fs.readFileSync('src/index.ts','utf8');if(src.includes('@ts-ignore')){console.error('Disallowed @ts-ignore');process.exit(1);}console.log('@cmp/web lint passed.');\"",
-    "test": "tsc -p tsconfig.json && node dist/index.test.js",
+    "test": "tsc -p tsconfig.json && node dist/src/index.test.js && node --test dist/src/web.test.js",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist node_modules"
   },
@@ -17,6 +19,7 @@
   },
   "devDependencies": {
     "@cmp/config": "workspace:*",
+    "@types/node": "^24.12.4",
     "rimraf": "^6.1.4",
     "typescript": "^5.6.3"
   }

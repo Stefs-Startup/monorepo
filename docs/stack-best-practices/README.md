@@ -25,3 +25,14 @@
    - Duplicating a rich Jetpack Compose UI in hand-rolled Angular CSS creates visual drift and doubles maintenance. Using **KMP + Compose Multiplatform (`commonMain` + `wasmJsMain`)** shares ~95% of the codebase while adapting layouts to **modern desktop web principles** on wide screens (`>= 840.dp`).
 3. **Observability Must Be Verifiable in the Live Dashboard**:
    - Telemetry is only useful if it reaches the **Firebase Console (`gw-cli-490302`)** with zero PII leakage (`[REDACTED_EMAIL]`, `[REDACTED_TOKEN]`) and includes an in-app `"Send Test Telemetry"` trigger for immediate verification.
+
+---
+
+## 🏭 Agentic Software Factory Guides (`docs/software-factory/`)
+
+To see how these stack standards are scaffolded, enforced, and verified automatically across the monorepo:
+- **[Software Factory Overview](../software-factory/README.md)** — 4-stage closed-loop factory architecture
+- **[01. From Portals to Agentic Workspaces](../software-factory/01-from-portals-to-agentic-workspaces.md)** — `AGENTS.md` constitutions, pnpm boundaries, and Turborepo orchestration
+- **[02. Shared Guardrail Primitives](../software-factory/02-shared-guardrail-primitives.md)** — `@cmp/utils` WCAG 2.2 AA, Zero-PII, and scarcity engines
+- **[03. Deterministic App & Slice Generators](../software-factory/03-deterministic-app-and-slice-generators.md)** — `pnpm gen:app` & `pnpm gen:slice` vertical slice scaffolding
+- **[04. Closed-Loop Verification Harness](../software-factory/04-closed-loop-verification-harness.md)** — `pnpm verify:slice` three-gate verification loop

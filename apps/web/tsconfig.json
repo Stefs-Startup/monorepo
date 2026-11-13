@@ -1,7 +1,13 @@
 {
   "extends": "@cmp/config/tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "rootDir": ".",
+    "outDir": "dist",
+    "types": ["node"]
   },
   "include": ["src"]
 }

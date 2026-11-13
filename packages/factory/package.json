@@ -1,0 +1,28 @@
+{
+  "name": "@cmp/factory",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Agentic Software Factory CLI and verification harness for the CMP monorepo",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "bin": {
+    "cmp-factory": "./dist/src/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "tsc -p tsconfig.json && node --test dist/src/factory.test.js",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist node_modules"
+  },
+  "dependencies": {
+    "@cmp/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@cmp/config": "workspace:*",
+    "@types/node": "^24.12.4",
+    "rimraf": "^6.0.0",
+    "typescript": "^5.6.3"
+  }
+}

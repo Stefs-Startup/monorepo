@@ -14,8 +14,9 @@ All workspace packages use the `@cmp/` npm scope:
 | `apps/web` | Web frontend | `@cmp/web` |
 | `apps/api` | API server | `@cmp/api` |
 | `apps/cli` | CLI tool | `@cmp/cli` |
+| `packages/factory` | Agentic Software Factory CLI | `@cmp/factory` |
 | `packages/ui` | UI components | `@cmp/ui` |
-| `packages/utils` | Utilities | `@cmp/utils` |
+| `packages/utils` | Shared functional primitives | `@cmp/utils` |
 | `packages/types` | Shared types | `@cmp/types` |
 | `packages/config` | Shared configs | `@cmp/config` |
 
@@ -68,13 +69,28 @@ This tells pnpm to use the local version, never the registry version.
 
 ---
 
+## Agentic Software Factory Workflow
+
+New apps and vertical product slices are generated and verified via `@cmp/factory` (`packages/factory`), building on shared pure functional primitives in `@cmp/utils` (`packages/utils`) and following the `apps/pulse` reference architecture:
+
+| Command | Purpose |
+|---------|---------|
+| `pnpm gen:app <name> [--stack=web-ts\|angular-spring\|kmp]` | Scaffold a new app with `AGENTS.md`, pure functional domain engine, and `node:test` suite |
+| `pnpm gen:slice <app> <slice>` | Scaffold a vertical product slice (`engine`, `contract`, and `test`) inside an app |
+| `pnpm verify:slice [--target=<pkg>] [--json]` | Run `AGENTS.md` audit, WCAG 2.2 AA contrast & Zero-PII self-tests, typecheck, and test gates |
+
+- **`@cmp/factory`**: Automates app/slice scaffolding and enforces architectural guardrails (`AGENTS.md`, `README.md`, zero legacy catalog files).
+- **`@cmp/utils`**: Houses pure functional primitives for WCAG 2.2 Level AA contrast auditing, Zero-PII telemetry scrubbing/pseudonymization, and focus/scarcity ranking guards.
+- **Per-App `AGENTS.md`**: Every generated or maintained app (such as `apps/pulse` and `apps/web`) includes an `AGENTS.md` defining its Pure Functional Core, WCAG 2.2 AA, and Zero-PII invariants.
+
+---
+
 ## Exceptions
 
-### Backstage (`apps/backstage`)
-The Backstage application is an **independent Yarn monorepo** and is excluded from the root pnpm workspace. 
-- **Package Manager**: Use `yarn` 4.x within the `apps/backstage` directory.
-- **Why**: Backstage has complex dependency hoisting requirements and module federation logic that is incompatible with pnpm's strict isolation.
-- **Documentation**: See [Backstage Management Guide](./backstage-management.md) for full details on how to maintain and troubleshoot this application.
+### Pulse Reference Architecture (`apps/pulse`)
+`apps/pulse` is a **polyglot Gradle + npm reference application** (Kotlin/KMP, Spring Boot 4 / Java 21, and Angular 21) and is excluded from `pnpm-workspace.yaml` (`!apps/pulse`, `!apps/pulse/**`).
+- **Build & Test**: Use `./gradlew` inside `apps/pulse` (and `apps/pulse/backend`) for Kotlin/Android/Spring Boot targets, and `npm` inside `apps/pulse/web` for Angular targets.
+- **Role in Monorepo**: Serves as the canonical reference architecture for Pure Functional Core, Zero-PII observability, WCAG 2.2 AA contrast gating, and the multi-stack guides in `docs/stack-best-practices/`.
 
 ---
 

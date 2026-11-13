@@ -134,8 +134,9 @@ jobs:
         run: |
           test -f packages/utils/dist/src/index.js
           test -f packages/utils/dist/src/index.d.ts
-          test -f apps/web/dist/index.js
-          echo "Verified dist artifacts for @cmp/utils and @cmp/web."
+          test -f packages/factory/dist/src/cli.js
+          test -f apps/web/dist/src/index.js
+          echo "Verified dist artifacts for @cmp/utils, @cmp/factory, and @cmp/web."
 
       - name: Upload Turborepo build artifacts
         uses: actions/upload-artifact@v7
@@ -215,7 +216,8 @@ jobs:
             echo "| :--- | :--- | :---: | :---: | :---: |"
             echo "| \`@cmp/config\` | \`packages/config\` | ✅ | N/A | N/A |"
             echo "| \`@cmp/utils\` | \`packages/utils\` | ✅ | ✅ (\`dist/src/index.js\`) | ✅ |"
-            echo "| \`@cmp/web\` | \`apps/web\` | ✅ | ✅ (\`dist/index.js\`) | ✅ |"
+            echo "| \`@cmp/factory\` | \`packages/factory\` | ✅ | ✅ (\`dist/src/cli.js\`) | ✅ |"
+            echo "| \`@cmp/web\` | \`apps/web\` | ✅ | ✅ (\`dist/src/index.js\`) | ✅ |"
             echo ""
             echo "Staged files: \`$(find staged-pnpm-turborepo -type f | wc -l)\`"
           } >> "$GITHUB_STEP_SUMMARY"
