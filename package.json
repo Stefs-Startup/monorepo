@@ -14,11 +14,12 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "typecheck": "turbo typecheck",
-    "clean": "turbo clean && rimraf node_modules"
+    "clean": "turbo clean && rimraf node_modules",
+    "gen:app": "node packages/factory/dist/src/cli.js gen:app",
+    "gen:slice": "node packages/factory/dist/src/cli.js gen:slice",
+    "verify:slice": "node packages/factory/dist/src/cli.js verify"
   },
   "devDependencies": {
-    "@backstage/cli": "^0.34.6",
-    "@techdocs/cli": "^1.10.7",
     "rimraf": "^6.0.0",
     "turbo": "^2.8.17"
   }

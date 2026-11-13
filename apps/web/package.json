@@ -2,12 +2,15 @@
   "name": "@cmp/web",
   "version": "0.0.0",
   "private": true,
-  "description": "Web app template",
+  "type": "module",
+  "description": "Web app product slice consuming @cmp/utils",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
-    "dev": "echo \"Running dev server (placeholder)\"",
-    "build": "echo \"Building app (placeholder)\"",
-    "lint": "echo \"Linting app (placeholder)\"",
-    "test": "echo \"Testing app (placeholder)\"",
+    "dev": "tsc -w -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "tsc --noEmit",
+    "test": "tsc -p tsconfig.json && node --test dist/src/web.test.js",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist node_modules"
   },
@@ -16,6 +19,7 @@
   },
   "devDependencies": {
     "@cmp/config": "workspace:*",
+    "@types/node": "^24.12.4",
     "rimraf": "^6.0.0",
     "typescript": "^5.6.3"
   }

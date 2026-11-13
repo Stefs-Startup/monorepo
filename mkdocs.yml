@@ -6,7 +6,12 @@ nav:
       - Overview: adr/0000-adr-process.md
       - '0001: pnpm Workspaces': adr/0001-use-pnpm-workspaces.md
       - '0002: Monorepo vs Polyrepo': adr/0002-monorepo-over-polyrepo.md
-  - Backstage Management: backstage-management.md
+  - Agentic Software Factory:
+      - Overview: software-factory/README.md
+      - '01: From Portals to Agentic Workspaces': software-factory/01-from-portals-to-agentic-workspaces.md
+      - '02: Shared Guardrail Primitives': software-factory/02-shared-guardrail-primitives.md
+      - '03: Deterministic App & Slice Generators': software-factory/03-deterministic-app-and-slice-generators.md
+      - '04: Closed-Loop Verification Harness': software-factory/04-closed-loop-verification-harness.md
   - Stack Best Practices (All Frameworks):
       - Overview: stack-best-practices/README.md
       - '1. Kotlin 2.1 & Pure Functional Domain': stack-best-practices/01_KOTLIN_PURE_DOMAIN_BEST_PRACTICES.md
@@ -15,6 +20,24 @@ nav:
       - '4. Firebase & Zero-PII Observability': stack-best-practices/04_FIREBASE_OBSERVABILITY_AND_ZERO_PII_BEST_PRACTICES.md
       - '5. Spring Boot 4 & Java 21': stack-best-practices/05_SPRING_BOOT_4_AND_JAVA_21_BEST_PRACTICES.md
       - '6. Angular 21 Standalone Signals': stack-best-practices/06_ANGULAR_21_SIGNALS_AND_WEB_BEST_PRACTICES.md
+  - Enterprise Knowledge Base:
+      - Overview: knowledge-base/README.md
+      - Spring Enterprise (Backend):
+          - IoC & Bean Lifecycle: knowledge-base/spring/01-dependency-injection-ioc.md
+          - Transaction Management (@Transactional): knowledge-base/spring/02-transaction-management.md
+          - Spring Data JPA & Hibernate: knowledge-base/spring/03-data-jpa-hibernate.md
+          - Spring Security Architecture: knowledge-base/spring/04-spring-security-architecture.md
+          - Spring MVC & Exception Handling: knowledge-base/spring/05-spring-mvc-exception-handling.md
+          - Auto-Configuration & Resilience: knowledge-base/spring/06-spring-boot-autoconfig-resilience.md
+      - Angular Enterprise (Frontend):
+          - Hierarchical Dependency Injection: knowledge-base/angular/01-dependency-injection-tree.md
+          - Change Detection Mechanics: knowledge-base/angular/02-change-detection-mechanics.md
+          - RxJS Reactive Patterns: knowledge-base/angular/03-rxjs-reactive-patterns.md
+          - Component Architecture & Projection: knowledge-base/angular/04-component-architecture-communication.md
+          - Routing, Guards & Preloading: knowledge-base/angular/05-routing-guards-resolvers.md
+          - Reactive Forms & CVA: knowledge-base/angular/06-reactive-forms-cva.md
+          - HTTP Interceptors & Networking: knowledge-base/angular/07-http-interceptors-networking.md
+          - Performance & Bundle Optimization: knowledge-base/angular/08-performance-bundle-optimization.md
   - Experiments:
       - Overview: experiments/README.md
       - Protocol: experiments/protocol.md
@@ -36,5 +59,3 @@ nav:
                   experiments/active/exp-002-market-audit/documentation/core-capabilities.md
               - Pricing Analysis: >-
                   experiments/active/exp-002-market-audit/documentation/pricing-analysis.md
-plugins:
-  - techdocs-core

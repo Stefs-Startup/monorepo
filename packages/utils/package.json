@@ -2,19 +2,27 @@
   "name": "@cmp/utils",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "description": "Shared utilities for the CMP monorepo",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
   "scripts": {
     "dev": "tsc -w -p tsconfig.build.json",
     "build": "tsc -p tsconfig.build.json",
-    "lint": "echo \"Linting @cmp/utils (placeholder)\"",
-    "test": "echo \"Testing @cmp/utils (placeholder)\"",
+    "lint": "tsc --noEmit",
+    "test": "tsc -p tsconfig.json && node --test dist/src/primitives.test.js",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist node_modules"
   },
   "devDependencies": {
     "@cmp/config": "workspace:*",
+    "@types/node": "^24.12.4",
     "rimraf": "^6.0.0",
     "typescript": "^5.6.3"
   }
