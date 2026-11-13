@@ -46,8 +46,13 @@ jobs:
       - name: Run Gitleaks
         run: |
           GITLEAKS_VERSION="8.24.2"
-          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar -xz -C /usr/local/bin gitleaks
-          gitleaks detect --source . --verbose --redact
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | sudo tar -xz -C /usr/local/bin gitleaks
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin "${{ github.base_ref }}" --depth=1
+            gitleaks detect --source . --log-opts="origin/${{ github.base_ref }}..HEAD" --verbose --redact
+          else
+            gitleaks detect --source . --verbose --redact
+          fi
 
   osv-scanner:
     name: OSV-Scanner Dependency Audit
@@ -102,8 +107,7 @@ jobs:
 
       - name: Install Trivy CLI
         run: |
-          TRIVY_VERSION="0.61.1"
-          curl -sSL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" | tar -xz -C /usr/local/bin trivy
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
 
       - name: Run Trivy filesystem scan (SARIF)
         run: trivy fs --format sarif --output trivy-results.sarif --severity CRITICAL,HIGH .

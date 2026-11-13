@@ -14,9 +14,8 @@ test.describe("@cmp/web WCAG 2.2 AA accessibility", () => {
       .analyze();
     expect(lightResults.violations).toEqual([]);
 
-    const themeToggle = page.getByRole("button", {
-      name: /Switch to Dark Theme/i,
-    });
+    const themeToggle = page.locator("#theme-toggle");
+    await expect(themeToggle).toHaveText(/Switch to Dark Theme/i);
     await themeToggle.click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await expect(themeToggle).toHaveAttribute("aria-pressed", "true");
