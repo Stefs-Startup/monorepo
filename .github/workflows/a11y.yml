@@ -4,9 +4,21 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "apps/web/**"
+      - "packages/utils/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/a11y.yml"
   pull_request:
     branches:
       - main
+    paths:
+      - "apps/web/**"
+      - "packages/utils/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/a11y.yml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -7,7 +7,6 @@
 #   - packages/factory         (@cmp/factory)
 #   - apps/web                 (@cmp/web)
 #   - tools/blast-radius       (@cmp/blast-radius)
-#   - tools/blast-radius-ui    (@cmp/blast-radius-ui)
 #
 # Executes 4 strict gates:
 #   1. Gate 1 — Code Quality (lockfile, boundary rules, lint, typecheck)
@@ -91,7 +90,6 @@ jobs:
               "packages/factory/package.json",
               "apps/web/package.json",
               "tools/blast-radius/package.json",
-              "tools/blast-radius-ui/package.json",
             ];
             for (const p of pkgPaths) {
               const pkg = JSON.parse(fs.readFileSync(p, "utf8"));
@@ -149,8 +147,7 @@ jobs:
           test -f packages/factory/dist/src/cli.js
           test -f apps/web/dist/src/index.js
           test -f tools/blast-radius/dist/src/cli.js
-          test -f tools/blast-radius-ui/dist/index.html
-          echo "Verified dist artifacts for @cmp/utils, @cmp/factory, @cmp/web, @cmp/blast-radius, and @cmp/blast-radius-ui."
+          echo "Verified dist artifacts for @cmp/utils, @cmp/factory, @cmp/web, and @cmp/blast-radius."
 
       - name: Upload Turborepo build artifacts
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -161,7 +158,6 @@ jobs:
             packages/factory/dist/**
             apps/web/dist/**
             tools/blast-radius/dist/**
-            tools/blast-radius-ui/dist/**
           retention-days: 7
 
   test:
@@ -236,7 +232,6 @@ jobs:
             echo "| \`@cmp/factory\` | \`packages/factory\` | ✅ | ✅ (\`dist/src/cli.js\`) | ✅ |"
             echo "| \`@cmp/web\` | \`apps/web\` | ✅ | ✅ (\`dist/src/index.js\`) | ✅ |"
             echo "| \`@cmp/blast-radius\` | \`tools/blast-radius\` | ✅ | ✅ (\`dist/src/cli.js\`) | ✅ |"
-            echo "| \`@cmp/blast-radius-ui\` | \`tools/blast-radius-ui\` | ✅ | ✅ (\`dist/index.html\`) | ✅ |"
             echo ""
             echo "Staged files: \`$(find staged-pnpm-turborepo -type f | wc -l)\`"
           } >> "$GITHUB_STEP_SUMMARY"
