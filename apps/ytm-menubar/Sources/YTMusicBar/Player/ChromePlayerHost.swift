@@ -546,6 +546,8 @@ final class ChromePlayerHost {
     }
 
     private nonisolated static func parseDevToolsPort(from text: String) -> Int? {
+        // Loopback-only regex matching Chrome's local DevTools WebSocket URL.
+        // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
         guard let range = text.range(of: #"ws://127\.0\.0\.1:(\d+)/"#, options: .regularExpression) else {
             return nil
         }

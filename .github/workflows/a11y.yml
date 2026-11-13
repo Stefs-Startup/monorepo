@@ -55,11 +55,10 @@ jobs:
         run: pnpm build
 
       - name: Install Playwright and axe-core for @cmp/web
-        run: npm install --no-save --prefix apps/web @playwright/test @axe-core/playwright
+        run: pnpm --filter @cmp/web add -D @playwright/test @axe-core/playwright
 
       - name: Install Playwright Chromium browser
-        working-directory: apps/web
-        run: npx playwright install --with-deps chromium
+        run: pnpm --filter @cmp/web exec playwright install --with-deps chromium
 
       - name: Run WCAG 2.2 AA E2E tests
         run: pnpm --filter @cmp/web test:a11y
