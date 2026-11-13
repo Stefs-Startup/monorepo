@@ -13,31 +13,58 @@ function tierBadge(tier: ConfidenceTier): string {
   }
 }
 
+function progressBar(score: number): string {
+  const clamped = Math.max(0, Math.min(100, Math.round(score)));
+  const filled = Math.round(clamped / 10);
+  return `${"█".repeat(filled)}${"░".repeat(10 - filled)}`;
+}
+
 function escapeMdCell(value: string): string {
   return value.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 }
 
 /**
- * Formats a BlastRadiusReport into a compact, scannable PR comment Markdown report.
+ * Formats a BlastRadiusReport into a visual, scannable PR comment Markdown scorecard.
  */
 export function formatBlastRadiusMarkdown(report: BlastRadiusReport): string {
   const lines: string[] = [];
   const criticalFiles = report.affectedFiles.filter((f) => f.isCriticalPath);
+  const effort = report.scoring.effortScore;
 
   lines.push(BLAST_RADIUS_COMMENT_MARKER);
-  lines.push("## Dependency Blast-Radius Scorecard");
+  lines.push("## 🎯 Dependency Blast-Radius Scorecard");
   lines.push("");
-  lines.push(`- **Confidence Tier:** ${tierBadge(report.scoring.confidenceTier)}`);
+  lines.push("| Metric | Value |");
+  lines.push("| :--- | :--- |");
+  lines.push(`| **Confidence Tier** | ${tierBadge(report.scoring.confidenceTier)} |`);
   lines.push(
-    `- **Effort Score:** \`${report.scoring.effortScore} / 100\` | **Gate Exit:** \`${report.scoring.gateExitCode}\` | **Auto-Merge:** \`${report.scoring.autoMergeEligible ? "yes" : "no"}\``,
+    `| **Effort / Risk** | \`${progressBar(effort)}\` **${effort}/100** (Gate Exit: \`${report.scoring.gateExitCode}\`, Auto-Merge: \`${report.scoring.autoMergeEligible ? "yes" : "no"}\`) |`,
   );
   lines.push(
-    `- **Scope:** \`${report.baseRef}\` → \`${report.headRef}\` | **Deltas:** \`${report.dependencies.length}\` | **Critical Files:** \`${criticalFiles.length}\` | **DTOs:** \`${report.dtoContracts.length}\` | **SBOM Alerts:** \`${report.sbom.alerts.length}\``,
+    `| **Scope** | \`${report.baseRef}\` → \`${report.headRef}\` |`,
+  );
+  lines.push(
+    `| **Impact Counts** | Deltas: \`${report.dependencies.length}\` · Critical Files: \`${criticalFiles.length}\` · DTOs: \`${report.dtoContracts.length}\` · SBOM Alerts: \`${report.sbom.alerts.length}\` |`,
   );
   lines.push("");
 
   if (report.dependencies.length === 0) {
-    lines.push(`> No dependency changes detected between \`${report.baseRef}\` and \`${report.headRef}\`.`);
+    lines.push(`> ✅ No dependency changes detected between \`${report.baseRef}\` and \`${report.headRef}\`.`);
+    lines.push("");
+  }
+
+  if (report.ecosystemsAnalyzed.length > 0) {
+    lines.push("### Ecosystem Breakdown");
+    lines.push("");
+    lines.push("| Ecosystem | Deltas | Affected Files | Critical Files |");
+    lines.push("| :--- | ---: | ---: | ---: |");
+    for (const eco of report.ecosystemsAnalyzed) {
+      const ecoDeps = report.dependencies.filter((d) => d.ecosystem === eco);
+      const category = eco === "gradle" || eco === "maven" ? "java" : "typescript";
+      const ecoFiles = report.affectedFiles.filter((f) => f.ecosystem === category);
+      const ecoCrit = ecoFiles.filter((f) => f.isCriticalPath);
+      lines.push(`| \`${eco}\` | \`${ecoDeps.length}\` | \`${ecoFiles.length}\` | \`${ecoCrit.length}\` |`);
+    }
     lines.push("");
   }
 

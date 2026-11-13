@@ -211,16 +211,38 @@ jobs:
             const marker = '<!-- cmp-release-readiness-scorecard -->';
             const factory = JSON.parse(fs.readFileSync('factory-scorecard.json', 'utf8'));
             const ci = JSON.parse(fs.readFileSync('scorecard.json', 'utf8'));
+            const score = Number(factory.overallScore ?? 0);
+            const filled = Math.round(Math.max(0, Math.min(100, score)) / 10);
+            const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
+            const statusIcon = ci.status === 'pass' ? '🟢 PASS' : '🔴 FAIL';
+            const capRows = Object.values(factory.capabilities || {}).map((cap) => {
+              const icon = cap.passed ? '✅' : '❌';
+              const details = String(cap.details || '').replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
+              return `| ${cap.name} | ${icon} | \`${cap.score}/100\` | ${details} |`;
+            });
+            const jobBadges = Object.entries(ci.jobs || {})
+              .map(([k, v]) => `\`${k}: ${v}\``)
+              .join(' · ');
+
             const body = [
               marker,
-              '## Release Readiness Scorecard',
+              '## 📊 Release Readiness Scorecard',
               '',
-              `- **Factory Overall Score:** \`${factory.overallScore ?? 'n/a'}\``,
-              `- **CI Gate Status:** \`${ci.status}\` (\`${ci.artifactCount}\` staged artifacts)`,
-              `- **Commit:** \`${ci.sha}\``,
+              `| Metric | Value |`,
+              `| :--- | :--- |`,
+              `| **Overall Score** | \`${bar}\` **${score}/100** |`,
+              `| **CI Gate** | ${statusIcon} (\`${ci.artifactCount}\` staged artifacts) |`,
+              `| **Jobs** | ${jobBadges || '_none_'} |`,
+              `| **Commit** | \`${String(ci.sha || '').slice(0, 7)}\` (\`${ci.event}\` on \`${ci.ref}\`) |`,
+              '',
+              '### Capability Breakdown',
+              '',
+              '| Capability | Status | Score | Details |',
+              '| :--- | :---: | :---: | :--- |',
+              ...capRows,
               '',
               '<details>',
-              '<summary>Factory Scorecard JSON</summary>',
+              '<summary>Raw Factory Scorecard JSON</summary>',
               '',
               '```json',
               JSON.stringify(factory, null, 2),
