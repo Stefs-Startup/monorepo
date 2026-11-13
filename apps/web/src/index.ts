@@ -2,12 +2,17 @@ import {
   auditThemePalette,
   createZeroPiiBreadcrumb,
   evaluateScarcityGate,
+  formatWorkspaceBanner,
   hello,
   scrubSensitiveText,
   type PinDecision,
   type ThemePaletteAuditResult,
   type ZeroPiiBreadcrumb,
 } from "@cmp/utils";
+
+export const getWebAppGreeting = (): string => {
+  return formatWorkspaceBanner("@cmp/web", hello());
+};
 
 export interface WebSliceHealthReport {
   passed: boolean;

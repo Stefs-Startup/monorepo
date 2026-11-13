@@ -1,0 +1,197 @@
+# =============================================================================
+# Stack CI Pipeline — Android Native (Kotlin 2.1 + Jetpack Compose Material 3)
+# =============================================================================
+# Validates Android Native applications in the monorepo:
+#   - apps/pulse (:app — Kotlin 2.1.0, Jetpack Compose Material 3 Expressive,
+#     Room/KSP, Firebase Crashlytics, JUnit 4 + MockWebServer + WCAG 2.2 AA)
+#
+# Executes 4 strict gates:
+#   1. Gate 1 — Code Quality (Android Lint :app:lintDebug + domain purity audit)
+#   2. Gate 2 — Build (:app:assembleDebug APK + unit test compilation)
+#   3. Gate 3 — Test (:app:testDebugUnitTest — Pure domain, MockWebServer, 18/18 WCAG 2.2 AA)
+#   4. Gate 4 — Deploy & Distribution Readiness
+# =============================================================================
+
+name: "Stack CI · Android / Kotlin Compose"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/pulse/app/**"
+      - "apps/pulse/gradle/**"
+      - "apps/pulse/build.gradle.kts"
+      - "apps/pulse/settings.gradle.kts"
+      - "apps/pulse/gradle.properties"
+      - "apps/pulse/gradlew"
+      - ".github/workflows/ci-stack-android-kotlin.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "apps/pulse/app/**"
+      - "apps/pulse/gradle/**"
+      - "apps/pulse/build.gradle.kts"
+      - "apps/pulse/settings.gradle.kts"
+      - "apps/pulse/gradle.properties"
+      - "apps/pulse/gradlew"
+      - ".github/workflows/ci-stack-android-kotlin.yml"
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  code-quality:
+    name: "Gate 1 · Code Quality & Android Lint (apps/pulse/app)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/pulse
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@v6
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Audit ADR-007 pure Kotlin domain layer (zero android.content.Context imports)
+        run: |
+          if grep -rn "import android\.content\.Context" app/src/main/java/com/pulse/accountability/domain/; then
+            echo "::error::Pure domain files in com.pulse.accountability.domain must not import android.content.Context"
+            exit 1
+          fi
+          echo "ADR-007 pure Kotlin domain boundary verified."
+
+      - name: Run Android Lint (:app:lintDebug)
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:lintDebug --no-daemon --stacktrace
+
+      - name: Upload Android Lint report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pulse-android-lint-reports
+          path: apps/pulse/app/build/reports/lint-results*
+          if-no-files-found: ignore
+          retention-days: 7
+
+  build:
+    name: "Gate 2 · Build Debug APK (apps/pulse/app)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/pulse
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@v6
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Assemble Android Debug APK (:app:assembleDebug)
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --no-daemon --stacktrace
+
+      - name: Upload Android Debug APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: pulse-android-debug-apk
+          path: apps/pulse/app/build/outputs/apk/debug/*.apk
+          retention-days: 7
+
+  test:
+    name: "Gate 3 · Test (JUnit 4 + MockWebServer + WCAG 2.2 AA · apps/pulse/app)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/pulse
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@v6
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Run Android unit, MockWebServer contract & WCAG 2.2 AA contrast tests
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --no-daemon --stacktrace
+
+      - name: Upload JUnit test reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pulse-android-test-reports
+          path: |
+            apps/pulse/app/build/reports/tests/testDebugUnitTest/**
+            apps/pulse/app/build/test-results/testDebugUnitTest/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+  deploy:
+    name: "Gate 4 · Deploy & Distribution (Android / Kotlin Compose)"
+    needs:
+      - code-quality
+      - build
+      - test
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Require all upstream gates to pass
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          if echo "$RESULTS" | jq -e 'any(.[]; .result != "success")' > /dev/null; then
+            echo "::error::One or more Android / Kotlin Compose CI gates failed."
+            exit 1
+          fi
+
+      - name: Download staged Android Debug APK
+        uses: actions/download-artifact@v8
+        with:
+          name: pulse-android-debug-apk
+          path: staged-android-apk
+
+      - name: Publish Stack Readiness Summary
+        run: |
+          {
+            echo "## 🤖 Android Native (Kotlin 2.1 + Jetpack Compose Material 3) Stack CI Summary"
+            echo ""
+            echo "| App | Path | Quality (\`lintDebug\`) | Build (\`assembleDebug\`) | Test (\`testDebugUnitTest\`) |"
+            echo "| :--- | :--- | :---: | :---: | :---: |"
+            echo "| \`pulse-android\` | \`apps/pulse/app\` | ✅ | ✅ (\`app-debug.apk\`) | ✅ |"
+            echo ""
+            echo "Staged APK size: \`$(du -sh staged-android-apk | cut -f1)\`"
+          } >> "$GITHUB_STEP_SUMMARY"

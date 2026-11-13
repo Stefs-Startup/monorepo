@@ -1,0 +1,41 @@
+# Lefthook — local git hooks for the whole monorepo (see docs/local-validation.md).
+#
+#   pre-commit : ultra-fast, staged files only (< ~2s). Never builds or runs tests.
+#   pre-push   : Gate 1 (quality) for only the stacks touched by the outgoing diff.
+#
+# Bypass in an emergency:  LEFTHOOK=0 git push     (or: git push --no-verify)
+# Skip one command:        LEFTHOOK_EXCLUDE=pre-push-quality git push
+# Install:                 pnpm install  (the "prepare" script runs `lefthook install`)
+
+output:
+  - failure
+  - summary
+
+pre-commit:
+  parallel: true
+  commands:
+    no-ts-ignore:
+      glob: "*.{ts,tsx}"
+      exclude: "**/node_modules/**"
+      run: "! grep -nH '@ts-ignore' {staged_files}"
+      fail_text: "Disallowed @ts-ignore (use @ts-expect-error with a reason)."
+
+    no-secrets:
+      glob: "{**/.env,**/.env.*,**/*.pem,**/*.key,**/*.jks,**/*.keystore,**/local.properties,**/google-services.json}"
+      exclude: "**/*.example"
+      run: "echo 'Refusing to commit secret-like file(s):' {staged_files}; exit 1"
+
+    shell-syntax:
+      glob: "*.sh"
+      run: "bash -n {staged_files}"
+
+    workflow-lint:
+      glob: ".github/workflows/*.{yml,yaml}"
+      # actionlint is optional locally; CI remains the source of truth.
+      run: "command -v actionlint >/dev/null && actionlint {staged_files} || echo 'actionlint not installed; skipping'"
+
+pre-push:
+  commands:
+    quality:
+      # Runs Gate 1 of each affected stack: lint/typecheck, Kotlin/Java compile, boundary rules.
+      run: scripts/check.sh --changed --gate quality

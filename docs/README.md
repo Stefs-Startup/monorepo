@@ -12,6 +12,7 @@ about this monorepo — its architecture, conventions, processes, and decisions.
 | [`adr/`](./adr/) | Architecture Decision Records — immutable log of *why* decisions were made |
 | [`monorepo-conventions.md`](./monorepo-conventions.md) | Naming rules, structure patterns, and coding conventions for this repo |
 | [`software-factory/`](./software-factory/README.md) | **Agentic Software Factory Curriculum (`01`–`04`)**: [01. Agentic Workspaces](./software-factory/01-from-portals-to-agentic-workspaces.md), [02. Shared Guardrail Primitives](./software-factory/02-shared-guardrail-primitives.md), [03. Deterministic Generators](./software-factory/03-deterministic-app-and-slice-generators.md), [04. Closed-Loop Verification](./software-factory/04-closed-loop-verification-harness.md) |
+| [`ci-reusable-workflows.md`](./ci-reusable-workflows.md) | Org-wide reusable CI workflows (Node, Gradle) and how monorepo projects are auto-discovered |
 | [`stack-best-practices/`](./stack-best-practices/README.md) | Framework-by-framework learning guides & best practices (Kotlin 2.1, KMP, Compose Multiplatform + Modern Desktop Web UX, Firebase Zero-PII Observability, Spring Boot 4 + Java 21, and Angular 21 Signals) with real examples from our apps |
 | [`knowledge-base/`](./knowledge-base/README.md) | Enterprise Architecture & Full-Stack Knowledge Base (Web, Spring Boot, Node.js, Angular, React) |
 | [`angular-best-practices/`](./angular-best-practices/docs/index.md) | Enterprise Angular & Java/Spring Boot documentation |

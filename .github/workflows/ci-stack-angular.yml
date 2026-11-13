@@ -1,0 +1,166 @@
+# =============================================================================
+# Stack CI Pipeline — Angular 21 Standalone Signals & Modern Web
+# =============================================================================
+# Validates Angular 21 applications in the monorepo:
+#   - apps/pulse/web (pulse-web — Angular 21.2.26, TypeScript 5.9, Vitest 4)
+#
+# Executes 4 strict gates:
+#   1. Gate 1 — Code Quality (Standalone Signals / @if-@for lint, bundle budget audit, tsc --noEmit)
+#   2. Gate 2 — Build (AOT ng build --configuration production with bundle budget enforcement)
+#   3. Gate 3 — Test (Vitest unit, WCAG 2.2 AA contrast & component state contract suite)
+#   4. Gate 4 — Deploy & Distribution Readiness
+# =============================================================================
+
+name: "Stack CI · Angular 21 Web"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/pulse/web/**"
+      - ".github/workflows/ci-stack-angular.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "apps/pulse/web/**"
+      - ".github/workflows/ci-stack-angular.yml"
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  code-quality:
+    name: "Gate 1 · Code Quality (Angular 21 · apps/pulse/web)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/pulse/web
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+          cache-dependency-path: apps/pulse/web/package-lock.json
+
+      - name: Install Angular workspace dependencies
+        run: npm ci
+
+      - name: Run Angular 21 Standalone Signals & Bundle Budget Lint
+        run: npm run lint
+
+      - name: Run TypeScript strict typecheck
+        run: npm run typecheck
+
+  build:
+    name: "Gate 2 · Build & Bundle Budgets (apps/pulse/web)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/pulse/web
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+          cache-dependency-path: apps/pulse/web/package-lock.json
+
+      - name: Install Angular workspace dependencies
+        run: npm ci
+
+      - name: Build production Angular 21 bundle (AOT + Bundle Budgets)
+        run: npm run build
+
+      - name: Verify production bundle output
+        run: |
+          test -d dist/pulse-web
+          find dist/pulse-web -name "index.html" | grep -q "index.html"
+          echo "Verified Angular 21 production bundle."
+
+      - name: Upload Angular production bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: pulse-angular-web-dist
+          path: apps/pulse/web/dist/pulse-web/**
+          retention-days: 7
+
+  test:
+    name: "Gate 3 · Test (Vitest · apps/pulse/web)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/pulse/web
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+          cache-dependency-path: apps/pulse/web/package-lock.json
+
+      - name: Install Angular workspace dependencies
+        run: npm ci
+
+      - name: Run Vitest unit, WCAG 2.2 AA & Visual Dashboard contract tests
+        env:
+          CI: "true"
+        run: npm test
+
+  deploy:
+    name: "Gate 4 · Deploy & Distribution (Angular 21)"
+    needs:
+      - code-quality
+      - build
+      - test
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Require all upstream gates to pass
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          if echo "$RESULTS" | jq -e 'any(.[]; .result != "success")' > /dev/null; then
+            echo "::error::One or more Angular 21 CI gates failed."
+            exit 1
+          fi
+
+      - name: Download staged Angular production bundle
+        uses: actions/download-artifact@v8
+        with:
+          name: pulse-angular-web-dist
+          path: staged-angular-web
+
+      - name: Publish Stack Readiness Summary
+        run: |
+          {
+            echo "## 🅰️ Angular 21 Standalone Signals Stack CI Summary"
+            echo ""
+            echo "| App | Path | Quality (Signals + tsc) | Build (AOT + Budgets) | Test (Vitest 4) |"
+            echo "| :--- | :--- | :---: | :---: | :---: |"
+            echo "| \`pulse-web\` | \`apps/pulse/web\` | ✅ | ✅ (\`dist/pulse-web\`) | ✅ |"
+            echo ""
+            echo "Staged files: \`$(find staged-angular-web -type f | wc -l)\` (\`$(du -sh staged-angular-web | cut -f1)\`)"
+          } >> "$GITHUB_STEP_SUMMARY"

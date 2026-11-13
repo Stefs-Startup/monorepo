@@ -1,0 +1,221 @@
+# =============================================================================
+# Stack CI Pipeline — TypeScript / Node / pnpm + Turborepo Workspace
+# =============================================================================
+# Validates all packages and apps in the root pnpm + Turborepo stack:
+#   - packages/config (@cmp/config)
+#   - packages/utils  (@cmp/utils)
+#   - apps/web        (@cmp/web)
+#
+# Executes 4 strict gates:
+#   1. Gate 1 — Code Quality (lockfile, boundary rules, lint, typecheck)
+#   2. Gate 2 — Build (turbo build + per-app artifact verification)
+#   3. Gate 3 — Test (per-package & per-app node:test + turbo test)
+#   4. Gate 4 — Deploy & Distribution Readiness
+# =============================================================================
+
+name: "Stack CI · TypeScript / pnpm + Turborepo"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - ".nvmrc"
+      - ".node-version"
+      - "apps/web/**"
+      - "packages/**"
+      - ".github/workflows/ci-stack-pnpm-turborepo.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - ".nvmrc"
+      - ".node-version"
+      - "apps/web/**"
+      - "packages/**"
+      - ".github/workflows/ci-stack-pnpm-turborepo.yml"
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  code-quality:
+    name: "Gate 1 · Code Quality (pnpm + Turborepo)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: package.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install workspace dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit monorepo naming & one-way dependency boundaries
+        run: |
+          node -e '
+            const fs = require("node:fs");
+            const pkgPaths = ["packages/config/package.json", "packages/utils/package.json", "apps/web/package.json"];
+            for (const p of pkgPaths) {
+              const pkg = JSON.parse(fs.readFileSync(p, "utf8"));
+              if (!pkg.name.startsWith("@cmp/")) {
+                throw new Error(`${p} must use @cmp/* scope (found ${pkg.name})`);
+              }
+              const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+              if (p.startsWith("packages/")) {
+                for (const d of Object.keys(deps)) {
+                  if (d === "@cmp/web") throw new Error(`Package ${p} cannot depend on app ${d}`);
+                }
+              }
+            }
+            console.log("Workspace naming and dependency boundaries verified.");
+          '
+
+      - name: Lint @cmp/utils & @cmp/web via Turborepo
+        # Run through Turborepo so `dependsOn: ["^build"]` builds @cmp/utils
+        # (dist/ types) before @cmp/web is type-checked.
+        run: pnpm run lint
+
+      - name: Typecheck all pnpm workspaces
+        run: pnpm run typecheck
+
+  build:
+    name: "Gate 2 · Build (@cmp/utils & @cmp/web)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: package.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all Turborepo packages and apps
+        run: pnpm run build
+
+      - name: Verify compiled outputs for @cmp/utils and @cmp/web
+        run: |
+          test -f packages/utils/dist/src/index.js
+          test -f packages/utils/dist/src/index.d.ts
+          test -f apps/web/dist/index.js
+          echo "Verified dist artifacts for @cmp/utils and @cmp/web."
+
+      - name: Upload Turborepo build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: pnpm-turborepo-dist
+          path: |
+            packages/utils/dist/**
+            apps/web/dist/**
+          retention-days: 7
+
+  test:
+    name: "Gate 3 · Test (@cmp/utils & @cmp/web)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: package.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run @cmp/utils unit tests
+        run: pnpm --filter @cmp/utils run test
+
+      - name: Run @cmp/web application tests
+        run: pnpm --filter @cmp/web run test
+
+      - name: Run full Turborepo test suite
+        env:
+          CI: "true"
+        run: pnpm run test
+
+  deploy:
+    name: "Gate 4 · Deploy & Distribution (pnpm + Turborepo)"
+    needs:
+      - code-quality
+      - build
+      - test
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Require all upstream gates to pass
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          if echo "$RESULTS" | jq -e 'any(.[]; .result != "success")' > /dev/null; then
+            echo "::error::One or more pnpm + Turborepo CI gates failed."
+            exit 1
+          fi
+
+      - name: Download staged Turborepo artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: pnpm-turborepo-dist
+          path: staged-pnpm-turborepo
+
+      - name: Publish Stack Readiness Summary
+        run: |
+          {
+            echo "## 📦 TypeScript / pnpm + Turborepo Stack CI Summary"
+            echo ""
+            echo "| Workspace Package | Path | Quality | Build | Test |"
+            echo "| :--- | :--- | :---: | :---: | :---: |"
+            echo "| \`@cmp/config\` | \`packages/config\` | ✅ | N/A | N/A |"
+            echo "| \`@cmp/utils\` | \`packages/utils\` | ✅ | ✅ (\`dist/src/index.js\`) | ✅ |"
+            echo "| \`@cmp/web\` | \`apps/web\` | ✅ | ✅ (\`dist/index.js\`) | ✅ |"
+            echo ""
+            echo "Staged files: \`$(find staged-pnpm-turborepo -type f | wc -l)\`"
+          } >> "$GITHUB_STEP_SUMMARY"

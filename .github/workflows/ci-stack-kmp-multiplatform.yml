@@ -1,0 +1,172 @@
+# =============================================================================
+# Stack CI Pipeline — Kotlin Multiplatform (KMP) & WebAssembly (wasmJs)
+# =============================================================================
+# Validates KMP + Compose Multiplatform / wasmJs applications in the monorepo:
+#   - apps/pulse/kmp (com.pulse.kmp:pulse-kmp — Kotlin 2.1.0 Multiplatform:
+#     commonMain, commonTest, jvmMain/jvmTest, wasmJsMain)
+#
+# Executes 4 strict gates:
+#   1. Gate 1 — Code Quality (ADR-008 commonMain purity check + multi-target compile)
+#   2. Gate 2 — Build (JVM JAR + wasmJs executable web bundle)
+#   3. Gate 3 — Test (Multiplatform commonTest suite on JVM / JUnit 5)
+#   4. Gate 4 — Deploy & Distribution Readiness
+# =============================================================================
+
+name: "Stack CI · KMP & WebAssembly (wasmJs)"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/pulse/kmp/**"
+      - ".github/workflows/ci-stack-kmp-multiplatform.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "apps/pulse/kmp/**"
+      - ".github/workflows/ci-stack-kmp-multiplatform.yml"
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  code-quality:
+    name: "Gate 1 · Code Quality & commonMain Purity (apps/pulse/kmp)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/pulse/kmp
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@v6
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Run ADR-008 commonMain purity audit & multiplatform compilation
+        run: |
+          chmod +x gradlew
+          ./gradlew codeQuality --no-daemon --stacktrace
+
+  build:
+    name: "Gate 2 · Build JVM & wasmJs Web Artifacts (apps/pulse/kmp)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/pulse/kmp
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@v6
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Build KMP JVM JAR & wasmJs Production Executable
+        run: |
+          chmod +x gradlew
+          ./gradlew jvmJar compileProductionExecutableKotlinWasmJs --no-daemon --stacktrace
+
+      - name: Upload KMP JVM & wasmJs build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: pulse-kmp-wasm-artifacts
+          path: |
+            apps/pulse/kmp/build/libs/*.jar
+            apps/pulse/kmp/build/compileSync/wasmJs/main/productionExecutable/**
+          retention-days: 7
+
+  test:
+    name: "Gate 3 · Test (Multiplatform commonTest · apps/pulse/kmp)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/pulse/kmp
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@v6
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Run KMP commonTest suite (Domain, Scarcity, 18/18 WCAG 2.2 AA, Zero-PII, ADR-009)
+        run: |
+          chmod +x gradlew
+          ./gradlew jvmTest --no-daemon --stacktrace
+
+      - name: Upload KMP test reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pulse-kmp-test-reports
+          path: |
+            apps/pulse/kmp/build/reports/tests/**
+            apps/pulse/kmp/build/test-results/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+  deploy:
+    name: "Gate 4 · Deploy & Distribution (KMP & wasmJs)"
+    needs:
+      - code-quality
+      - build
+      - test
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Require all upstream gates to pass
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          if echo "$RESULTS" | jq -e 'any(.[]; .result != "success")' > /dev/null; then
+            echo "::error::One or more KMP / wasmJs CI gates failed."
+            exit 1
+          fi
+
+      - name: Download staged KMP & wasmJs artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: pulse-kmp-wasm-artifacts
+          path: staged-kmp-wasm
+
+      - name: Publish Stack Readiness Summary
+        run: |
+          {
+            echo "## 🌐 Kotlin Multiplatform (KMP) & WebAssembly (\`wasmJs\`) Stack CI Summary"
+            echo ""
+            echo "| Module | Path | Quality (\`commonMain\` ADR-008) | Build (\`jvmJar\` + \`wasmJs\`) | Test (\`commonTest\`) |"
+            echo "| :--- | :--- | :---: | :---: | :---: |"
+            echo "| \`pulse-kmp\` | \`apps/pulse/kmp\` | ✅ | ✅ (\`pulse-kmp-jvm\` + \`wasmJs\`) | ✅ |"
+            echo ""
+            echo "Staged files: \`$(find staged-kmp-wasm -type f | wc -l)\` (\`$(du -sh staged-kmp-wasm | cut -f1)\`)"
+          } >> "$GITHUB_STEP_SUMMARY"

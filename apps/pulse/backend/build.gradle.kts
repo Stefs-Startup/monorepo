@@ -1,6 +1,6 @@
 plugins {
     java
-    id("org.springframework.boot") version "4.0.9"
+    id("org.springframework.boot") version "4.1.2"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -25,6 +25,36 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.encoding = "UTF-8"
+    options.compilerArgs.addAll(listOf("-Xlint:all,-serial,-processing", "-parameters"))
+}
+
+tasks.register("codeQuality") {
+    group = "verification"
+    description = "Runs Java 21 compiler lint checks and audits ADR-007 pure domain boundaries."
+    dependsOn("compileJava", "compileTestJava")
+    doLast {
+        val domainDir = file("src/main/java/com/pulse/backend/domain")
+        val violations = mutableListOf<String>()
+        domainDir.walkTopDown()
+            .filter { it.isFile && it.extension == "java" }
+            .forEach { srcFile ->
+                val text = srcFile.readText()
+                if (text.contains("import org.springframework.") || text.contains("import jakarta.servlet.")) {
+                    violations.add("${srcFile.name}: Pure domain class must not import Spring or Servlet APIs (ADR-007).")
+                }
+                if (text.contains("import lombok.")) {
+                    violations.add("${srcFile.name}: Use Java 21 records/sealed interfaces instead of Lombok.")
+                }
+            }
+        if (violations.isNotEmpty()) {
+            throw GradleException("Spring Boot 4 / Java 21 Code Quality failed:\n" + violations.joinToString("\n"))
+        }
+        println("PASS Spring Boot 4 / Java 21 codeQuality: pure domain boundaries and compiler lint verified.")
+    }
 }
 
 tasks.withType<Test> {

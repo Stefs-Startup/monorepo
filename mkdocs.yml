@@ -6,6 +6,8 @@ nav:
       - Overview: adr/0000-adr-process.md
       - '0001: pnpm Workspaces': adr/0001-use-pnpm-workspaces.md
       - '0002: Monorepo vs Polyrepo': adr/0002-monorepo-over-polyrepo.md
+      - '0003: Monorepo CI/CD & Dependabot': adr/0003-monorepo-ci-cd-and-dependabot.md
+  - Local Validation (CI Parity): local-validation.md
   - Agentic Software Factory:
       - Overview: software-factory/README.md
       - '01: From Portals to Agentic Workspaces': software-factory/01-from-portals-to-agentic-workspaces.md

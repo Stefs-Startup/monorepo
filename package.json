@@ -2,7 +2,7 @@
   "name": "cmp-root",
   "version": "0.0.0",
   "private": true,
-  "description": "Company of One — monorepo root. All apps, packages, and infrastructure live here.",
+  "description": "Company of One \u2014 monorepo root. All apps, packages, and infrastructure live here.",
   "packageManager": "pnpm@9.12.3",
   "engines": {
     "node": ">=20",
@@ -17,10 +17,14 @@
     "clean": "turbo clean && rimraf node_modules",
     "gen:app": "node packages/factory/dist/src/cli.js gen:app",
     "gen:slice": "node packages/factory/dist/src/cli.js gen:slice",
-    "verify:slice": "node packages/factory/dist/src/cli.js verify"
+    "verify:slice": "node packages/factory/dist/src/cli.js verify",
+    "check": "scripts/check.sh --changed",
+    "check:all": "scripts/check.sh --all",
+    "prepare": "lefthook install"
   },
   "devDependencies": {
-    "rimraf": "^6.0.0",
-    "turbo": "^2.8.17"
+    "lefthook": "^2.2.2",
+    "rimraf": "^6.1.4",
+    "turbo": "^2.11.10"
   }
 }
