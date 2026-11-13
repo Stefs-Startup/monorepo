@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Portable OpenRewrite + rewrite-spring snippet for Maven organizations.
+  Note: This monorepo's Spring Boot 4.1.2 backend (apps/pulse/backend) uses
+  Gradle Kotlin DSL (build.gradle.kts) and has NO pom.xml. Include this snippet
+  in Maven repositories that adopt renovate/renovate.jsonc so Renovate's
+  `mvn -B -ntp rewrite:run` postUpgradeTasks step executes cleanly.
+
+  One-shot CLI invocation without editing pom.xml:
+    mvn -U org.openrewrite.maven:rewrite-maven-plugin:6.46.1:dryRun \
+      -Drewrite.recipeArtifactCoordinates=org.openrewrite.recipe:rewrite-spring:6.37.1 \
+      -Drewrite.activeRecipes=org.openrewrite.java.spring.boot4.SpringBootProperties_4_1,org.openrewrite.java.spring.boot4.MigrateToModularStarters
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example</groupId>
+  <artifactId>openrewrite-spring-template</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.openrewrite.maven</groupId>
+        <artifactId>rewrite-maven-plugin</artifactId>
+        <version>6.46.1</version>
+        <configuration>
+          <exportDatatables>true</exportDatatables>
+          <activeRecipes>
+            <recipe>org.openrewrite.java.spring.boot4.SpringBootProperties_4_1</recipe>
+            <recipe>org.openrewrite.java.spring.boot4.SpringBootProperties_4_0</recipe>
+            <recipe>org.openrewrite.java.spring.boot4.MigrateToModularStarters</recipe>
+            <recipe>org.openrewrite.java.spring.boot4.ReplaceMockBeanAndSpyBean</recipe>
+            <recipe>org.openrewrite.java.spring.boot4.RelocateWebServerClasses</recipe>
+            <recipe>org.openrewrite.java.spring.security7.SecurityConfigurerRemoveThrowsException</recipe>
+            <recipe>org.openrewrite.java.spring.NoRequestMappingAnnotation</recipe>
+            <recipe>org.openrewrite.java.spring.NoAutowiredOnConstructor</recipe>
+            <recipe>org.openrewrite.java.spring.PropertiesToKebabCase</recipe>
+            <recipe>org.openrewrite.java.spring.framework.BeanMethodsNotPublic</recipe>
+          </activeRecipes>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-spring</artifactId>
+            <version>6.37.1</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
+</project>

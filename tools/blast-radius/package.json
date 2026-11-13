@@ -1,0 +1,41 @@
+{
+  "name": "@cmp/blast-radius",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic dependency blast-radius and critical-path AST CLI for the CMP monorepo",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./types": {
+      "types": "./dist/src/types.d.ts",
+      "default": "./dist/src/types.js"
+    }
+  },
+  "bin": {
+    "blast-radius": "./dist/src/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node --input-type=module -e \"import fs from 'node:fs'; fs.chmodSync('dist/src/cli.js', 0o755);\"",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit && node --input-type=module -e \"import fs from 'node:fs'; import path from 'node:path'; const walk = (d) => fs.readdirSync(d, {withFileTypes: true}).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]); for (const f of walk('src')) { if (!f.endsWith('.ts')) continue; const s = fs.readFileSync(f, 'utf8'); if (s.includes('@ts-ignore')) { console.error('Disallowed @ts-ignore in ' + f); process.exit(1); } } console.log('@cmp/blast-radius lint passed.');\"",
+    "test": "tsc -p tsconfig.json && node --input-type=module -e \"import fs from 'node:fs'; fs.chmodSync('dist/src/cli.js', 0o755);\" && node --test dist/test/*.test.js",
+    "clean": "rimraf dist node_modules tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo"
+  },
+  "dependencies": {
+    "@cmp/utils": "workspace:*",
+    "java-parser": "^3.0.1",
+    "ts-morph": "^28.0.0",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@cmp/config": "workspace:*",
+    "@types/node": "^24.12.4",
+    "rimraf": "^6.1.4",
+    "typescript": "^5.6.3"
+  }
+}

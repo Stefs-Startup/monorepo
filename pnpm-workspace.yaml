@@ -36,3 +36,6 @@ packages:
   # Examples: ui components, utility functions, shared types, config presets.
   # Packages should never depend on apps — dependency flow is one-directional.
   - 'packages/*'
+
+  # Internal developer & CI tooling (CLIs, local visualization tools).
+  - 'tools/*'

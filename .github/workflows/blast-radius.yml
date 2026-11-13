@@ -1,0 +1,281 @@
+# =============================================================================
+# Dependency Blast-Radius & Critical-Path Analysis (PR Gate + Sticky Comment)
+# =============================================================================
+# Runs @cmp/blast-radius on pull requests touching dependency manifests,
+# lockfiles, Docker/Workflow configs, or blast-radius tooling (including
+# Renovate & Dependabot PRs) as well as manual workflow_dispatch runs.
+#
+# Outputs:
+#   - Workflow artifact: blast-radius-report.json & blast-radius-report.md
+#   - Sticky PR comment: <!-- cmp-blast-radius-report -->
+#   - Explicit Auto-Merge Safety Gate step enforcing CLI --gate exit codes:
+#       0  = HIGH CONFIDENCE / AUTO-MERGE
+#       10 = MODERATE - VERIFY TESTS (blocked unless allow_moderate)
+#       20 = CRITICAL PATH TOUCHED - MANUAL REVIEW (always blocked)
+# =============================================================================
+
+name: "Dependency Blast-Radius Gate"
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "**/package.json"
+      - "**/package-lock.json"
+      - "**/yarn.lock"
+      - "**/*.gradle"
+      - "**/*.gradle.kts"
+      - "**/libs.versions.toml"
+      - "**/gradle-wrapper.properties"
+      - "**/gradle.properties"
+      - "**/pom.xml"
+      - "**/Package.swift"
+      - "**/Package.resolved"
+      - "**/docker-compose*.yml"
+      - "**/docker-compose*.yaml"
+      - "**/Dockerfile*"
+      - ".nvmrc"
+      - ".node-version"
+      - ".github/dependabot.yml"
+      - ".github/workflows/**"
+      - "renovate/**"
+      - ".renovaterc*"
+      - "tools/blast-radius/**"
+      - "!apps/backstage/**"
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: "Base git ref to compare against"
+        type: string
+        default: "origin/main"
+      allow_moderate:
+        description: "Allow MODERATE - VERIFY TESTS tier to pass the safety gate"
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  blast-radius:
+    name: "Blast-Radius AST & Safety Gate"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository (full history for base diff)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          package_json_file: package.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Install workspace dependencies & build @cmp/blast-radius
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter @cmp/blast-radius... build
+
+      - name: Fetch GitHub Dependency Graph SBOM (optional, non-fatal)
+        id: sbom
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh api "/repos/${{ github.repository }}/dependency-graph/sbom" > sbom-github.json 2>sbom-fetch.err; then
+            echo "sbom_path=sbom-github.json" >> "$GITHUB_OUTPUT"
+            echo "Fetched GitHub Dependency Graph SBOM."
+          else
+            rm -f sbom-github.json
+            echo "sbom_path=" >> "$GITHUB_OUTPUT"
+            echo "::notice::GitHub Dependency Graph SBOM unavailable ($(tr '\n' ' ' < sbom-fetch.err)); continuing without SBOM."
+          fi
+          rm -f sbom-fetch.err
+
+      - name: Preview OpenRewrite diff if Gradle build changed without source edits (optional)
+        id: openrewrite
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha || inputs.base_ref || 'origin/main' }}
+        run: |
+          patch_file="apps/pulse/backend/build/reports/rewrite/rewrite.patch"
+          if git diff --name-only "$BASE_REF" HEAD -- apps/pulse/backend/build.gradle.kts | grep -q . \
+            && [ -z "$(git diff --name-only "$BASE_REF" HEAD -- 'apps/pulse/backend/src/**')" ]; then
+            if (cd apps/pulse/backend && chmod +x gradlew && ./gradlew rewriteDryRun --no-daemon --quiet); then
+              if [ -s "$patch_file" ]; then
+                echo "diff_path=$patch_file" >> "$GITHUB_OUTPUT"
+                echo "Captured OpenRewrite dry-run diff at $patch_file."
+              else
+                echo "diff_path=" >> "$GITHUB_OUTPUT"
+              fi
+            else
+              echo "diff_path=" >> "$GITHUB_OUTPUT"
+              echo "::notice::OpenRewrite dry-run skipped/non-fatal; falling back to git diff."
+            fi
+          else
+            echo "diff_path=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run @cmp/blast-radius analysis
+        id: analyze
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha || inputs.base_ref || 'origin/main' }}
+          SBOM_PATH: ${{ steps.sbom.outputs.sbom_path }}
+          OPENREWRITE_DIFF: ${{ steps.openrewrite.outputs.diff_path }}
+        run: |
+          args=(
+            --base "$BASE_REF"
+            --head HEAD
+            --out blast-radius-report.json
+            --md-out blast-radius-report.md
+          )
+          if [ -n "$SBOM_PATH" ] && [ -s "$SBOM_PATH" ]; then
+            args+=(--sbom "$SBOM_PATH")
+          fi
+          if [ -n "$OPENREWRITE_DIFF" ] && [ -s "$OPENREWRITE_DIFF" ]; then
+            args+=(--openrewrite-diff "$OPENREWRITE_DIFF")
+          fi
+          node tools/blast-radius/dist/src/cli.js "${args[@]}"
+          cat blast-radius-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Blast-Radius report artifact
+        if: always() && hashFiles('blast-radius-report.json') != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: blast-radius-report
+          path: |
+            blast-radius-report.json
+            blast-radius-report.md
+          retention-days: 30
+
+      - name: Post or update sticky PR blast-radius comment
+        if: github.event_name == 'pull_request' && hashFiles('blast-radius-report.md') != ''
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- cmp-blast-radius-report -->';
+            const reportMd = fs.readFileSync('blast-radius-report.md', 'utf8');
+            const reportJson = JSON.parse(fs.readFileSync('blast-radius-report.json', 'utf8'));
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            const footer = [
+              '',
+              '---',
+              `<details><summary>Local Interactive Viewer & Gate Metadata (Tier: ${reportJson.scoring?.confidenceTier ?? 'unknown'})</summary>`,
+              '',
+              `- **Artifact:** \`blast-radius-report\` ([workflow run](${runUrl}))`,
+              `- **Gate Exit Code:** \`${reportJson.scoring?.gateExitCode ?? 'unknown'}\` | **Auto-Merge Eligible:** \`${reportJson.scoring?.autoMergeEligible ? 'yes' : 'no'}\``,
+              '</details>'
+            ].join('\n');
+
+            let body = reportMd.includes(marker) ? reportMd : `${marker}\n${reportMd}`;
+            if (body.length + footer.length <= 64000) {
+              body = `${body}\n${footer}`;
+            } else {
+              body = `${body.slice(0, 62000)}\n\n_Report truncated for GitHub comment size limit; download the \`blast-radius-report\` artifact for full details._`;
+            }
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            try {
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner,
+                repo,
+                issue_number,
+                per_page: 100
+              });
+              const existing = comments.find(c => c.body && c.body.includes(marker));
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner,
+                  repo,
+                  comment_id: existing.id,
+                  body
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number,
+                  body
+                });
+              }
+            } catch (err) {
+              const status = err && typeof err === 'object' ? err.status : undefined;
+              if (status === 403 && context.payload.pull_request?.head?.repo?.fork) {
+                core.warning('Skipping sticky PR comment on forked pull request due to read-only token permissions.');
+              } else {
+                throw err;
+              }
+            }
+
+      - name: Auto-Merge Safety Gate (--gate)
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha || inputs.base_ref || 'origin/main' }}
+          SBOM_PATH: ${{ steps.sbom.outputs.sbom_path }}
+          OPENREWRITE_DIFF: ${{ steps.openrewrite.outputs.diff_path }}
+          ALLOW_MODERATE: ${{ inputs.allow_moderate || false }}
+        run: |
+          args=(
+            --base "$BASE_REF"
+            --head HEAD
+            --gate
+            --quiet
+          )
+          if [ -n "$SBOM_PATH" ] && [ -s "$SBOM_PATH" ]; then
+            args+=(--sbom "$SBOM_PATH")
+          fi
+          if [ -n "$OPENREWRITE_DIFF" ] && [ -s "$OPENREWRITE_DIFF" ]; then
+            args+=(--openrewrite-diff "$OPENREWRITE_DIFF")
+          fi
+          if [ "$ALLOW_MODERATE" = "true" ]; then
+            args+=(--allow-moderate)
+          fi
+
+          set +e
+          node tools/blast-radius/dist/src/cli.js "${args[@]}"
+          gate_code=$?
+          set -e
+
+          case "$gate_code" in
+            0)
+              echo "::notice::Blast-Radius Safety Gate PASSED (exit 0) — eligible for auto-merge once CI checks pass."
+              ;;
+            10)
+              echo "::warning::Blast-Radius Safety Gate BLOCKED auto-merge (exit 10: MODERATE - VERIFY TESTS). Verify test suite coverage or review report artifact."
+              exit 10
+              ;;
+            20)
+              echo "::error::Blast-Radius Safety Gate BLOCKED auto-merge (exit 20: CRITICAL PATH TOUCHED - MANUAL REVIEW). Manual review required before merge."
+              exit 20
+              ;;
+            *)
+              echo "::error::Blast-Radius CLI exited with unexpected status $gate_code."
+              exit "$gate_code"
+              ;;
+          esac

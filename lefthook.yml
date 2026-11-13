@@ -25,6 +25,9 @@ pre-commit:
       exclude: "**/*.example"
       run: "echo 'Refusing to commit secret-like file(s):' {staged_files}; exit 1"
 
+    gitleaks-staged:
+      run: "if command -v gitleaks >/dev/null 2>&1; then gitleaks protect --staged --no-banner; else echo 'gitleaks not installed; skipping'; fi"
+
     shell-syntax:
       glob: "*.sh"
       run: "bash -n {staged_files}"

@@ -2,6 +2,8 @@ plugins {
     java
     id("org.springframework.boot") version "4.1.2"
     id("io.spring.dependency-management") version "1.1.7"
+    id("info.solidsoft.pitest") version "1.15.0"
+    id("org.openrewrite.rewrite") version "7.39.0"
 }
 
 group = "com.pulse"
@@ -24,7 +26,46 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    rewrite("org.openrewrite.recipe:rewrite-spring:6.37.1")
+}
+
+rewrite {
+    val activeRecipesProp = providers.gradleProperty("rewrite.activeRecipes")
+    if (activeRecipesProp.isPresent) {
+        activeRecipe(
+            *activeRecipesProp.get()
+                .split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .toTypedArray()
+        )
+    } else {
+        activeRecipe(
+            "org.openrewrite.java.spring.boot4.SpringBootProperties_4_1",
+            "org.openrewrite.java.spring.boot4.SpringBootProperties_4_0",
+            "org.openrewrite.java.spring.boot4.MigrateToModularStarters",
+            "org.openrewrite.java.spring.boot4.ReplaceMockBeanAndSpyBean",
+            "org.openrewrite.java.spring.boot4.RelocateWebServerClasses",
+            "org.openrewrite.java.spring.boot4.RenameDeprecatedStartersManagedVersions",
+            "org.openrewrite.java.spring.security7.SecurityConfigurerRemoveThrowsException",
+            "org.openrewrite.java.spring.NoRequestMappingAnnotation",
+            "org.openrewrite.java.spring.NoAutowiredOnConstructor",
+            "org.openrewrite.java.spring.PropertiesToKebabCase",
+            "org.openrewrite.java.spring.framework.BeanMethodsNotPublic"
+        )
+    }
+}
+
+pitest {
+    junit5PluginVersion.set("1.2.1")
+    targetClasses.set(setOf("com.pulse.backend.domain.*"))
+    targetTests.set(setOf("com.pulse.backend.domain.*"))
+    threads.set(4)
+    outputFormats.set(setOf("XML", "HTML"))
+    timestampedReports.set(false)
 }
 
 tasks.withType<JavaCompile>().configureEach {

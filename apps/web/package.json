@@ -11,6 +11,7 @@
     "build": "tsc -p tsconfig.build.json",
     "lint": "tsc --noEmit && node --input-type=module -e \"import fs from 'node:fs';const src=fs.readFileSync('src/index.ts','utf8');if(src.includes('@ts-ignore')){console.error('Disallowed @ts-ignore');process.exit(1);}console.log('@cmp/web lint passed.');\"",
     "test": "tsc -p tsconfig.json && node dist/src/index.test.js && node --test dist/src/web.test.js",
+    "test:a11y": "playwright test",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist node_modules"
   },

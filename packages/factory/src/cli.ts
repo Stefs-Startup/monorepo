@@ -7,6 +7,12 @@ import {
   generateSlice,
   type FactoryStack,
 } from "./generators.js";
+import { auditPlan } from "./plan-critic.js";
+import {
+  formatScorecardMarkdown,
+  formatScorecardTable,
+  generateScorecard,
+} from "./scorecard.js";
 import { verifyWorkspace } from "./verify.js";
 
 function printUsage(): void {
@@ -16,6 +22,8 @@ Commands:
   gen:app <name> [--stack=web-ts|angular-spring|kmp]   Scaffold a new @cmp/<name> app
   gen:slice <app> <slice>                               Scaffold a vertical slice in apps/<app>
   verify [--target=<pkg>] [--json]                      Run factory guardrails, WCAG/Zero-PII, and test gates
+  plan:critic <file> [--json]                           Audit a plan/spec for completeness and risk escalation
+  scorecard [--json] [--write]                          Generate engineering & release readiness scorecard
 `);
 }
 
@@ -111,6 +119,71 @@ export function runCli(rawArgv: string[]): number {
         );
       }
       return result.passed ? 0 : 1;
+    }
+
+    if (command === "plan:critic") {
+      const [planFile] = positionalArgs(rest);
+      if (!planFile) {
+        console.error("Error: plan:critic requires <file>.");
+        printUsage();
+        return 1;
+      }
+      const rootDir = readFlagValue(rest, "--root") ?? process.cwd();
+      const resolvedPlan = path.isAbsolute(planFile)
+        ? planFile
+        : path.resolve(rootDir, planFile);
+      if (!fs.existsSync(resolvedPlan)) {
+        console.error(`Error: Plan file not found: ${resolvedPlan}`);
+        return 1;
+      }
+      const json = rest.includes("--json");
+      const result = auditPlan(resolvedPlan, rootDir);
+
+      if (json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        console.log(
+          `Plan Critic: ${result.passed ? "PASS" : "FAIL"} (score=${result.score}, decision=${result.escalationDecision})`,
+        );
+        for (const issue of result.issues) {
+          console.log(
+            `  [${issue.severity.toUpperCase()}] (${issue.category} -> ${issue.escalation}): ${issue.message}`,
+          );
+        }
+      }
+      return result.passed ? 0 : 1;
+    }
+
+    if (command === "scorecard") {
+      const rootDir = readFlagValue(rest, "--root") ?? process.cwd();
+      const json = rest.includes("--json");
+      const write = rest.includes("--write");
+      const report = generateScorecard(rootDir);
+
+      if (write) {
+        const docsDir = path.join(rootDir, "docs");
+        fs.mkdirSync(docsDir, { recursive: true });
+        fs.writeFileSync(
+          path.join(docsDir, "scorecard.md"),
+          formatScorecardMarkdown(report),
+          "utf8",
+        );
+
+        const turboDir = path.join(rootDir, ".turbo");
+        fs.mkdirSync(turboDir, { recursive: true });
+        fs.writeFileSync(
+          path.join(turboDir, "scorecard.json"),
+          `${JSON.stringify(report, null, 2)}\n`,
+          "utf8",
+        );
+      }
+
+      if (json) {
+        console.log(JSON.stringify(report, null, 2));
+      } else {
+        console.log(formatScorecardTable(report));
+      }
+      return 0;
     }
 
     console.error(`Unknown command: ${command}`);

@@ -8,6 +8,7 @@ Welcome to the **CMP Experiments Portal**. In this organization, we treat all si
 
 -   **[The Experiment Protocol](protocol.md)**: Our core framework, lifecycle rules, success gating, and code cleanup standards.
 -   **[Proposal Template](templates/proposal-template.md)**: The standard template used to plan, score, and log all experiments.
+-   **[Iteration Log](iteration-log/README.md)**: Two-way judgment log (thesis/outcome + builder/process + investor memo) for experiment cycles.
 
 ---
 
@@ -30,6 +31,7 @@ Records of completed experiments. These logs are preserved as institutional know
 | :--- | :--- | :--- | :---: | :--- |
 | **EXP-000** | *Sample Experiment* | `PIVOT (Purged)` | 2026-05-10 | Scaffolding in apps/exp-sample proved hypothesis false; deleted codebase. |
 | **EXP-002** | **[[STE-15] Market Audit Dogfooding Experiment](active/exp-002-market-audit.md)** | `PROCEED (Integrated)` | 2026-05-18 | Modeled top 5 direct competitors as active Backstage Component and API entities. TechDocs indexed, identifying seat-based licensing budget gap. |
+| **EXP-004** | **[macOS YouTube Music Menu Bar Player (`YTMusicBar`)](archive/exp-004-macos-ytm-menubar-player.md)** ([Iteration Log](iteration-log/2026-11-exp-004-ytm-menubar.md)) | `PARKED (code committed)` | 2026-11-13 | Built `YTMusicBar` at `apps/ytm-menubar/`; `WKWebView` sign-in failed in user testing, Chrome headless+CDP lost sign-in on background return (root cause open). Committed for future iteration. |
 
 ---
 

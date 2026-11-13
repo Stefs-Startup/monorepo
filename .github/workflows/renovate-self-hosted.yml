@@ -1,0 +1,189 @@
+# =============================================================================
+# Self-Hosted Renovate OSS + Branch Auto-Remediation Workflow
+# =============================================================================
+# Runs the open-source renovate/renovate:full container on GitHub-hosted
+# runners with zero proprietary SaaS dependencies.
+#
+# Safety defaults:
+#   - Defaults to dryRun: "full" on PRs, schedule (unless vars.RENOVATE_DRY_RUN
+#     is explicitly set to "false"), and manual workflow_dispatch runs.
+#   - Uses renovate/config.js (which embeds renovate/renovate.jsonc and enforces
+#     strict allowedCommands without shell interpolation).
+#   - Includes a dedicated OpenRewrite + Angular remediation verification job
+#     for Renovate PR branches and config/build updates.
+# =============================================================================
+
+name: "Renovate · Self-Hosted OSS"
+
+on:
+  schedule:
+    # Weekly Monday 09:00 America/New_York (14:00 UTC) matching dependabot.yml
+    - cron: "0 14 * * 1"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "renovate/**"
+      - "apps/pulse/backend/build.gradle.kts"
+      - ".github/workflows/renovate-self-hosted.yml"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Renovate dry-run mode (full, lookup, extract, or false for live PRs)"
+        required: true
+        default: "full"
+        type: choice
+        options:
+          - full
+          - lookup
+          - extract
+          - "false"
+      log_level:
+        description: "Renovate log verbosity"
+        required: true
+        default: "debug"
+        type: choice
+        options:
+          - debug
+          - info
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  renovate:
+    name: "Renovate OSS Runner"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Validate Renovate config.js & renovate.jsonc
+        run: |
+          node -e '
+            const assert = require("node:assert/strict");
+            const cfg = require("./renovate/config.js");
+            assert.equal(cfg.allowShellExecutorForPostUpgradeCommands, false);
+            assert.ok(Array.isArray(cfg.packageRules) && cfg.packageRules.length > 0);
+            console.log("Validated renovate/config.js (", cfg.packageRules.length, "packageRules, dryRun:", cfg.dryRun, ")");
+          '
+
+      - name: Resolve effective dry-run mode
+        id: mode
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+          INPUT_LOG_LEVEL: ${{ inputs.log_level }}
+          VAR_DRY_RUN: ${{ vars.RENOVATE_DRY_RUN }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            dry_run="full"
+            log_level="debug"
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            dry_run="${INPUT_DRY_RUN:-full}"
+            log_level="${INPUT_LOG_LEVEL:-debug}"
+          else
+            dry_run="${VAR_DRY_RUN:-full}"
+            log_level="info"
+          fi
+          echo "dry_run=$dry_run" >> "$GITHUB_OUTPUT"
+          echo "log_level=$log_level" >> "$GITHUB_OUTPUT"
+          echo "Effective Renovate mode: dry_run=$dry_run, log_level=$log_level"
+
+      - name: Run self-hosted renovate/renovate OSS container
+        env:
+          RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN || github.token }}
+          RENOVATE_DRY_RUN: ${{ steps.mode.outputs.dry_run }}
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          LOG_LEVEL: ${{ steps.mode.outputs.log_level }}
+        run: |
+          set -o pipefail
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE/renovate/config.js:/usr/src/app/config.js:ro" \
+            -v "$GITHUB_WORKSPACE/renovate/renovate.jsonc:/usr/src/app/renovate.jsonc:ro" \
+            -e RENOVATE_CONFIG_FILE=/usr/src/app/config.js \
+            -e RENOVATE_PLATFORM=github \
+            -e RENOVATE_DRY_RUN \
+            -e RENOVATE_REPOSITORIES \
+            -e RENOVATE_TOKEN \
+            -e GITHUB_COM_TOKEN="$RENOVATE_TOKEN" \
+            -e LOG_LEVEL \
+            -e LOG_FORMAT=json \
+            renovate/renovate:full | tee renovate-run.jsonl
+
+      - name: Summarize Renovate dry-run output
+        if: always() && hashFiles('renovate-run.jsonl') != ''
+        run: |
+          {
+            echo "## 🤖 Self-Hosted Renovate OSS Summary"
+            echo ""
+            echo "- **Mode:** \`dryRun=${{ steps.mode.outputs.dry_run }}\`"
+            echo "- **Repository:** \`${{ github.repository }}\`"
+            echo "- **Config:** \`renovate/config.js\` + \`renovate/renovate.jsonc\`"
+            echo "- **Excluded:** \`apps/backstage/**\`"
+            echo ""
+            echo "Log lines captured: \`$(wc -l < renovate-run.jsonl)\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Renovate execution log artifact
+        if: always() && hashFiles('renovate-run.jsonl') != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: renovate-oss-run-log
+          path: renovate-run.jsonl
+          retention-days: 14
+
+  branch-auto-remediation:
+    name: "Auto-Remediation Check (OpenRewrite + Angular CLI)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+          cache-dependency-path: apps/pulse/web/package-lock.json
+
+      - name: Run OpenRewrite dry-run & Gradle gates (apps/pulse/backend)
+        working-directory: apps/pulse/backend
+        run: |
+          chmod +x gradlew
+          ./gradlew rewriteDryRun codeQuality test --no-daemon --stacktrace
+
+      - name: Verify Angular CLI migration tooling (apps/pulse/web)
+        working-directory: apps/pulse/web
+        run: |
+          npm ci --ignore-scripts
+          npx --no-install ng version
+          npm run lint && npm run typecheck
+
+      - name: Upload OpenRewrite patch artifact (if any)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: openrewrite-remediation-patch
+          path: apps/pulse/backend/build/reports/rewrite/rewrite.patch
+          if-no-files-found: ignore
+          retention-days: 14

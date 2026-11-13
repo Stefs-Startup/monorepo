@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { runWebSliceHealthCheck } from "./index.js";
 
-test("runWebSliceHealthCheck passes WCAG 2.2 AA contrast and Zero-PII telemetry invariants", () => {
+// Traceability: REQ-WEB-001 (health check & greeting), REQ-WEB-002 (WCAG 2.2 AA contrast)
+test("REQ-WEB-001 & REQ-WEB-002: runWebSliceHealthCheck passes WCAG 2.2 AA contrast and Zero-PII telemetry invariants", () => {
   const report = runWebSliceHealthCheck();
 
   assert.equal(report.passed, true);

@@ -1,0 +1,59 @@
+# =============================================================================
+# Self-Hosted Renovate OSS Docker Compose Setup
+# =============================================================================
+# Runs the open-source renovate/renovate:full image (includes Java, Gradle,
+# Node.js, npm, and pnpm) with zero external SaaS dependencies.
+#
+# Modes:
+#   1. GitHub dry-run (default, safe comparison vs. .github/dependabot.yml):
+#        RENOVATE_TOKEN=<gh_pat> docker compose -f renovate/docker-compose.yml run --rm renovate
+#   2. Offline/local checkout lookup (no GitHub write token needed):
+#        docker compose -f renovate/docker-compose.yml --profile local run --rm renovate-local
+#   3. Live PR mode (explicit opt-in):
+#        RENOVATE_DRY_RUN=false RENOVATE_TOKEN=<gh_pat> docker compose -f renovate/docker-compose.yml run --rm renovate
+# =============================================================================
+
+services:
+  renovate:
+    image: ${RENOVATE_IMAGE:-renovate/renovate:full}
+    environment:
+      RENOVATE_CONFIG_FILE: /usr/src/app/config.js
+      RENOVATE_PLATFORM: ${RENOVATE_PLATFORM:-github}
+      RENOVATE_DRY_RUN: ${RENOVATE_DRY_RUN:-full}
+      RENOVATE_REPOSITORIES: ${RENOVATE_REPOSITORIES:-Stefs-Startup/monorepo}
+      RENOVATE_TOKEN: ${RENOVATE_TOKEN:-}
+      GITHUB_COM_TOKEN: ${GITHUB_COM_TOKEN:-${RENOVATE_TOKEN:-}}
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+      LOG_FORMAT: ${LOG_FORMAT:-pretty}
+    volumes:
+      - ./config.js:/usr/src/app/config.js:ro
+      - ./renovate.jsonc:/usr/src/app/renovate.jsonc:ro
+      - renovate_cache:/tmp/renovate
+    security_opt:
+      - no-new-privileges:true
+
+  renovate-local:
+    image: ${RENOVATE_IMAGE:-renovate/renovate:full}
+    profiles:
+      - local
+    working_dir: /workspace
+    environment:
+      RENOVATE_CONFIG_FILE: /usr/src/app/config.js
+      RENOVATE_PLATFORM: local
+      RENOVATE_DRY_RUN: lookup
+      GITHUB_COM_TOKEN: ${GITHUB_COM_TOKEN:-${RENOVATE_TOKEN:-}}
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+      LOG_FORMAT: ${LOG_FORMAT:-pretty}
+    volumes:
+      - ..:/workspace:ro
+      - ./config.js:/usr/src/app/config.js:ro
+      - ./renovate.jsonc:/usr/src/app/renovate.jsonc:ro
+      - renovate_cache:/tmp/renovate
+    command:
+      - --platform=local
+      - --dry-run=lookup
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  renovate_cache:

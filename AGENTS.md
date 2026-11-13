@@ -15,4 +15,10 @@ scripts/check.sh --list                     # stacks: pnpm-turborepo, angular, s
 - Never push a stack change without Gate 1 passing for that stack.
 - When you change `.github/workflows/ci-stack-*.yml`, update `scripts/check.sh` and `docs/local-validation.md`.
 
-Stack-specific guidance: `apps/pulse/AGENTS.md`.
+Stack-specific guidance: `apps/pulse/AGENTS.md`. Live repo health & release readiness: `pnpm scorecard` (see [`docs/scorecard.md`](docs/scorecard.md)).
+
+## Agent Memory & Iteration Harness
+
+- **Memory Store**: [`.agents/memory/INDEX.md`](.agents/memory/INDEX.md) (progressive disclosure: root index -> folder index -> leaf). `dream-consolidate` mapping: gotchas -> `gotchas/<topic>.md`, decisions -> `decisions/ADR-MEM-NNN-*.md`, process rules -> `process/`, per-cycle judgments -> [`docs/experiments/iteration-log/`](docs/experiments/iteration-log/README.md).
+- **Process Rules (Must-Read)**: [`.agents/memory/process/INDEX.md`](.agents/memory/process/INDEX.md) — read before claiming work is verified, deleting files, or coordinating a swarm.
+- **Iteration Log & Harness**: [`docs/experiments/iteration-log/README.md`](docs/experiments/iteration-log/README.md) and [`docs/software-factory/05-sota-agentic-memory-and-iteration-harness.md`](docs/software-factory/05-sota-agentic-memory-and-iteration-harness.md).

@@ -121,3 +121,5 @@ An experiment is not ready for execution until it can be verified.
     *Refactor code out of the experimental scaffold into standard packages. Remove feature flags. Archive this log.*
 *   [ ] **Option B: Pivot (Cleanly Purge)**
     *Delete experimental directories. Keep only this markdown log in `docs/experiments/archive/` as institutional knowledge.*
+
+Record an [Iteration Log](../iteration-log/README.md) entry (two-way judgment) for the cycle; **park-and-commit** (`PARKED`) is an allowed outcome when the user wants to iterate later.

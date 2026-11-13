@@ -44,7 +44,7 @@ jobs:
       node: ${{ steps.discover.outputs.node }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Discover projects
         id: discover
@@ -98,10 +98,10 @@ jobs:
       artifact-paths: ${{ matrix.project.artifact-paths }}
 
   # ---------------------------------------------------------------------------
-  # Deploy & Distribution Gate (Placeholder) — mark this as the required check.
+  # Release Readiness Scorecard Gate — mark this as the required check.
   # ---------------------------------------------------------------------------
   deploy:
-    name: Deploy & Distribution
+    name: Release Readiness Scorecard
     needs:
       - discover
       - gradle
@@ -109,6 +109,9 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Require every project to pass
         env:
@@ -120,16 +123,65 @@ jobs:
             exit 1
           fi
 
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Build @cmp/factory and generate scorecard JSON
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter @cmp/factory... build
+          node packages/factory/dist/src/cli.js scorecard --json > factory-scorecard.json
+
       - name: Download staged build artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           path: staged-artifacts
 
-      - name: Summarise staged distribution artifacts
+      - name: Generate release-readiness scorecard.json & DORA summary
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+          RUN_ID: ${{ github.run_id }}
+          SHA: ${{ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
           mkdir -p staged-artifacts
+          artifact_count=$(find staged-artifacts -mindepth 1 -maxdepth 1 -type d ! -name '*-reports' | wc -l | tr -d ' ')
+          jq -n \
+            --arg run_id "$RUN_ID" \
+            --arg sha "$SHA" \
+            --arg event "$EVENT_NAME" \
+            --arg ref "$REF_NAME" \
+            --argjson artifact_count "$artifact_count" \
+            --argjson needs "$RESULTS" \
+            '{
+              schemaVersion: 1,
+              gate: "release-readiness",
+              runId: $run_id,
+              sha: $sha,
+              event: $event,
+              ref: $ref,
+              status: "pass",
+              artifactCount: $artifact_count,
+              jobs: ($needs | with_entries(.value |= .result)),
+              doraSignals: {
+                changeFailureRateGate: "passed",
+                leadTimeTracking: "ci-run-timestamp",
+                deploymentFrequencyEligibility: ($ref == "main" and $event == "push")
+              }
+            }' > scorecard.json
+
           {
-            echo "## 🚀 Monorepo Deploy & Distribution Gate"
+            echo "## 📊 Release Readiness Scorecard"
             echo ""
             echo "| Artifact | Files | Size |"
             echo "| :--- | ---: | ---: |"
@@ -140,8 +192,94 @@ jobs:
               echo "| \`$name\` | $(find "$dir" -type f | wc -l) | $(du -sh "$dir" | cut -f1) |"
             done
             echo ""
-            echo "Distribution channels (Firebase App Distribution, GitHub Releases, Play Internal, web hosting) are not wired up yet."
-            echo "\`apps/backstage\` is experimental and excluded via \`.github/ci-projects.json\`."
+            echo "### DORA & Gate Summary"
             echo ""
-            echo "> **Mode:** \`${{ github.event_name }}\` on ref \`${{ github.ref_name }}\`"
+            echo "- **Gate Status:** PASS (\`scorecard.json\` generated)"
+            echo "- **Change Failure Rate Guard:** All upstream \`discover\`, \`gradle\`, and \`node\` gates passed"
+            echo "- **Deploy Eligibility:** \`$([ "$REF_NAME" = "main" ] && [ "$EVENT_NAME" = "push" ] && echo "eligible" || echo "pre-release ($EVENT_NAME)")\`"
+            echo "- **Excluded Experimental Apps:** \`apps/backstage\` (via \`.github/ci-projects.json\`)"
+            echo ""
+            echo "> **Mode:** \`$EVENT_NAME\` on ref \`$REF_NAME\` (\`$SHA\`)"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Post or update sticky PR scorecard comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- cmp-release-readiness-scorecard -->';
+            const factory = JSON.parse(fs.readFileSync('factory-scorecard.json', 'utf8'));
+            const ci = JSON.parse(fs.readFileSync('scorecard.json', 'utf8'));
+            const score = Number(factory.overallScore ?? 0);
+            const filled = Math.round(Math.max(0, Math.min(100, score)) / 10);
+            const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
+            const statusIcon = ci.status === 'pass' ? '🟢 PASS' : '🔴 FAIL';
+            const capRows = Object.values(factory.capabilities || {}).map((cap) => {
+              const icon = cap.passed ? '✅' : '❌';
+              const details = String(cap.details || '').replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
+              return `| ${cap.name} | ${icon} | \`${cap.score}/100\` | ${details} |`;
+            });
+            const jobBadges = Object.entries(ci.jobs || {})
+              .map(([k, v]) => `\`${k}: ${v}\``)
+              .join(' · ');
+
+            const body = [
+              marker,
+              '## 📊 Release Readiness Scorecard',
+              '',
+              `| Metric | Value |`,
+              `| :--- | :--- |`,
+              `| **Overall Score** | \`${bar}\` **${score}/100** |`,
+              `| **CI Gate** | ${statusIcon} (\`${ci.artifactCount}\` staged artifacts) |`,
+              `| **Jobs** | ${jobBadges || '_none_'} |`,
+              `| **Commit** | \`${String(ci.sha || '').slice(0, 7)}\` (\`${ci.event}\` on \`${ci.ref}\`) |`,
+              '',
+              '### Capability Breakdown',
+              '',
+              '| Capability | Status | Score | Details |',
+              '| :--- | :---: | :---: | :--- |',
+              ...capRows,
+              '',
+              '<details>',
+              '<summary>Raw Factory Scorecard JSON</summary>',
+              '',
+              '```json',
+              JSON.stringify(factory, null, 2),
+              '```',
+              '</details>'
+            ].join('\n');
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100
+            });
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body
+              });
+            }
+
+      - name: Upload release-readiness scorecard
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-readiness-scorecard
+          path: |
+            scorecard.json
+            factory-scorecard.json
+          retention-days: 30
