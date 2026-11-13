@@ -120,6 +120,8 @@ If success criteria are **not** met:
 - Revert any feature-flag integrations.
 - Keep only the experiment report under `docs/experiments/archive/` as a record of what we learned.
 
+Record an [Iteration Log](iteration-log/README.md) entry (two-way judgment) for every cycle; **park-and-commit** (`PARKED`) is also an allowed outcome when the user wants to iterate later.
+
 ---
 
 ## 📁 Repository Directory Structure
