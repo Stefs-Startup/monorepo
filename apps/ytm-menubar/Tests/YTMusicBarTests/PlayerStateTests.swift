@@ -2,7 +2,8 @@ import Foundation
 import Testing
 @testable import YTMusicBar
 
-@Suite("PlayerStateTests")
+// Traceability: REQ-YTM-001 (PlayerState JSON decoding & empty defaults)
+@Suite("PlayerStateTests (REQ-YTM-001)")
 struct PlayerStateTests {
     @Test("Decodes full PlayerState JSON payload")
     func decodesFullPayload() throws {

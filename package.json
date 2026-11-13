@@ -18,6 +18,11 @@
     "gen:app": "node packages/factory/dist/src/cli.js gen:app",
     "gen:slice": "node packages/factory/dist/src/cli.js gen:slice",
     "verify:slice": "node packages/factory/dist/src/cli.js verify",
+    "plan:critic": "node packages/factory/dist/src/cli.js plan:critic",
+    "scorecard": "node packages/factory/dist/src/cli.js scorecard",
+    "blast-radius": "node tools/blast-radius/dist/src/cli.js",
+    "arch:check": "NODE_PATH=packages/factory/node_modules npx --yes dependency-cruiser --config .dependency-cruiser.cjs packages apps/web",
+    "mutation:test": "npx --yes @stryker-mutator/core run",
     "check": "scripts/check.sh --changed",
     "check:all": "scripts/check.sh --all",
     "prepare": "lefthook install"

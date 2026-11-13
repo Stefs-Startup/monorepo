@@ -7,6 +7,7 @@ import {
   pseudonymizeIdentifier,
   scrubSensitiveText,
 } from "@cmp/utils";
+import { auditRequirementTraceability } from "./req-trace.js";
 
 export interface VerifyCheckResult {
   name: string;
@@ -263,11 +264,21 @@ function runTypecheckAndTestGate(
   };
 }
 
+function runRequirementTraceabilityGate(rootDir: string): VerifyCheckResult {
+  const result = auditRequirementTraceability(rootDir);
+  return {
+    name: "Requirement-to-Code Traceability",
+    passed: result.passed,
+    details: result.details,
+  };
+}
+
 /**
  * Runs the deterministic Agentic Software Factory verification loop:
  * 1. Guardrail & AGENTS.md Audit
  * 2. WCAG 2.2 AA & Zero-PII Self-Test
  * 3. Typecheck & Unit Test Gate
+ * 4. Requirement-to-Code Traceability
  */
 export function verifyWorkspace(
   options: VerifyWorkspaceOptions = {},
@@ -277,6 +288,7 @@ export function verifyWorkspace(
     runGuardrailAndAgentsAudit(rootDir, options.target),
     runWcagAndZeroPiiSelfTest(),
     runTypecheckAndTestGate(rootDir, options.target),
+    runRequirementTraceabilityGate(rootDir),
   ];
 
   return {

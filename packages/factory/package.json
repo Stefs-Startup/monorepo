@@ -14,6 +14,7 @@
     "test": "tsc -p tsconfig.json && node --test dist/src/factory.test.js",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
+    "plan:critic": "node dist/src/cli.js plan:critic",
     "clean": "rimraf dist node_modules"
   },
   "dependencies": {

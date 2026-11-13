@@ -37,7 +37,7 @@ flowchart LR
 
 ---
 
-## Learning Curriculum (`01`–`05`)
+## Learning Curriculum (`01`–`06`)
 
 | Guide | Track & Package | What You Will Learn |
 | :--- | :--- | :--- |
@@ -46,6 +46,7 @@ flowchart LR
 | **[03. Deterministic App & Slice Generators](03-deterministic-app-and-slice-generators.md)** | Track 3 · `@cmp/factory` (`gen:app`, `gen:slice`) | Vertical Slice Architecture (`contract`, `engine`, `test`), multi-stack blueprints (`web-ts`, `angular-spring`, `kmp`), and extending generators. |
 | **[04. Closed-Loop Verification Harness](04-closed-loop-verification-harness.md)** | Track 4 · `@cmp/factory` (`pnpm verify:slice`) | Feedback loop latency, the 3-gate `verifyWorkspace()` pipeline, `CMP_VERIFY_RUNNING` recursion protection, and adding custom checks. |
 | **[05. SOTA Agentic Memory & Iteration Harness](05-sota-agentic-memory-and-iteration-harness.md)** | Track 5 · `.agents/memory/` & `docs/experiments/iteration-log/` | Lean memory scope, nested `.agents/memory/` KB, Anthropic/OpenAI harness practices, `dream-consolidate`, testing standards, and the two-way Iteration Judgment Log. |
+| **[06. SOTA Quality Engineering & Pre-Execution Planning Critic](06-sota-quality-engineering-and-planning-critic.md)** | Track 6 · `scripts/check.sh`, `.github/workflows/security.yml`, `@cmp/factory` (`plan:critic`) | Local QE quickstart, 4 industry pillars (mutation/architecture fitness, WCAG 2.2 AA DOM, DevSecOps supply chain, DORA/scorecards), Deterministic Escalation Matrix, and Enterprise Transfer Playbook. |
 
 ---
 

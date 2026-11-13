@@ -1,10 +1,13 @@
 # =============================================================================
 # Stack CI Pipeline — TypeScript / Node / pnpm + Turborepo Workspace
 # =============================================================================
-# Validates all packages and apps in the root pnpm + Turborepo stack:
-#   - packages/config (@cmp/config)
-#   - packages/utils  (@cmp/utils)
-#   - apps/web        (@cmp/web)
+# Validates all packages, apps, and tools in the root pnpm + Turborepo stack:
+#   - packages/config          (@cmp/config)
+#   - packages/utils           (@cmp/utils)
+#   - packages/factory         (@cmp/factory)
+#   - apps/web                 (@cmp/web)
+#   - tools/blast-radius       (@cmp/blast-radius)
+#   - tools/blast-radius-ui    (@cmp/blast-radius-ui)
 #
 # Executes 4 strict gates:
 #   1. Gate 1 — Code Quality (lockfile, boundary rules, lint, typecheck)
@@ -28,6 +31,7 @@ on:
       - ".node-version"
       - "apps/web/**"
       - "packages/**"
+      - "tools/**"
       - ".github/workflows/ci-stack-pnpm-turborepo.yml"
   pull_request:
     branches:
@@ -41,6 +45,7 @@ on:
       - ".node-version"
       - "apps/web/**"
       - "packages/**"
+      - "tools/**"
       - ".github/workflows/ci-stack-pnpm-turborepo.yml"
   merge_group:
   workflow_dispatch:
@@ -59,15 +64,15 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
           package_json_file: package.json
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
@@ -80,16 +85,23 @@ jobs:
         run: |
           node -e '
             const fs = require("node:fs");
-            const pkgPaths = ["packages/config/package.json", "packages/utils/package.json", "apps/web/package.json"];
+            const pkgPaths = [
+              "packages/config/package.json",
+              "packages/utils/package.json",
+              "packages/factory/package.json",
+              "apps/web/package.json",
+              "tools/blast-radius/package.json",
+              "tools/blast-radius-ui/package.json",
+            ];
             for (const p of pkgPaths) {
               const pkg = JSON.parse(fs.readFileSync(p, "utf8"));
               if (!pkg.name.startsWith("@cmp/")) {
                 throw new Error(`${p} must use @cmp/* scope (found ${pkg.name})`);
               }
               const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-              if (p.startsWith("packages/")) {
+              if (p.startsWith("packages/") || p.startsWith("tools/")) {
                 for (const d of Object.keys(deps)) {
-                  if (d === "@cmp/web") throw new Error(`Package ${p} cannot depend on app ${d}`);
+                  if (d === "@cmp/web") throw new Error(`${p} cannot depend on app ${d}`);
                 }
               }
             }
@@ -110,15 +122,15 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
           package_json_file: package.json
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
@@ -130,21 +142,26 @@ jobs:
       - name: Build all Turborepo packages and apps
         run: pnpm run build
 
-      - name: Verify compiled outputs for @cmp/utils and @cmp/web
+      - name: Verify compiled outputs for workspace packages, apps, and tools
         run: |
           test -f packages/utils/dist/src/index.js
           test -f packages/utils/dist/src/index.d.ts
           test -f packages/factory/dist/src/cli.js
           test -f apps/web/dist/src/index.js
-          echo "Verified dist artifacts for @cmp/utils, @cmp/factory, and @cmp/web."
+          test -f tools/blast-radius/dist/src/cli.js
+          test -f tools/blast-radius-ui/dist/index.html
+          echo "Verified dist artifacts for @cmp/utils, @cmp/factory, @cmp/web, @cmp/blast-radius, and @cmp/blast-radius-ui."
 
       - name: Upload Turborepo build artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: pnpm-turborepo-dist
           path: |
             packages/utils/dist/**
+            packages/factory/dist/**
             apps/web/dist/**
+            tools/blast-radius/dist/**
+            tools/blast-radius-ui/dist/**
           retention-days: 7
 
   test:
@@ -153,15 +170,15 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
           package_json_file: package.json
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
@@ -202,7 +219,7 @@ jobs:
           fi
 
       - name: Download staged Turborepo artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: pnpm-turborepo-dist
           path: staged-pnpm-turborepo
@@ -218,6 +235,8 @@ jobs:
             echo "| \`@cmp/utils\` | \`packages/utils\` | ✅ | ✅ (\`dist/src/index.js\`) | ✅ |"
             echo "| \`@cmp/factory\` | \`packages/factory\` | ✅ | ✅ (\`dist/src/cli.js\`) | ✅ |"
             echo "| \`@cmp/web\` | \`apps/web\` | ✅ | ✅ (\`dist/src/index.js\`) | ✅ |"
+            echo "| \`@cmp/blast-radius\` | \`tools/blast-radius\` | ✅ | ✅ (\`dist/src/cli.js\`) | ✅ |"
+            echo "| \`@cmp/blast-radius-ui\` | \`tools/blast-radius-ui\` | ✅ | ✅ (\`dist/index.html\`) | ✅ |"
             echo ""
             echo "Staged files: \`$(find staged-pnpm-turborepo -type f | wc -l)\`"
           } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,3679 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-11-13T17:08:13.137Z",
+  "repoRoot": "monorepo",
+  "baseRef": "origin/main",
+  "headRef": "WORKING_TREE",
+  "ecosystemsAnalyzed": [
+    "gradle",
+    "npm",
+    "pnpm"
+  ],
+  "dependencies": [
+    {
+      "id": "gradle:com.tngtech.archunit:archunit-junit5",
+      "ecosystem": "gradle",
+      "category": "java",
+      "name": "com.tngtech.archunit:archunit-junit5",
+      "group": "com.tngtech.archunit",
+      "artifact": "archunit-junit5",
+      "fromVersion": null,
+      "toVersion": "1.3.0",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "apps/pulse/backend/build.gradle.kts",
+      "inferredPackages": [
+        "com.tngtech.archunit"
+      ]
+    },
+    {
+      "id": "gradle:info.solidsoft.pitest:info.solidsoft.pitest.gradle.plugin",
+      "ecosystem": "gradle",
+      "category": "java",
+      "name": "info.solidsoft.pitest:info.solidsoft.pitest.gradle.plugin",
+      "group": "info.solidsoft.pitest",
+      "artifact": "info.solidsoft.pitest.gradle.plugin",
+      "fromVersion": null,
+      "toVersion": "1.15.0",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "apps/pulse/backend/build.gradle.kts",
+      "inferredPackages": [
+        "info.solidsoft.pitest"
+      ]
+    },
+    {
+      "id": "gradle:org.openrewrite.rewrite:org.openrewrite.rewrite.gradle.plugin",
+      "ecosystem": "gradle",
+      "category": "java",
+      "name": "org.openrewrite.rewrite:org.openrewrite.rewrite.gradle.plugin",
+      "group": "org.openrewrite.rewrite",
+      "artifact": "org.openrewrite.rewrite.gradle.plugin",
+      "fromVersion": null,
+      "toVersion": "7.39.0",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "apps/pulse/backend/build.gradle.kts",
+      "inferredPackages": [
+        "org.openrewrite.rewrite"
+      ]
+    },
+    {
+      "id": "pnpm:@asamuzakjp/css-color",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@asamuzakjp/css-color",
+      "group": "@asamuzakjp",
+      "artifact": "css-color",
+      "fromVersion": null,
+      "toVersion": "3.2.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@asamuzakjp/css-color"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/code-frame",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/code-frame",
+      "group": "@babel",
+      "artifact": "code-frame",
+      "fromVersion": null,
+      "toVersion": "7.29.7",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/code-frame"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/compat-data",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/compat-data",
+      "group": "@babel",
+      "artifact": "compat-data",
+      "fromVersion": null,
+      "toVersion": "7.29.7",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/compat-data"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/core",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/core",
+      "group": "@babel",
+      "artifact": "core",
+      "fromVersion": null,
+      "toVersion": "7.29.13",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/core"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/generator",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/generator",
+      "group": "@babel",
+      "artifact": "generator",
+      "fromVersion": null,
+      "toVersion": "7.29.14",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/generator"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/helper-compilation-targets",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/helper-compilation-targets",
+      "group": "@babel",
+      "artifact": "helper-compilation-targets",
+      "fromVersion": null,
+      "toVersion": "7.29.13",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/helper-compilation-targets"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/helper-globals",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/helper-globals",
+      "group": "@babel",
+      "artifact": "helper-globals",
+      "fromVersion": null,
+      "toVersion": "7.29.7",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/helper-globals"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/helper-module-imports",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/helper-module-imports",
+      "group": "@babel",
+      "artifact": "helper-module-imports",
+      "fromVersion": null,
+      "toVersion": "7.29.7",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/helper-module-imports"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/helper-module-transforms",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/helper-module-transforms",
+      "group": "@babel",
+      "artifact": "helper-module-transforms",
+      "fromVersion": null,
+      "toVersion": "7.29.14",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/helper-module-transforms"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/helper-plugin-utils",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/helper-plugin-utils",
+      "group": "@babel",
+      "artifact": "helper-plugin-utils",
+      "fromVersion": null,
+      "toVersion": "7.29.7",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/helper-plugin-utils"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/helper-string-parser",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/helper-string-parser",
+      "group": "@babel",
+      "artifact": "helper-string-parser",
+      "fromVersion": null,
+      "toVersion": "7.29.14",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/helper-string-parser"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/helper-validator-identifier",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/helper-validator-identifier",
+      "group": "@babel",
+      "artifact": "helper-validator-identifier",
+      "fromVersion": null,
+      "toVersion": "7.29.7",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/helper-validator-identifier"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/helper-validator-option",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/helper-validator-option",
+      "group": "@babel",
+      "artifact": "helper-validator-option",
+      "fromVersion": null,
+      "toVersion": "7.29.7",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/helper-validator-option"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/helpers",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/helpers",
+      "group": "@babel",
+      "artifact": "helpers",
+      "fromVersion": null,
+      "toVersion": "7.29.14",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/helpers"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/parser",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/parser",
+      "group": "@babel",
+      "artifact": "parser",
+      "fromVersion": null,
+      "toVersion": "7.29.14",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/parser"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/plugin-transform-react-jsx-self",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/plugin-transform-react-jsx-self",
+      "group": "@babel",
+      "artifact": "plugin-transform-react-jsx-self",
+      "fromVersion": null,
+      "toVersion": "7.29.7",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/plugin-transform-react-jsx-self"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/plugin-transform-react-jsx-source",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/plugin-transform-react-jsx-source",
+      "group": "@babel",
+      "artifact": "plugin-transform-react-jsx-source",
+      "fromVersion": null,
+      "toVersion": "7.29.7",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/plugin-transform-react-jsx-source"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/runtime",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/runtime",
+      "group": "@babel",
+      "artifact": "runtime",
+      "fromVersion": null,
+      "toVersion": "7.29.14",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/runtime"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/template",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/template",
+      "group": "@babel",
+      "artifact": "template",
+      "fromVersion": null,
+      "toVersion": "7.29.7",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/template"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/traverse",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/traverse",
+      "group": "@babel",
+      "artifact": "traverse",
+      "fromVersion": null,
+      "toVersion": "7.29.14",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/traverse"
+      ]
+    },
+    {
+      "id": "pnpm:@babel/types",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@babel/types",
+      "group": "@babel",
+      "artifact": "types",
+      "fromVersion": null,
+      "toVersion": "7.29.14",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@babel/types"
+      ]
+    },
+    {
+      "id": "pnpm:@chevrotain/cst-dts-gen",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@chevrotain/cst-dts-gen",
+      "group": "@chevrotain",
+      "artifact": "cst-dts-gen",
+      "fromVersion": null,
+      "toVersion": "11.0.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@chevrotain/cst-dts-gen"
+      ]
+    },
+    {
+      "id": "pnpm:@chevrotain/gast",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@chevrotain/gast",
+      "group": "@chevrotain",
+      "artifact": "gast",
+      "fromVersion": null,
+      "toVersion": "11.0.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@chevrotain/gast"
+      ]
+    },
+    {
+      "id": "pnpm:@chevrotain/regexp-to-ast",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@chevrotain/regexp-to-ast",
+      "group": "@chevrotain",
+      "artifact": "regexp-to-ast",
+      "fromVersion": null,
+      "toVersion": "11.0.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@chevrotain/regexp-to-ast"
+      ]
+    },
+    {
+      "id": "pnpm:@chevrotain/types",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@chevrotain/types",
+      "group": "@chevrotain",
+      "artifact": "types",
+      "fromVersion": null,
+      "toVersion": "11.0.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@chevrotain/types"
+      ]
+    },
+    {
+      "id": "pnpm:@chevrotain/utils",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@chevrotain/utils",
+      "group": "@chevrotain",
+      "artifact": "utils",
+      "fromVersion": null,
+      "toVersion": "11.0.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@chevrotain/utils"
+      ]
+    },
+    {
+      "id": "pnpm:@csstools/color-helpers",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@csstools/color-helpers",
+      "group": "@csstools",
+      "artifact": "color-helpers",
+      "fromVersion": null,
+      "toVersion": "5.1.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@csstools/color-helpers"
+      ]
+    },
+    {
+      "id": "pnpm:@csstools/css-calc",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@csstools/css-calc",
+      "group": "@csstools",
+      "artifact": "css-calc",
+      "fromVersion": null,
+      "toVersion": "2.1.4",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@csstools/css-calc"
+      ]
+    },
+    {
+      "id": "pnpm:@csstools/css-color-parser",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@csstools/css-color-parser",
+      "group": "@csstools",
+      "artifact": "css-color-parser",
+      "fromVersion": null,
+      "toVersion": "3.1.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@csstools/css-color-parser"
+      ]
+    },
+    {
+      "id": "pnpm:@csstools/css-parser-algorithms",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@csstools/css-parser-algorithms",
+      "group": "@csstools",
+      "artifact": "css-parser-algorithms",
+      "fromVersion": null,
+      "toVersion": "3.0.5",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@csstools/css-parser-algorithms"
+      ]
+    },
+    {
+      "id": "pnpm:@csstools/css-tokenizer",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@csstools/css-tokenizer",
+      "group": "@csstools",
+      "artifact": "css-tokenizer",
+      "fromVersion": null,
+      "toVersion": "3.0.4",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@csstools/css-tokenizer"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/aix-ppc64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/aix-ppc64",
+      "group": "@esbuild",
+      "artifact": "aix-ppc64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/aix-ppc64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/android-arm",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/android-arm",
+      "group": "@esbuild",
+      "artifact": "android-arm",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/android-arm"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/android-arm64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/android-arm64",
+      "group": "@esbuild",
+      "artifact": "android-arm64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/android-arm64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/android-x64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/android-x64",
+      "group": "@esbuild",
+      "artifact": "android-x64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/android-x64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/darwin-arm64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/darwin-arm64",
+      "group": "@esbuild",
+      "artifact": "darwin-arm64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/darwin-arm64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/darwin-x64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/darwin-x64",
+      "group": "@esbuild",
+      "artifact": "darwin-x64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/darwin-x64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/freebsd-arm64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/freebsd-arm64",
+      "group": "@esbuild",
+      "artifact": "freebsd-arm64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/freebsd-arm64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/freebsd-x64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/freebsd-x64",
+      "group": "@esbuild",
+      "artifact": "freebsd-x64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/freebsd-x64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/linux-arm",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/linux-arm",
+      "group": "@esbuild",
+      "artifact": "linux-arm",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/linux-arm"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/linux-arm64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/linux-arm64",
+      "group": "@esbuild",
+      "artifact": "linux-arm64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/linux-arm64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/linux-ia32",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/linux-ia32",
+      "group": "@esbuild",
+      "artifact": "linux-ia32",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/linux-ia32"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/linux-loong64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/linux-loong64",
+      "group": "@esbuild",
+      "artifact": "linux-loong64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/linux-loong64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/linux-mips64el",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/linux-mips64el",
+      "group": "@esbuild",
+      "artifact": "linux-mips64el",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/linux-mips64el"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/linux-ppc64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/linux-ppc64",
+      "group": "@esbuild",
+      "artifact": "linux-ppc64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/linux-ppc64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/linux-riscv64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/linux-riscv64",
+      "group": "@esbuild",
+      "artifact": "linux-riscv64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/linux-riscv64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/linux-s390x",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/linux-s390x",
+      "group": "@esbuild",
+      "artifact": "linux-s390x",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/linux-s390x"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/linux-x64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/linux-x64",
+      "group": "@esbuild",
+      "artifact": "linux-x64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/linux-x64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/netbsd-arm64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/netbsd-arm64",
+      "group": "@esbuild",
+      "artifact": "netbsd-arm64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/netbsd-arm64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/netbsd-x64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/netbsd-x64",
+      "group": "@esbuild",
+      "artifact": "netbsd-x64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/netbsd-x64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/openbsd-arm64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/openbsd-arm64",
+      "group": "@esbuild",
+      "artifact": "openbsd-arm64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/openbsd-arm64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/openbsd-x64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/openbsd-x64",
+      "group": "@esbuild",
+      "artifact": "openbsd-x64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/openbsd-x64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/openharmony-arm64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/openharmony-arm64",
+      "group": "@esbuild",
+      "artifact": "openharmony-arm64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/openharmony-arm64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/sunos-x64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/sunos-x64",
+      "group": "@esbuild",
+      "artifact": "sunos-x64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/sunos-x64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/win32-arm64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/win32-arm64",
+      "group": "@esbuild",
+      "artifact": "win32-arm64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/win32-arm64"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/win32-ia32",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/win32-ia32",
+      "group": "@esbuild",
+      "artifact": "win32-ia32",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/win32-ia32"
+      ]
+    },
+    {
+      "id": "pnpm:@esbuild/win32-x64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@esbuild/win32-x64",
+      "group": "@esbuild",
+      "artifact": "win32-x64",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@esbuild/win32-x64"
+      ]
+    },
+    {
+      "id": "pnpm:@jridgewell/gen-mapping",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@jridgewell/gen-mapping",
+      "group": "@jridgewell",
+      "artifact": "gen-mapping",
+      "fromVersion": null,
+      "toVersion": "0.3.13",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@jridgewell/gen-mapping"
+      ]
+    },
+    {
+      "id": "pnpm:@jridgewell/remapping",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@jridgewell/remapping",
+      "group": "@jridgewell",
+      "artifact": "remapping",
+      "fromVersion": null,
+      "toVersion": "2.3.5",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@jridgewell/remapping"
+      ]
+    },
+    {
+      "id": "pnpm:@jridgewell/resolve-uri",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@jridgewell/resolve-uri",
+      "group": "@jridgewell",
+      "artifact": "resolve-uri",
+      "fromVersion": null,
+      "toVersion": "3.1.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@jridgewell/resolve-uri"
+      ]
+    },
+    {
+      "id": "pnpm:@jridgewell/sourcemap-codec",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@jridgewell/sourcemap-codec",
+      "group": "@jridgewell",
+      "artifact": "sourcemap-codec",
+      "fromVersion": null,
+      "toVersion": "1.6.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@jridgewell/sourcemap-codec"
+      ]
+    },
+    {
+      "id": "pnpm:@jridgewell/trace-mapping",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@jridgewell/trace-mapping",
+      "group": "@jridgewell",
+      "artifact": "trace-mapping",
+      "fromVersion": null,
+      "toVersion": "0.3.31",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@jridgewell/trace-mapping"
+      ]
+    },
+    {
+      "id": "pnpm:@rolldown/pluginutils",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rolldown/pluginutils",
+      "group": "@rolldown",
+      "artifact": "pluginutils",
+      "fromVersion": null,
+      "toVersion": "1.0.0-beta.27",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rolldown/pluginutils"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-android-arm-eabi",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-android-arm-eabi",
+      "group": "@rollup",
+      "artifact": "rollup-android-arm-eabi",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-android-arm-eabi"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-android-arm64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-android-arm64",
+      "group": "@rollup",
+      "artifact": "rollup-android-arm64",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-android-arm64"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-android-x64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-android-x64",
+      "group": "@rollup",
+      "artifact": "rollup-android-x64",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-android-x64"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-darwin-arm64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-darwin-arm64",
+      "group": "@rollup",
+      "artifact": "rollup-darwin-arm64",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-darwin-arm64"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-darwin-x64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-darwin-x64",
+      "group": "@rollup",
+      "artifact": "rollup-darwin-x64",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-darwin-x64"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-freebsd-arm64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-freebsd-arm64",
+      "group": "@rollup",
+      "artifact": "rollup-freebsd-arm64",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-freebsd-arm64"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-freebsd-x64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-freebsd-x64",
+      "group": "@rollup",
+      "artifact": "rollup-freebsd-x64",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-freebsd-x64"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-linux-arm-gnueabihf",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-linux-arm-gnueabihf",
+      "group": "@rollup",
+      "artifact": "rollup-linux-arm-gnueabihf",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-linux-arm-gnueabihf"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-linux-arm-musleabihf",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-linux-arm-musleabihf",
+      "group": "@rollup",
+      "artifact": "rollup-linux-arm-musleabihf",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-linux-arm-musleabihf"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-linux-arm64-gnu",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-linux-arm64-gnu",
+      "group": "@rollup",
+      "artifact": "rollup-linux-arm64-gnu",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-linux-arm64-gnu"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-linux-arm64-musl",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-linux-arm64-musl",
+      "group": "@rollup",
+      "artifact": "rollup-linux-arm64-musl",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-linux-arm64-musl"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-linux-loong64-gnu",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-linux-loong64-gnu",
+      "group": "@rollup",
+      "artifact": "rollup-linux-loong64-gnu",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-linux-loong64-gnu"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-linux-loong64-musl",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-linux-loong64-musl",
+      "group": "@rollup",
+      "artifact": "rollup-linux-loong64-musl",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-linux-loong64-musl"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-linux-ppc64-gnu",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-linux-ppc64-gnu",
+      "group": "@rollup",
+      "artifact": "rollup-linux-ppc64-gnu",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-linux-ppc64-gnu"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-linux-ppc64-musl",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-linux-ppc64-musl",
+      "group": "@rollup",
+      "artifact": "rollup-linux-ppc64-musl",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-linux-ppc64-musl"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-linux-riscv64-gnu",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-linux-riscv64-gnu",
+      "group": "@rollup",
+      "artifact": "rollup-linux-riscv64-gnu",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-linux-riscv64-gnu"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-linux-riscv64-musl",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-linux-riscv64-musl",
+      "group": "@rollup",
+      "artifact": "rollup-linux-riscv64-musl",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-linux-riscv64-musl"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-linux-s390x-gnu",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-linux-s390x-gnu",
+      "group": "@rollup",
+      "artifact": "rollup-linux-s390x-gnu",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-linux-s390x-gnu"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-linux-x64-gnu",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-linux-x64-gnu",
+      "group": "@rollup",
+      "artifact": "rollup-linux-x64-gnu",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-linux-x64-gnu"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-linux-x64-musl",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-linux-x64-musl",
+      "group": "@rollup",
+      "artifact": "rollup-linux-x64-musl",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-linux-x64-musl"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-openbsd-x64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-openbsd-x64",
+      "group": "@rollup",
+      "artifact": "rollup-openbsd-x64",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-openbsd-x64"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-openharmony-arm64",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-openharmony-arm64",
+      "group": "@rollup",
+      "artifact": "rollup-openharmony-arm64",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-openharmony-arm64"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-win32-arm64-msvc",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-win32-arm64-msvc",
+      "group": "@rollup",
+      "artifact": "rollup-win32-arm64-msvc",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-win32-arm64-msvc"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-win32-ia32-msvc",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-win32-ia32-msvc",
+      "group": "@rollup",
+      "artifact": "rollup-win32-ia32-msvc",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-win32-ia32-msvc"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-win32-x64-gnu",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-win32-x64-gnu",
+      "group": "@rollup",
+      "artifact": "rollup-win32-x64-gnu",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-win32-x64-gnu"
+      ]
+    },
+    {
+      "id": "pnpm:@rollup/rollup-win32-x64-msvc",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@rollup/rollup-win32-x64-msvc",
+      "group": "@rollup",
+      "artifact": "rollup-win32-x64-msvc",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@rollup/rollup-win32-x64-msvc"
+      ]
+    },
+    {
+      "id": "pnpm:@standard-schema/spec",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@standard-schema/spec",
+      "group": "@standard-schema",
+      "artifact": "spec",
+      "fromVersion": null,
+      "toVersion": "1.1.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@standard-schema/spec"
+      ]
+    },
+    {
+      "id": "pnpm:@testing-library/dom",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@testing-library/dom",
+      "group": "@testing-library",
+      "artifact": "dom",
+      "fromVersion": null,
+      "toVersion": "10.4.2",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@testing-library/dom"
+      ]
+    },
+    {
+      "id": "pnpm:@testing-library/react",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@testing-library/react",
+      "group": "@testing-library",
+      "artifact": "react",
+      "fromVersion": null,
+      "toVersion": "16.3.3",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@testing-library/react"
+      ]
+    },
+    {
+      "id": "pnpm:@ts-morph/common",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@ts-morph/common",
+      "group": "@ts-morph",
+      "artifact": "common",
+      "fromVersion": null,
+      "toVersion": "0.29.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@ts-morph/common"
+      ]
+    },
+    {
+      "id": "pnpm:@types/aria-query",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/aria-query",
+      "group": "@types",
+      "artifact": "aria-query",
+      "fromVersion": null,
+      "toVersion": "5.0.4",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/aria-query"
+      ]
+    },
+    {
+      "id": "pnpm:@types/babel__core",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/babel__core",
+      "group": "@types",
+      "artifact": "babel__core",
+      "fromVersion": null,
+      "toVersion": "7.20.5",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/babel__core"
+      ]
+    },
+    {
+      "id": "pnpm:@types/babel__generator",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/babel__generator",
+      "group": "@types",
+      "artifact": "babel__generator",
+      "fromVersion": null,
+      "toVersion": "7.27.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/babel__generator"
+      ]
+    },
+    {
+      "id": "pnpm:@types/babel__template",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/babel__template",
+      "group": "@types",
+      "artifact": "babel__template",
+      "fromVersion": null,
+      "toVersion": "7.4.4",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/babel__template"
+      ]
+    },
+    {
+      "id": "pnpm:@types/babel__traverse",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/babel__traverse",
+      "group": "@types",
+      "artifact": "babel__traverse",
+      "fromVersion": null,
+      "toVersion": "7.28.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/babel__traverse"
+      ]
+    },
+    {
+      "id": "pnpm:@types/chai",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/chai",
+      "group": "@types",
+      "artifact": "chai",
+      "fromVersion": null,
+      "toVersion": "5.2.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/chai"
+      ]
+    },
+    {
+      "id": "pnpm:@types/d3-color",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/d3-color",
+      "group": "@types",
+      "artifact": "d3-color",
+      "fromVersion": null,
+      "toVersion": "3.1.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/d3-color"
+      ]
+    },
+    {
+      "id": "pnpm:@types/d3-drag",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/d3-drag",
+      "group": "@types",
+      "artifact": "d3-drag",
+      "fromVersion": null,
+      "toVersion": "3.0.7",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/d3-drag"
+      ]
+    },
+    {
+      "id": "pnpm:@types/d3-interpolate",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/d3-interpolate",
+      "group": "@types",
+      "artifact": "d3-interpolate",
+      "fromVersion": null,
+      "toVersion": "3.0.4",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/d3-interpolate"
+      ]
+    },
+    {
+      "id": "pnpm:@types/d3-selection",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/d3-selection",
+      "group": "@types",
+      "artifact": "d3-selection",
+      "fromVersion": null,
+      "toVersion": "3.0.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/d3-selection"
+      ]
+    },
+    {
+      "id": "pnpm:@types/d3-transition",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/d3-transition",
+      "group": "@types",
+      "artifact": "d3-transition",
+      "fromVersion": null,
+      "toVersion": "3.0.9",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/d3-transition"
+      ]
+    },
+    {
+      "id": "pnpm:@types/d3-zoom",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/d3-zoom",
+      "group": "@types",
+      "artifact": "d3-zoom",
+      "fromVersion": null,
+      "toVersion": "3.0.9",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/d3-zoom"
+      ]
+    },
+    {
+      "id": "pnpm:@types/deep-eql",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/deep-eql",
+      "group": "@types",
+      "artifact": "deep-eql",
+      "fromVersion": null,
+      "toVersion": "4.0.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/deep-eql"
+      ]
+    },
+    {
+      "id": "pnpm:@types/estree",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/estree",
+      "group": "@types",
+      "artifact": "estree",
+      "fromVersion": null,
+      "toVersion": "1.0.10",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/estree"
+      ]
+    },
+    {
+      "id": "pnpm:@types/react",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/react",
+      "group": "@types",
+      "artifact": "react",
+      "fromVersion": null,
+      "toVersion": "19.3.0",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/react"
+      ]
+    },
+    {
+      "id": "pnpm:@types/react-dom",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@types/react-dom",
+      "group": "@types",
+      "artifact": "react-dom",
+      "fromVersion": null,
+      "toVersion": "19.3.0",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@types/react-dom"
+      ]
+    },
+    {
+      "id": "pnpm:@vitejs/plugin-react",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@vitejs/plugin-react",
+      "group": "@vitejs",
+      "artifact": "plugin-react",
+      "fromVersion": null,
+      "toVersion": "4.7.0",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@vitejs/plugin-react"
+      ]
+    },
+    {
+      "id": "pnpm:@vitest/expect",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@vitest/expect",
+      "group": "@vitest",
+      "artifact": "expect",
+      "fromVersion": null,
+      "toVersion": "4.1.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@vitest/expect"
+      ]
+    },
+    {
+      "id": "pnpm:@vitest/mocker",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@vitest/mocker",
+      "group": "@vitest",
+      "artifact": "mocker",
+      "fromVersion": null,
+      "toVersion": "4.1.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@vitest/mocker"
+      ]
+    },
+    {
+      "id": "pnpm:@vitest/pretty-format",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@vitest/pretty-format",
+      "group": "@vitest",
+      "artifact": "pretty-format",
+      "fromVersion": null,
+      "toVersion": "4.1.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@vitest/pretty-format"
+      ]
+    },
+    {
+      "id": "pnpm:@vitest/runner",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@vitest/runner",
+      "group": "@vitest",
+      "artifact": "runner",
+      "fromVersion": null,
+      "toVersion": "4.1.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@vitest/runner"
+      ]
+    },
+    {
+      "id": "pnpm:@vitest/snapshot",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@vitest/snapshot",
+      "group": "@vitest",
+      "artifact": "snapshot",
+      "fromVersion": null,
+      "toVersion": "4.1.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@vitest/snapshot"
+      ]
+    },
+    {
+      "id": "pnpm:@vitest/spy",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@vitest/spy",
+      "group": "@vitest",
+      "artifact": "spy",
+      "fromVersion": null,
+      "toVersion": "4.1.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@vitest/spy"
+      ]
+    },
+    {
+      "id": "pnpm:@vitest/utils",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@vitest/utils",
+      "group": "@vitest",
+      "artifact": "utils",
+      "fromVersion": null,
+      "toVersion": "4.1.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@vitest/utils"
+      ]
+    },
+    {
+      "id": "pnpm:@xyflow/react",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@xyflow/react",
+      "group": "@xyflow",
+      "artifact": "react",
+      "fromVersion": null,
+      "toVersion": "12.12.1",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@xyflow/react"
+      ]
+    },
+    {
+      "id": "pnpm:@xyflow/system",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "@xyflow/system",
+      "group": "@xyflow",
+      "artifact": "system",
+      "fromVersion": null,
+      "toVersion": "0.0.84",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "@xyflow/system"
+      ]
+    },
+    {
+      "id": "pnpm:agent-base",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "agent-base",
+      "artifact": "agent-base",
+      "fromVersion": null,
+      "toVersion": "7.1.4",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "agent-base"
+      ]
+    },
+    {
+      "id": "pnpm:ansi-regex",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "ansi-regex",
+      "artifact": "ansi-regex",
+      "fromVersion": null,
+      "toVersion": "5.0.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "ansi-regex"
+      ]
+    },
+    {
+      "id": "pnpm:ansi-styles",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "ansi-styles",
+      "artifact": "ansi-styles",
+      "fromVersion": null,
+      "toVersion": "5.2.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "ansi-styles"
+      ]
+    },
+    {
+      "id": "pnpm:aria-query",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "aria-query",
+      "artifact": "aria-query",
+      "fromVersion": null,
+      "toVersion": "5.3.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "aria-query"
+      ]
+    },
+    {
+      "id": "pnpm:assertion-error",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "assertion-error",
+      "artifact": "assertion-error",
+      "fromVersion": null,
+      "toVersion": "2.0.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "assertion-error"
+      ]
+    },
+    {
+      "id": "pnpm:baseline-browser-mapping",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "baseline-browser-mapping",
+      "artifact": "baseline-browser-mapping",
+      "fromVersion": null,
+      "toVersion": "2.11.37",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "baseline-browser-mapping"
+      ]
+    },
+    {
+      "id": "pnpm:browserslist",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "browserslist",
+      "artifact": "browserslist",
+      "fromVersion": null,
+      "toVersion": "4.29.5",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "browserslist"
+      ]
+    },
+    {
+      "id": "pnpm:caniuse-lite",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "caniuse-lite",
+      "artifact": "caniuse-lite",
+      "fromVersion": null,
+      "toVersion": "1.0.30001826",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "caniuse-lite"
+      ]
+    },
+    {
+      "id": "pnpm:chai",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "chai",
+      "artifact": "chai",
+      "fromVersion": null,
+      "toVersion": "6.3.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "chai"
+      ]
+    },
+    {
+      "id": "pnpm:chevrotain",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "chevrotain",
+      "artifact": "chevrotain",
+      "fromVersion": null,
+      "toVersion": "11.0.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "chevrotain"
+      ]
+    },
+    {
+      "id": "pnpm:chevrotain-allstar",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "chevrotain-allstar",
+      "artifact": "chevrotain-allstar",
+      "fromVersion": null,
+      "toVersion": "0.3.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "chevrotain-allstar"
+      ]
+    },
+    {
+      "id": "pnpm:classcat",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "classcat",
+      "artifact": "classcat",
+      "fromVersion": null,
+      "toVersion": "5.0.5",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "classcat"
+      ]
+    },
+    {
+      "id": "pnpm:code-block-writer",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "code-block-writer",
+      "artifact": "code-block-writer",
+      "fromVersion": null,
+      "toVersion": "13.0.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "code-block-writer"
+      ]
+    },
+    {
+      "id": "pnpm:convert-source-map",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "convert-source-map",
+      "artifact": "convert-source-map",
+      "fromVersion": null,
+      "toVersion": "2.0.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "convert-source-map"
+      ]
+    },
+    {
+      "id": "pnpm:cssstyle",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "cssstyle",
+      "artifact": "cssstyle",
+      "fromVersion": null,
+      "toVersion": "4.6.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "cssstyle"
+      ]
+    },
+    {
+      "id": "pnpm:csstype",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "csstype",
+      "artifact": "csstype",
+      "fromVersion": null,
+      "toVersion": "3.2.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "csstype"
+      ]
+    },
+    {
+      "id": "pnpm:d3-color",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "d3-color",
+      "artifact": "d3-color",
+      "fromVersion": null,
+      "toVersion": "3.1.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "d3-color"
+      ]
+    },
+    {
+      "id": "pnpm:d3-dispatch",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "d3-dispatch",
+      "artifact": "d3-dispatch",
+      "fromVersion": null,
+      "toVersion": "3.0.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "d3-dispatch"
+      ]
+    },
+    {
+      "id": "pnpm:d3-drag",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "d3-drag",
+      "artifact": "d3-drag",
+      "fromVersion": null,
+      "toVersion": "3.0.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "d3-drag"
+      ]
+    },
+    {
+      "id": "pnpm:d3-ease",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "d3-ease",
+      "artifact": "d3-ease",
+      "fromVersion": null,
+      "toVersion": "3.0.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "d3-ease"
+      ]
+    },
+    {
+      "id": "pnpm:d3-interpolate",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "d3-interpolate",
+      "artifact": "d3-interpolate",
+      "fromVersion": null,
+      "toVersion": "3.0.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "d3-interpolate"
+      ]
+    },
+    {
+      "id": "pnpm:d3-selection",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "d3-selection",
+      "artifact": "d3-selection",
+      "fromVersion": null,
+      "toVersion": "3.0.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "d3-selection"
+      ]
+    },
+    {
+      "id": "pnpm:d3-timer",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "d3-timer",
+      "artifact": "d3-timer",
+      "fromVersion": null,
+      "toVersion": "3.0.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "d3-timer"
+      ]
+    },
+    {
+      "id": "pnpm:d3-transition",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "d3-transition",
+      "artifact": "d3-transition",
+      "fromVersion": null,
+      "toVersion": "3.0.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "d3-transition"
+      ]
+    },
+    {
+      "id": "pnpm:d3-zoom",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "d3-zoom",
+      "artifact": "d3-zoom",
+      "fromVersion": null,
+      "toVersion": "3.0.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "d3-zoom"
+      ]
+    },
+    {
+      "id": "pnpm:data-urls",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "data-urls",
+      "artifact": "data-urls",
+      "fromVersion": null,
+      "toVersion": "5.0.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "data-urls"
+      ]
+    },
+    {
+      "id": "pnpm:debug",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "debug",
+      "artifact": "debug",
+      "fromVersion": null,
+      "toVersion": "4.4.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "debug"
+      ]
+    },
+    {
+      "id": "pnpm:decimal.js",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "decimal.js",
+      "artifact": "decimal.js",
+      "fromVersion": null,
+      "toVersion": "10.6.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "decimal.js"
+      ]
+    },
+    {
+      "id": "pnpm:dequal",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "dequal",
+      "artifact": "dequal",
+      "fromVersion": null,
+      "toVersion": "2.0.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "dequal"
+      ]
+    },
+    {
+      "id": "pnpm:dom-accessibility-api",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "dom-accessibility-api",
+      "artifact": "dom-accessibility-api",
+      "fromVersion": null,
+      "toVersion": "0.5.16",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "dom-accessibility-api"
+      ]
+    },
+    {
+      "id": "pnpm:electron-to-chromium",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "electron-to-chromium",
+      "artifact": "electron-to-chromium",
+      "fromVersion": null,
+      "toVersion": "1.5.485",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "electron-to-chromium"
+      ]
+    },
+    {
+      "id": "pnpm:entities",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "entities",
+      "artifact": "entities",
+      "fromVersion": null,
+      "toVersion": "6.0.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "entities"
+      ]
+    },
+    {
+      "id": "pnpm:es-module-lexer",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "es-module-lexer",
+      "artifact": "es-module-lexer",
+      "fromVersion": null,
+      "toVersion": "2.3.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "es-module-lexer"
+      ]
+    },
+    {
+      "id": "pnpm:esbuild",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "esbuild",
+      "artifact": "esbuild",
+      "fromVersion": null,
+      "toVersion": "0.25.12",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "esbuild"
+      ]
+    },
+    {
+      "id": "pnpm:escalade",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "escalade",
+      "artifact": "escalade",
+      "fromVersion": null,
+      "toVersion": "3.2.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "escalade"
+      ]
+    },
+    {
+      "id": "pnpm:estree-walker",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "estree-walker",
+      "artifact": "estree-walker",
+      "fromVersion": null,
+      "toVersion": "3.0.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "estree-walker"
+      ]
+    },
+    {
+      "id": "pnpm:expect-type",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "expect-type",
+      "artifact": "expect-type",
+      "fromVersion": null,
+      "toVersion": "1.4.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "expect-type"
+      ]
+    },
+    {
+      "id": "pnpm:fdir",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "fdir",
+      "artifact": "fdir",
+      "fromVersion": null,
+      "toVersion": "6.5.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "fdir"
+      ]
+    },
+    {
+      "id": "pnpm:fsevents",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "fsevents",
+      "artifact": "fsevents",
+      "fromVersion": null,
+      "toVersion": "2.3.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "fsevents"
+      ]
+    },
+    {
+      "id": "pnpm:gensync",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "gensync",
+      "artifact": "gensync",
+      "fromVersion": null,
+      "toVersion": "1.0.0-beta.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "gensync"
+      ]
+    },
+    {
+      "id": "pnpm:html-encoding-sniffer",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "html-encoding-sniffer",
+      "artifact": "html-encoding-sniffer",
+      "fromVersion": null,
+      "toVersion": "4.0.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "html-encoding-sniffer"
+      ]
+    },
+    {
+      "id": "pnpm:http-proxy-agent",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "http-proxy-agent",
+      "artifact": "http-proxy-agent",
+      "fromVersion": null,
+      "toVersion": "7.0.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "http-proxy-agent"
+      ]
+    },
+    {
+      "id": "pnpm:https-proxy-agent",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "https-proxy-agent",
+      "artifact": "https-proxy-agent",
+      "fromVersion": null,
+      "toVersion": "7.0.6",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "https-proxy-agent"
+      ]
+    },
+    {
+      "id": "pnpm:iconv-lite",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "iconv-lite",
+      "artifact": "iconv-lite",
+      "fromVersion": null,
+      "toVersion": "0.6.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "iconv-lite"
+      ]
+    },
+    {
+      "id": "pnpm:is-potential-custom-element-name",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "is-potential-custom-element-name",
+      "artifact": "is-potential-custom-element-name",
+      "fromVersion": null,
+      "toVersion": "1.0.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "is-potential-custom-element-name"
+      ]
+    },
+    {
+      "id": "pnpm:java-parser",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "java-parser",
+      "artifact": "java-parser",
+      "fromVersion": null,
+      "toVersion": "3.0.1",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "java-parser"
+      ]
+    },
+    {
+      "id": "pnpm:js-tokens",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "js-tokens",
+      "artifact": "js-tokens",
+      "fromVersion": null,
+      "toVersion": "4.0.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "js-tokens"
+      ]
+    },
+    {
+      "id": "pnpm:jsdom",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "jsdom",
+      "artifact": "jsdom",
+      "fromVersion": null,
+      "toVersion": "26.1.0",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "jsdom"
+      ]
+    },
+    {
+      "id": "pnpm:jsesc",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "jsesc",
+      "artifact": "jsesc",
+      "fromVersion": null,
+      "toVersion": "3.1.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "jsesc"
+      ]
+    },
+    {
+      "id": "pnpm:json5",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "json5",
+      "artifact": "json5",
+      "fromVersion": null,
+      "toVersion": "2.2.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "json5"
+      ]
+    },
+    {
+      "id": "pnpm:lodash",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "lodash",
+      "artifact": "lodash",
+      "fromVersion": null,
+      "toVersion": "4.17.21",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "lodash"
+      ]
+    },
+    {
+      "id": "pnpm:lodash-es",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "lodash-es",
+      "artifact": "lodash-es",
+      "fromVersion": null,
+      "toVersion": "4.18.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "lodash-es"
+      ]
+    },
+    {
+      "id": "pnpm:lz-string",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "lz-string",
+      "artifact": "lz-string",
+      "fromVersion": null,
+      "toVersion": "1.5.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "lz-string"
+      ]
+    },
+    {
+      "id": "pnpm:magic-string",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "magic-string",
+      "artifact": "magic-string",
+      "fromVersion": null,
+      "toVersion": "0.30.21",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "magic-string"
+      ]
+    },
+    {
+      "id": "pnpm:ms",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "ms",
+      "artifact": "ms",
+      "fromVersion": null,
+      "toVersion": "2.1.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "ms"
+      ]
+    },
+    {
+      "id": "pnpm:nanoid",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "nanoid",
+      "artifact": "nanoid",
+      "fromVersion": null,
+      "toVersion": "3.3.20",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "nanoid"
+      ]
+    },
+    {
+      "id": "pnpm:node-releases",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "node-releases",
+      "artifact": "node-releases",
+      "fromVersion": null,
+      "toVersion": "2.0.64",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "node-releases"
+      ]
+    },
+    {
+      "id": "pnpm:nwsapi",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "nwsapi",
+      "artifact": "nwsapi",
+      "fromVersion": null,
+      "toVersion": "2.2.28",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "nwsapi"
+      ]
+    },
+    {
+      "id": "pnpm:obug",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "obug",
+      "artifact": "obug",
+      "fromVersion": null,
+      "toVersion": "2.2.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "obug"
+      ]
+    },
+    {
+      "id": "pnpm:parse5",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "parse5",
+      "artifact": "parse5",
+      "fromVersion": null,
+      "toVersion": "7.3.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "parse5"
+      ]
+    },
+    {
+      "id": "pnpm:path-browserify",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "path-browserify",
+      "artifact": "path-browserify",
+      "fromVersion": null,
+      "toVersion": "1.0.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "path-browserify"
+      ]
+    },
+    {
+      "id": "pnpm:pathe",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "pathe",
+      "artifact": "pathe",
+      "fromVersion": null,
+      "toVersion": "2.0.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "pathe"
+      ]
+    },
+    {
+      "id": "pnpm:picocolors",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "picocolors",
+      "artifact": "picocolors",
+      "fromVersion": null,
+      "toVersion": "1.1.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "picocolors"
+      ]
+    },
+    {
+      "id": "pnpm:picomatch",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "picomatch",
+      "artifact": "picomatch",
+      "fromVersion": null,
+      "toVersion": "4.0.7",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "picomatch"
+      ]
+    },
+    {
+      "id": "pnpm:postcss",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "postcss",
+      "artifact": "postcss",
+      "fromVersion": null,
+      "toVersion": "8.5.32",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "postcss"
+      ]
+    },
+    {
+      "id": "pnpm:pretty-format",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "pretty-format",
+      "artifact": "pretty-format",
+      "fromVersion": null,
+      "toVersion": "27.5.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "pretty-format"
+      ]
+    },
+    {
+      "id": "pnpm:punycode",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "punycode",
+      "artifact": "punycode",
+      "fromVersion": null,
+      "toVersion": "2.3.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "punycode"
+      ]
+    },
+    {
+      "id": "pnpm:react",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "react",
+      "artifact": "react",
+      "fromVersion": null,
+      "toVersion": "19.3.1",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "react"
+      ]
+    },
+    {
+      "id": "pnpm:react-dom",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "react-dom",
+      "artifact": "react-dom",
+      "fromVersion": null,
+      "toVersion": "19.3.1",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "react-dom"
+      ]
+    },
+    {
+      "id": "pnpm:react-is",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "react-is",
+      "artifact": "react-is",
+      "fromVersion": null,
+      "toVersion": "17.0.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "react-is"
+      ]
+    },
+    {
+      "id": "pnpm:react-refresh",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "react-refresh",
+      "artifact": "react-refresh",
+      "fromVersion": null,
+      "toVersion": "0.17.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "react-refresh"
+      ]
+    },
+    {
+      "id": "pnpm:rollup",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "rollup",
+      "artifact": "rollup",
+      "fromVersion": null,
+      "toVersion": "4.68.3",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "rollup"
+      ]
+    },
+    {
+      "id": "pnpm:rrweb-cssom",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "rrweb-cssom",
+      "artifact": "rrweb-cssom",
+      "fromVersion": null,
+      "toVersion": "0.8.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "rrweb-cssom"
+      ]
+    },
+    {
+      "id": "pnpm:safer-buffer",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "safer-buffer",
+      "artifact": "safer-buffer",
+      "fromVersion": null,
+      "toVersion": "2.1.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "safer-buffer"
+      ]
+    },
+    {
+      "id": "pnpm:saxes",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "saxes",
+      "artifact": "saxes",
+      "fromVersion": null,
+      "toVersion": "6.0.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "saxes"
+      ]
+    },
+    {
+      "id": "pnpm:scheduler",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "scheduler",
+      "artifact": "scheduler",
+      "fromVersion": null,
+      "toVersion": "0.28.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "scheduler"
+      ]
+    },
+    {
+      "id": "pnpm:semver",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "semver",
+      "artifact": "semver",
+      "fromVersion": null,
+      "toVersion": "6.3.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "semver"
+      ]
+    },
+    {
+      "id": "pnpm:siginfo",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "siginfo",
+      "artifact": "siginfo",
+      "fromVersion": null,
+      "toVersion": "2.0.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "siginfo"
+      ]
+    },
+    {
+      "id": "pnpm:source-map-js",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "source-map-js",
+      "artifact": "source-map-js",
+      "fromVersion": null,
+      "toVersion": "1.2.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "source-map-js"
+      ]
+    },
+    {
+      "id": "pnpm:stackback",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "stackback",
+      "artifact": "stackback",
+      "fromVersion": null,
+      "toVersion": "0.0.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "stackback"
+      ]
+    },
+    {
+      "id": "pnpm:std-env",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "std-env",
+      "artifact": "std-env",
+      "fromVersion": null,
+      "toVersion": "4.3.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "std-env"
+      ]
+    },
+    {
+      "id": "pnpm:symbol-tree",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "symbol-tree",
+      "artifact": "symbol-tree",
+      "fromVersion": null,
+      "toVersion": "3.2.4",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "symbol-tree"
+      ]
+    },
+    {
+      "id": "pnpm:tinybench",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "tinybench",
+      "artifact": "tinybench",
+      "fromVersion": null,
+      "toVersion": "2.9.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "tinybench"
+      ]
+    },
+    {
+      "id": "pnpm:tinyexec",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "tinyexec",
+      "artifact": "tinyexec",
+      "fromVersion": null,
+      "toVersion": "1.3.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "tinyexec"
+      ]
+    },
+    {
+      "id": "pnpm:tinyglobby",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "tinyglobby",
+      "artifact": "tinyglobby",
+      "fromVersion": null,
+      "toVersion": "0.2.17",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "tinyglobby"
+      ]
+    },
+    {
+      "id": "pnpm:tinyrainbow",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "tinyrainbow",
+      "artifact": "tinyrainbow",
+      "fromVersion": null,
+      "toVersion": "3.2.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "tinyrainbow"
+      ]
+    },
+    {
+      "id": "pnpm:tldts",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "tldts",
+      "artifact": "tldts",
+      "fromVersion": null,
+      "toVersion": "6.1.86",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "tldts"
+      ]
+    },
+    {
+      "id": "pnpm:tldts-core",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "tldts-core",
+      "artifact": "tldts-core",
+      "fromVersion": null,
+      "toVersion": "6.1.86",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "tldts-core"
+      ]
+    },
+    {
+      "id": "pnpm:tough-cookie",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "tough-cookie",
+      "artifact": "tough-cookie",
+      "fromVersion": null,
+      "toVersion": "5.1.2",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "tough-cookie"
+      ]
+    },
+    {
+      "id": "pnpm:tr46",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "tr46",
+      "artifact": "tr46",
+      "fromVersion": null,
+      "toVersion": "5.1.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "tr46"
+      ]
+    },
+    {
+      "id": "pnpm:ts-morph",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "ts-morph",
+      "artifact": "ts-morph",
+      "fromVersion": null,
+      "toVersion": "28.0.0",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "ts-morph"
+      ]
+    },
+    {
+      "id": "pnpm:update-browserslist-db",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "update-browserslist-db",
+      "artifact": "update-browserslist-db",
+      "fromVersion": null,
+      "toVersion": "1.3.4",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "update-browserslist-db"
+      ]
+    },
+    {
+      "id": "pnpm:use-sync-external-store",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "use-sync-external-store",
+      "artifact": "use-sync-external-store",
+      "fromVersion": null,
+      "toVersion": "1.7.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "use-sync-external-store"
+      ]
+    },
+    {
+      "id": "pnpm:vite",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "vite",
+      "artifact": "vite",
+      "fromVersion": null,
+      "toVersion": "6.4.6",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "vite"
+      ]
+    },
+    {
+      "id": "pnpm:vitest",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "vitest",
+      "artifact": "vitest",
+      "fromVersion": null,
+      "toVersion": "4.1.12",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "vitest"
+      ]
+    },
+    {
+      "id": "pnpm:w3c-xmlserializer",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "w3c-xmlserializer",
+      "artifact": "w3c-xmlserializer",
+      "fromVersion": null,
+      "toVersion": "5.0.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "w3c-xmlserializer"
+      ]
+    },
+    {
+      "id": "pnpm:webidl-conversions",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "webidl-conversions",
+      "artifact": "webidl-conversions",
+      "fromVersion": null,
+      "toVersion": "7.0.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "webidl-conversions"
+      ]
+    },
+    {
+      "id": "pnpm:whatwg-encoding",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "whatwg-encoding",
+      "artifact": "whatwg-encoding",
+      "fromVersion": null,
+      "toVersion": "3.1.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "whatwg-encoding"
+      ]
+    },
+    {
+      "id": "pnpm:whatwg-mimetype",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "whatwg-mimetype",
+      "artifact": "whatwg-mimetype",
+      "fromVersion": null,
+      "toVersion": "4.0.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "whatwg-mimetype"
+      ]
+    },
+    {
+      "id": "pnpm:whatwg-url",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "whatwg-url",
+      "artifact": "whatwg-url",
+      "fromVersion": null,
+      "toVersion": "14.2.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "whatwg-url"
+      ]
+    },
+    {
+      "id": "pnpm:why-is-node-running",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "why-is-node-running",
+      "artifact": "why-is-node-running",
+      "fromVersion": null,
+      "toVersion": "2.3.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "why-is-node-running"
+      ]
+    },
+    {
+      "id": "pnpm:ws",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "ws",
+      "artifact": "ws",
+      "fromVersion": null,
+      "toVersion": "8.23.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "ws"
+      ]
+    },
+    {
+      "id": "pnpm:xml-name-validator",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "xml-name-validator",
+      "artifact": "xml-name-validator",
+      "fromVersion": null,
+      "toVersion": "5.0.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "xml-name-validator"
+      ]
+    },
+    {
+      "id": "pnpm:xmlchars",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "xmlchars",
+      "artifact": "xmlchars",
+      "fromVersion": null,
+      "toVersion": "2.2.0",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "xmlchars"
+      ]
+    },
+    {
+      "id": "pnpm:yallist",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "yallist",
+      "artifact": "yallist",
+      "fromVersion": null,
+      "toVersion": "3.1.1",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "yallist"
+      ]
+    },
+    {
+      "id": "pnpm:yaml",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "yaml",
+      "artifact": "yaml",
+      "fromVersion": null,
+      "toVersion": "2.9.1",
+      "bumpKind": "added",
+      "direct": true,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "yaml"
+      ]
+    },
+    {
+      "id": "pnpm:zustand",
+      "ecosystem": "pnpm",
+      "category": "typescript",
+      "name": "zustand",
+      "artifact": "zustand",
+      "fromVersion": null,
+      "toVersion": "4.5.7",
+      "bumpKind": "added",
+      "direct": false,
+      "sourceFile": "pnpm-lock.yaml",
+      "inferredPackages": [
+        "zustand"
+      ]
+    }
+  ],
+  "packageMappings": [],
+  "affectedFiles": [],
+  "dtoContracts": [],
+  "sbom": {
+    "status": "not_provided",
+    "source": null,
+    "totalComponents": 0,
+    "matchedDependencies": 0,
+    "alerts": [],
+    "warnings": []
+  },
+  "openRewrite": {
+    "source": "git_diff",
+    "filesChanged": 6,
+    "totalAdditions": 437,
+    "totalDeletions": 2,
+    "files": [
+      {
+        "filePath": "apps/pulse/backend/build.gradle.kts",
+        "status": "modified",
+        "additions": 41,
+        "deletions": 0,
+        "recipesOrChanges": [
+          "OpenRewrite / framework migration recipe"
+        ],
+        "excerpt": "+    id(\"info.solidsoft.pitest\") version \"1.15.0\"\n+    id(\"org.openrewrite.rewrite\") version \"7.39.0\"\n+    testImplementation(\"com.tngtech.archunit:archunit-junit5:1.3.0\")\n+    rewrite(\"org.openrewrite.recipe:rewrite-spring:6.37.1\")\n+}\n+rewrite {\n+    val activeRecipesProp = providers.gradleProperty(\"rewrite.activeRecipes\")\n+    if (activeRecipesProp.isPresent) {"
+      },
+      {
+        "filePath": "apps/web/src/web.test.ts",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 1,
+        "recipesOrChanges": [],
+        "excerpt": "-test(\"runWebSliceHealthCheck passes WCAG 2.2 AA contrast and Zero-PII telemetry invariants\", () => {\n+// Traceability: REQ-WEB-001 (health check & greeting), REQ-WEB-002 (WCAG 2.2 AA contrast)\n+test(\"REQ-WEB-001 & REQ-WEB-002: runWebSliceHealthCheck passes WCAG 2.2 AA contrast and Zero-PII telemetry invariants\", () => {"
+      },
+      {
+        "filePath": "packages/factory/src/cli.ts",
+        "status": "modified",
+        "additions": 73,
+        "deletions": 0,
+        "recipesOrChanges": [
+          "Updated import: import { auditPlan } from \"./plan-critic.js\"",
+          "Updated import: import {"
+        ],
+        "excerpt": "+import { auditPlan } from \"./plan-critic.js\";\n+import {\n+  formatScorecardMarkdown,\n+  formatScorecardTable,\n+  generateScorecard,\n+} from \"./scorecard.js\";\n+  plan:critic <file> [--json]                           Audit a plan/spec for completeness and risk escalation\n+  scorecard [--json] [--write]                          Generate engineering & release readiness scorecard"
+      },
+      {
+        "filePath": "packages/factory/src/factory.test.ts",
+        "status": "modified",
+        "additions": 306,
+        "deletions": 1,
+        "recipesOrChanges": [
+          "Updated import: import { auditPlan } from \"./plan-critic.js\"",
+          "Updated import: import { auditRequirementTraceability } from \"./req-trace.js\"",
+          "Updated import: import {"
+        ],
+        "excerpt": "+import { auditPlan } from \"./plan-critic.js\";\n+import { auditRequirementTraceability } from \"./req-trace.js\";\n+import {\n+  formatScorecardMarkdown,\n+  formatScorecardTable,\n+  generateScorecard,\n+} from \"./scorecard.js\";\n-    assert.equal(passing.checks.length, 3);"
+      },
+      {
+        "filePath": "packages/factory/src/index.ts",
+        "status": "modified",
+        "additions": 3,
+        "deletions": 0,
+        "recipesOrChanges": [],
+        "excerpt": "+export * from \"./plan-critic.js\";\n+export * from \"./req-trace.js\";\n+export * from \"./scorecard.js\";"
+      },
+      {
+        "filePath": "packages/factory/src/verify.ts",
+        "status": "modified",
+        "additions": 12,
+        "deletions": 0,
+        "recipesOrChanges": [
+          "Updated import: import { auditRequirementTraceability } from \"./req-trace.js\""
+        ],
+        "excerpt": "+import { auditRequirementTraceability } from \"./req-trace.js\";\n+function runRequirementTraceabilityGate(rootDir: string): VerifyCheckResult {\n+  const result = auditRequirementTraceability(rootDir);\n+  return {\n+    name: \"Requirement-to-Code Traceability\",\n+    passed: result.passed,\n+    details: result.details,\n+  };"
+      }
+    ],
+    "summaryLines": [
+      "apps/pulse/backend/build.gradle.kts (modified, +41/-0): OpenRewrite / framework migration recipe",
+      "apps/web/src/web.test.ts (modified, +2/-1)",
+      "packages/factory/src/cli.ts (modified, +73/-0): Updated import: import { auditPlan } from \"./plan-critic.js\"; Updated import: import {",
+      "packages/factory/src/factory.test.ts (modified, +306/-1): Updated import: import { auditPlan } from \"./plan-critic.js\"; Updated import: import { auditRequirementTraceability } from \"./req-trace.js\"",
+      "packages/factory/src/index.ts (modified, +3/-0)",
+      "packages/factory/src/verify.ts (modified, +12/-0): Updated import: import { auditRequirementTraceability } from \"./req-trace.js\""
+    ]
+  },
+  "scoring": {
+    "effortScore": 8,
+    "confidenceTier": "HIGH CONFIDENCE / AUTO-MERGE",
+    "gateExitCode": 0,
+    "autoMergeEligible": true,
+    "rationale": [
+      "Zero production AST symbol touchpoints or SBOM alerts detected for changed dependencies.",
+      "OpenRewrite / migration diff touches 6 file(s) (+437/-2)."
+    ],
+    "breakdown": {
+      "dependencyDeltaCount": 229,
+      "majorBumpCount": 0,
+      "minorOrAddedCount": 229,
+      "patchBumpCount": 0,
+      "affectedFileCount": 0,
+      "criticalPathFileCount": 0,
+      "dtoContractCount": 0,
+      "sbomAlertCount": 0,
+      "openRewriteChangedFiles": 6
+    }
+  },
+  "warnings": []
+}

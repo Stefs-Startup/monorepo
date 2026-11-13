@@ -4,6 +4,10 @@
 
 A SwiftPM macOS menu bar (`NSStatusItem` / SwiftUI `MenuBarExtra`) YouTube Music player backed by a headless/windowed Google Chrome instance controlled via the Chrome DevTools Protocol (`ChromePlayerHost`), with `MPNowPlayingInfoCenter` and `MPRemoteCommandCenter` media key sync (`NowPlayingSync`).
 
+## Requirements
+
+- `REQ-YTM-001`: `PlayerState` decodes JSON payloads (full, optional `artworkURL`, no-track) and exposes expected `PlayerState.empty` defaults.
+
 Experiment record: [exp-004-macos-ytm-menubar-player.md](../../docs/experiments/archive/exp-004-macos-ytm-menubar-player.md)
 
 ## Build & Test

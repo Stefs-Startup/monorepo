@@ -1,0 +1,465 @@
+// =============================================================================
+// Portable Self-Hosted Renovate Configuration — CMP Monorepo & Org Standard
+// =============================================================================
+// Replaces or mirrors .github/dependabot.yml while adding:
+//   - Cross-repo portability (Gradle Kotlin DSL + Maven pom.xml + npm + pnpm)
+//   - Automated code remediation via postUpgradeTasks (OpenRewrite & ng update)
+//   - Blast-Radius CLI auto-merge gating (platformAutomerge + required check)
+//   - Dependency Dashboard approval gates for risky major/toolchain upgrades
+//
+// Usage:
+//   - Self-hosted runner: renovate/config.js automatically loads this file.
+//   - Direct repo adoption: copy to .github/renovate.json5 (JSONC/JSON5 native)
+//     or strip comments into root renovate.json.
+// =============================================================================
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests"
+  ],
+
+  // Align cadence with .github/dependabot.yml (weekly Monday 09:00 America/New_York)
+  "timezone": "America/New_York",
+  "schedule": [
+    "before 9am on monday"
+  ],
+
+  "dependencyDashboard": true,
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 4,
+  "branchConcurrentLimit": 15,
+
+  // ---------------------------------------------------------------------------
+  // Blast-Radius Auto-Merge Gate Architecture
+  // ---------------------------------------------------------------------------
+  // platformAutomerge: true delegates the actual merge to GitHub's native
+  // auto-merge + branch/ruleset protection ("promote & merge" / Merge Queue).
+  // Even when a packageRule sets automerge: true, GitHub will NOT merge until:
+  //   1. "Release Readiness Scorecard" (.github/workflows/ci.yml) passes, AND
+  //   2. "Blast-Radius AST & Safety Gate" (.github/workflows/blast-radius.yml) exits 0:
+  //        - exit 0  -> HIGH CONFIDENCE / AUTO-MERGE (zero critical-path hits)
+  //        - exit 10 -> MODERATE - VERIFY TESTS (holds PR for review)
+  //        - exit 20 -> CRITICAL PATH TOUCHED - MANUAL REVIEW (blocks automerge)
+  // ---------------------------------------------------------------------------
+  "platformAutomerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+
+  // Keep experimental apps/backstage excluded (matches .github/ci-projects.json)
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/.gradle/**",
+    "apps/backstage/**",
+    "**/apps/backstage/**"
+  ],
+
+  // Regenerate lockfiles weekly for transitive security hygiene
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "before 9am on monday"
+    ],
+    "commitMessagePrefix": "chore(deps)",
+    "automerge": true
+  },
+
+  // Rules are evaluated top-to-bottom; later rules override earlier defaults.
+  "packageRules": [
+    // -------------------------------------------------------------------------
+    // Baseline Auto-Merge Safety: minor/patch/pin/digest opt into Blast-Radius
+    // gated auto-merge; major updates NEVER automerge.
+    // -------------------------------------------------------------------------
+    {
+      "description": "Allow Blast-Radius gated auto-merge for non-major updates",
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "Never auto-merge major version upgrades",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
+    },
+
+    // -------------------------------------------------------------------------
+    // 1. GitHub Actions Workflows (.github/workflows/**)
+    // -------------------------------------------------------------------------
+    {
+      "description": "Group GitHub Actions and enforce immutable SHA digests",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "groupName": "github-actions",
+      "groupSlug": "github-actions",
+      "commitMessagePrefix": "chore(ci)",
+      "addLabels": [
+        "dependencies",
+        "ci"
+      ],
+      "pinDigests": true
+    },
+
+    // -------------------------------------------------------------------------
+    // 2. Root pnpm + Turborepo Workspace (/, apps/web, packages/*, tools/*)
+    // -------------------------------------------------------------------------
+    {
+      "description": "Group root pnpm workspace dependencies",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "package.json",
+        "apps/web/**",
+        "packages/**",
+        "tools/**"
+      ],
+      "groupName": "pnpm-workspace-deps",
+      "groupSlug": "pnpm-workspace-deps",
+      "commitMessagePrefix": "chore(deps)",
+      "addLabels": [
+        "dependencies",
+        "workspace"
+      ],
+      "rangeStrategy": "bump"
+    },
+    {
+      "description": "Hold TypeScript major (7.x) for explicit Dependency Dashboard approval",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    },
+
+    // -------------------------------------------------------------------------
+    // 3. Pulse Android & Kotlin Multiplatform (Gradle Catalog & KMP)
+    // -------------------------------------------------------------------------
+    {
+      "description": "Baseline group for non-AndroidX/non-toolchain Pulse Android & KMP libs",
+      "matchManagers": [
+        "gradle"
+      ],
+      "matchFileNames": [
+        "apps/pulse/gradle/**",
+        "apps/pulse/app/**",
+        "apps/pulse/build.gradle.kts",
+        "apps/pulse/kmp/**"
+      ],
+      "groupName": "pulse-runtime-libs",
+      "groupSlug": "pulse-runtime-libs",
+      "commitMessagePrefix": "chore(pulse)",
+      "addLabels": [
+        "dependencies",
+        "pulse",
+        "gradle"
+      ]
+    },
+    {
+      "description": "Group AndroidX, Compose BOM, Play Services, and Firebase BOM",
+      "matchManagers": [
+        "gradle"
+      ],
+      "matchFileNames": [
+        "apps/pulse/gradle/**",
+        "apps/pulse/app/**",
+        "apps/pulse/build.gradle.kts"
+      ],
+      "matchPackageNames": [
+        "/^androidx\\./",
+        "/^com\\.google\\.android\\.gms/",
+        "/^com\\.google\\.firebase/"
+      ],
+      "groupName": "pulse-androidx-and-compose",
+      "groupSlug": "pulse-androidx-and-compose",
+      "commitMessagePrefix": "chore(pulse)",
+      "addLabels": [
+        "dependencies",
+        "pulse",
+        "android"
+      ]
+    },
+    {
+      "description": "Lockstep Kotlin, KSP, AGP, kotlinx, and Gradle wrapper for Android & KMP",
+      "matchManagers": [
+        "gradle",
+        "gradle-wrapper"
+      ],
+      "matchFileNames": [
+        "apps/pulse/**"
+      ],
+      "matchPackageNames": [
+        "/^org\\.jetbrains\\.kotlin/",
+        "/^org\\.jetbrains\\.kotlinx/",
+        "/^com\\.google\\.devtools\\.ksp/",
+        "/^com\\.android\\.application/",
+        "/^com\\.android\\.library/",
+        "/^com\\.android\\.tools\\.build/",
+        "gradle"
+      ],
+      "groupName": "pulse-kotlin-android-lockstep",
+      "groupSlug": "pulse-kotlin-android-lockstep",
+      "commitMessagePrefix": "chore(pulse-toolchain)",
+      "addLabels": [
+        "dependencies",
+        "pulse",
+        "lockstep"
+      ],
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    },
+    {
+      "description": "Require Dependency Dashboard approval for OkHttp major upgrades",
+      "matchManagers": [
+        "gradle"
+      ],
+      "matchPackageNames": [
+        "/^com\\.squareup\\.okhttp3:/"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    },
+
+    // -------------------------------------------------------------------------
+    // 4. Spring Boot / Framework / Security / Jackson + OpenRewrite Remediation
+    //    Portable across Gradle (apps/pulse/backend) and Maven (pom.xml) orgs
+    // -------------------------------------------------------------------------
+    {
+      "description": "Group remaining non-Spring backend Gradle dependencies",
+      "matchManagers": [
+        "gradle"
+      ],
+      "matchFileNames": [
+        "apps/pulse/backend/**"
+      ],
+      "groupName": "pulse-backend-deps",
+      "groupSlug": "pulse-backend-deps",
+      "commitMessagePrefix": "chore(pulse-backend)",
+      "addLabels": [
+        "dependencies",
+        "pulse",
+        "gradle"
+      ]
+    },
+    {
+      "description": "Group Spring Boot, Spring Framework, Spring Security, and Jackson lockstep",
+      "matchManagers": [
+        "gradle",
+        "gradle-wrapper",
+        "maven",
+        "maven-wrapper"
+      ],
+      "matchPackageNames": [
+        "/^org\\.springframework\\.boot/",
+        "/^org\\.springframework\\./",
+        "/^io\\.spring\\./",
+        "/^com\\.fasterxml\\.jackson/",
+        "/^tools\\.jackson/"
+      ],
+      "groupName": "spring-boot-and-jackson",
+      "groupSlug": "spring-boot-and-jackson",
+      "commitMessagePrefix": "chore(pulse-backend)",
+      "addLabels": [
+        "dependencies",
+        "spring-boot",
+        "openrewrite"
+      ],
+      "separateMajorMinor": true
+    },
+    {
+      "description": "Run OpenRewrite on Gradle Spring/Jackson upgrades (apps/pulse/backend & portable Gradle repos)",
+      "matchManagers": [
+        "gradle"
+      ],
+      "matchFileNames": [
+        "**/build.gradle",
+        "**/build.gradle.kts"
+      ],
+      "matchPackageNames": [
+        "/^org\\.springframework\\.boot/",
+        "/^org\\.springframework\\./",
+        "/^io\\.spring\\./",
+        "/^com\\.fasterxml\\.jackson/",
+        "/^tools\\.jackson/"
+      ],
+      "postUpgradeTasks": {
+        "workingDirTemplate": "{{{packageFileDir}}}",
+        "executionMode": "branch",
+        "commands": [
+          "./gradlew --no-daemon rewriteRun"
+        ],
+        "fileFilters": [
+          "**/*.java",
+          "**/*.kt",
+          "**/*.gradle",
+          "**/*.gradle.kts",
+          "**/application*.yml",
+          "**/application*.yaml",
+          "**/application*.properties"
+        ]
+      }
+    },
+    {
+      "description": "Portable OpenRewrite remediation for Maven Spring/Jackson upgrades (see renovate/templates/maven-openrewrite-snippet.xml)",
+      "matchManagers": [
+        "maven"
+      ],
+      "matchPackageNames": [
+        "/^org\\.springframework\\.boot/",
+        "/^org\\.springframework\\./",
+        "/^io\\.spring\\./",
+        "/^com\\.fasterxml\\.jackson/",
+        "/^tools\\.jackson/"
+      ],
+      "postUpgradeTasks": {
+        "workingDirTemplate": "{{{packageFileDir}}}",
+        "executionMode": "branch",
+        "commands": [
+          "mvn -B -ntp rewrite:run"
+        ],
+        "fileFilters": [
+          "**/*.java",
+          "**/*.kt",
+          "**/pom.xml",
+          "**/application*.yml",
+          "**/application*.yaml",
+          "**/application*.properties"
+        ]
+      }
+    },
+    {
+      "description": "Hold Gradle major wrapper bumps for Dependency Dashboard review",
+      "matchManagers": [
+        "gradle-wrapper"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    },
+
+    // -------------------------------------------------------------------------
+    // 5. Angular Framework (@angular/* + rxjs + zone.js) + ng update --migrate-only
+    // -------------------------------------------------------------------------
+    {
+      "description": "Group Angular framework packages with RxJS and zone.js",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "@angular/*",
+        "rxjs",
+        "zone.js"
+      ],
+      "groupName": "angular-framework",
+      "groupSlug": "angular-framework",
+      "commitMessagePrefix": "chore(pulse-web)",
+      "addLabels": [
+        "dependencies",
+        "pulse",
+        "angular"
+      ],
+      "separateMajorMinor": true
+    },
+    {
+      "description": "Run ng update --migrate-only schematics when @angular/core or @angular/cli upgrades",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "@angular/core",
+        "@angular/cli"
+      ],
+      "postUpgradeTasks": {
+        "workingDirTemplate": "{{{packageFileDir}}}",
+        "executionMode": "update",
+        "commands": [
+          "npm ci --ignore-scripts",
+          "npx --no-install ng update {{{depName}}} --migrate-only --from={{{currentVersion}}} --to={{{newVersion}}} --allow-dirty --force"
+        ],
+        "fileFilters": [
+          "**/*.ts",
+          "**/*.html",
+          "**/*.css",
+          "**/*.scss",
+          "**/angular.json",
+          "**/tsconfig*.json",
+          "**/package.json",
+          "**/package-lock.json"
+        ]
+      }
+    },
+    {
+      "description": "Require Dependency Dashboard approval for Angular, TypeScript, and Vitest major bumps in Angular apps",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "apps/pulse/web/**"
+      ],
+      "matchPackageNames": [
+        "@angular/*",
+        "typescript",
+        "vitest"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    },
+
+    // -------------------------------------------------------------------------
+    // 6. Docker Compose Service Images (infra/docker-compose.yml)
+    // -------------------------------------------------------------------------
+    {
+      "description": "Group Docker Compose infrastructure images",
+      "matchManagers": [
+        "docker-compose"
+      ],
+      "matchFileNames": [
+        "infra/**"
+      ],
+      "groupName": "docker-compose-infra",
+      "groupSlug": "docker-compose-infra",
+      "commitMessagePrefix": "chore(docker)",
+      "addLabels": [
+        "dependencies",
+        "docker"
+      ]
+    },
+    {
+      "description": "Hold Postgres and Redis major image upgrades for manual data migration",
+      "matchManagers": [
+        "docker-compose"
+      ],
+      "matchPackageNames": [
+        "postgres",
+        "redis"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    }
+  ]
+}

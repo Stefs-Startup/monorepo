@@ -16,7 +16,7 @@
     "dev": "tsc -w -p tsconfig.build.json",
     "build": "tsc -p tsconfig.build.json",
     "lint": "tsc --noEmit && node --input-type=module -e \"import fs from 'node:fs';const src=fs.readFileSync('src/index.ts','utf8');if(src.includes('@ts-ignore')){console.error('Disallowed @ts-ignore');process.exit(1);}console.log('@cmp/utils lint passed.');\"",
-    "test": "tsc -p tsconfig.json && node dist/src/index.test.js && node --test dist/src/primitives.test.js",
+    "test": "tsc -p tsconfig.json && node dist/src/index.test.js && node --test dist/src/primitives.test.js dist/src/utils.property.test.js",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist node_modules tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo"
   },

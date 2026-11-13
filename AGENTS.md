@@ -15,7 +15,7 @@ scripts/check.sh --list                     # stacks: pnpm-turborepo, angular, s
 - Never push a stack change without Gate 1 passing for that stack.
 - When you change `.github/workflows/ci-stack-*.yml`, update `scripts/check.sh` and `docs/local-validation.md`.
 
-Stack-specific guidance: `apps/pulse/AGENTS.md`.
+Stack-specific guidance: `apps/pulse/AGENTS.md`. Live repo health & release readiness: `pnpm scorecard` (see [`docs/scorecard.md`](docs/scorecard.md)).
 
 ## Agent Memory & Iteration Harness
 

@@ -18,6 +18,10 @@ apps, shared packages, infrastructure, and documentation in this Company of One.
 │   ├── factory/           Agentic Software Factory CLI & generators (@cmp/factory)
 │   ├── utils/             Shared functional primitives: WCAG 2.2 AA, Zero-PII, scarcity (@cmp/utils)
 │   └── config/            Shared TypeScript/build configurations (@cmp/config)
+├── tools/                 Internal developer & CI tooling (pnpm workspace)
+│   ├── blast-radius/      Deterministic dependency blast-radius & AST CLI (@cmp/blast-radius)
+│   └── blast-radius-ui/   Local interactive Blast-Radius graph viewer (@cmp/blast-radius-ui)
+├── renovate/              Self-hosted Renovate OSS config & OpenRewrite migration setup
 ├── infra/                 Infrastructure as code — Docker, Compose, IaC (CMP-12)
 └── docs/                  Human + agent documentation
     ├── adr/               Architecture Decision Records (CMP-13)
@@ -109,6 +113,24 @@ Use the Agentic Software Factory CLI (`@cmp/factory`) for new apps and slices, o
 3. Run `pnpm install` from the repo root if adding packages manually
 4. Run `pnpm verify:slice` to confirm `AGENTS.md`, WCAG 2.2 AA, Zero-PII, typecheck, and test gates pass
 5. See `docs/monorepo-conventions.md` for naming and structure conventions
+
+---
+
+## Dependency Governance & Blast-Radius Analysis
+
+Dependency upgrades combine **self-hosted Renovate OSS** (with automated OpenRewrite / `ng update` migrations) and **deterministic AST blast-radius gating**:
+
+- **Renovate OSS (`renovate/`)**: Side-by-side self-hosted config defaulting to `dryRun: "full"` ([`renovate/README.md`](./renovate/README.md), [`docs/renovate-vs-dependabot.md`](./docs/renovate-vs-dependabot.md), [`.github/workflows/renovate-self-hosted.yml`](./.github/workflows/renovate-self-hosted.yml)) alongside [`.github/dependabot.yml`](./.github/dependabot.yml).
+- **Blast-Radius CLI (`@cmp/blast-radius`)**: Computes dependency deltas across Gradle, Maven, npm, pnpm, and optional SBOMs, then maps affected Java (`java-parser`) and Angular/TypeScript (`ts-morph`) critical-path symbols:
+  ```bash
+  pnpm blast-radius -- --base main --out blast-radius-report.json --md-out blast-radius-report.md
+  pnpm blast-radius -- --base main --gate   # 0=AUTO-MERGE, 10=MODERATE, 20=CRITICAL PATH
+  ```
+- **Local Graph Viewer (`@cmp/blast-radius-ui`)**: Visualizes `blast-radius-report.json` locally using React Flow with zero external SaaS calls:
+  ```bash
+  pnpm blast-ui -- --report blast-radius-report.json
+  ```
+- **CI PR Integration**: [`.github/workflows/blast-radius.yml`](./.github/workflows/blast-radius.yml) uploads `blast-radius-report.json`, posts/updates a sticky PR comment (`<!-- cmp-blast-radius-report -->`), and blocks auto-merge when `--gate` exits non-zero.
 
 ---
 
