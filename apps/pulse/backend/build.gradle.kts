@@ -2,8 +2,8 @@ plugins {
     java
     id("org.springframework.boot") version "4.1.2"
     id("io.spring.dependency-management") version "1.1.7"
-    id("info.solidsoft.pitest") version "1.15.0"
-    id("org.openrewrite.rewrite") version "7.39.0"
+    id("info.solidsoft.pitest") version "1.19.0"
+    id("org.openrewrite.rewrite") version "7.41.0"
 }
 
 group = "com.pulse"
@@ -26,7 +26,7 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     rewrite("org.openrewrite.recipe:rewrite-spring:6.37.1")
