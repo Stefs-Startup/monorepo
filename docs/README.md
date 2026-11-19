@@ -10,6 +10,7 @@ about this monorepo — its architecture, conventions, processes, and decisions.
 | File / Directory | Purpose |
 |-----------------|---------|
 | [`adr/`](./adr/) | Architecture Decision Records — immutable log of *why* decisions were made |
+| [`rfcs/`](./rfcs/README.md) | Exploratory RFCs — technical ideas, trade-offs, and revisit triggers before committing to code |
 | [`monorepo-conventions.md`](./monorepo-conventions.md) | Naming rules, structure patterns, and coding conventions for this repo |
 | [`software-factory/`](./software-factory/README.md) | **Agentic Software Factory Curriculum (`01`–`06`)**: [01. Agentic Workspaces](./software-factory/01-from-portals-to-agentic-workspaces.md), [02. Shared Guardrail Primitives](./software-factory/02-shared-guardrail-primitives.md), [03. Deterministic Generators](./software-factory/03-deterministic-app-and-slice-generators.md), [04. Closed-Loop Verification](./software-factory/04-closed-loop-verification-harness.md), [05. Agentic Memory & Iteration Harness](./software-factory/05-sota-agentic-memory-and-iteration-harness.md), [06. SOTA Quality Engineering & Planning Critic](./software-factory/06-sota-quality-engineering-and-planning-critic.md) |
 | [`ci-reusable-workflows.md`](./ci-reusable-workflows.md) | Org-wide reusable CI workflows (Node, Gradle) and how monorepo projects are auto-discovered |
