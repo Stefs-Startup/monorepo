@@ -3,6 +3,8 @@
 # =============================================================================
 # Runs on pull requests, pushes to main, and a weekly schedule:
 #   - Gitleaks (secret scanning across git history)
+#   - Dependency Review (PR supply-chain & high-severity advisory gate)
+#   - CodeQL (semantic SAST for JavaScript/TypeScript and Java/Kotlin)
 #   - OSV-Scanner (known vulnerability scanning across lockfiles)
 #   - Semgrep (SAST across TS/JS, Kotlin/Java, Python, Swift, YAML)
 #   - Trivy (filesystem vulnerability SARIF upload + CycloneDX SBOM artifact)
@@ -33,6 +35,54 @@ permissions:
   contents: read
 
 jobs:
+  dependency-review:
+    name: Dependency Review (PR)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Run Dependency Review
+        uses: actions/dependency-review-action@bbc44d14a204704ccc493733616cd1e93a0321ec # v5.0.1
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure
+
+  codeql:
+    name: "CodeQL (${{ matrix.language }})"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - javascript-typescript
+          - java-kotlin
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@9418214df1f2c4b8128c770156c409013b07d6b9 # v3.39.3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          queries: security-extended
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@9418214df1f2c4b8128c770156c409013b07d6b9 # v3.39.3
+        with:
+          category: "/language:${{ matrix.language }}"
+
   gitleaks:
     name: Gitleaks Secret Scan
     runs-on: ubuntu-latest
