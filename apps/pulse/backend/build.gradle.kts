@@ -1,23 +1,11 @@
 plugins {
-    java
-    id("org.springframework.boot") version "4.1.2"
-    id("io.spring.dependency-management") version "1.1.7"
-    id("info.solidsoft.pitest") version "1.15.0"
-    id("org.openrewrite.rewrite") version "7.39.0"
+    id("stefs.jvm-service")
+    alias(libs.plugins.pitest)
+    alias(libs.plugins.openrewrite)
 }
 
 group = "com.pulse"
 version = "0.6.0"
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
@@ -26,10 +14,10 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
+    testImplementation(libs.archunit.junit5)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    rewrite("org.openrewrite.recipe:rewrite-spring:6.37.1")
+    rewrite(libs.rewrite.spring)
 }
 
 rewrite {
@@ -68,11 +56,6 @@ pitest {
     timestampedReports.set(false)
 }
 
-tasks.withType<JavaCompile>().configureEach {
-    options.encoding = "UTF-8"
-    options.compilerArgs.addAll(listOf("-Xlint:all,-serial,-processing", "-parameters"))
-}
-
 tasks.register("codeQuality") {
     group = "verification"
     description = "Runs Java 21 compiler lint checks and audits ADR-007 pure domain boundaries."
@@ -96,8 +79,4 @@ tasks.register("codeQuality") {
         }
         println("PASS Spring Boot 4 / Java 21 codeQuality: pure domain boundaries and compiler lint verified.")
     }
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
 }

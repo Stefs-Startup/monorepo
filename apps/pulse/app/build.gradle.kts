@@ -1,7 +1,5 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    id("stefs.android-app")
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.google.services)
@@ -10,16 +8,12 @@ plugins {
 
 android {
     namespace = "com.pulse.accountability"
-    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.pulse.accountability"
-        minSdk = 28
-        targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("Boolean", "DEMO_MODE", "false")
     }
 
@@ -31,17 +25,6 @@ android {
                 "proguard-rules.pro"
             )
         }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-    buildFeatures {
-        compose = true
-        buildConfig = true
     }
 }
 

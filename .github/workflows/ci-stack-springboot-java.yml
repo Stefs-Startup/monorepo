@@ -18,12 +18,16 @@ on:
     branches:
       - main
     paths:
+      - "build-logic/**"
+      - "gradle/libs.versions.toml"
       - "apps/pulse/backend/**"
       - ".github/workflows/ci-stack-springboot-java.yml"
   pull_request:
     branches:
       - main
     paths:
+      - "build-logic/**"
+      - "gradle/libs.versions.toml"
       - "apps/pulse/backend/**"
       - ".github/workflows/ci-stack-springboot-java.yml"
   merge_group:

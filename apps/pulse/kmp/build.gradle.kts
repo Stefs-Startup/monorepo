@@ -1,22 +1,14 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
-    kotlin("multiplatform") version "2.1.0"
-    kotlin("plugin.serialization") version "2.1.0"
+    id("stefs.kotlin-lib")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 group = "com.pulse.kmp"
 version = "0.6.5"
 
 kotlin {
-    jvmToolchain(17)
-
-    jvm {
-        testRuns["test"].executionTask.configure {
-            useJUnitPlatform()
-        }
-    }
-
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         moduleName = "pulse-kmp-web"
@@ -27,8 +19,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.kotlinx.datetime)
             }
         }
         val commonTest by getting {

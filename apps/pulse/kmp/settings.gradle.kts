@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("../../../build-logic")
     repositories {
         mavenCentral()
         gradlePluginPortal()
@@ -10,6 +11,11 @@ dependencyResolutionManagement {
     repositories {
         mavenCentral()
         google()
+    }
+    versionCatalogs {
+        create("libs") {
+            from(files("../../../gradle/libs.versions.toml"))
+        }
     }
 }
 

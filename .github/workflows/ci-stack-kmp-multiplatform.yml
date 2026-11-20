@@ -19,12 +19,16 @@ on:
     branches:
       - main
     paths:
+      - "build-logic/**"
+      - "gradle/libs.versions.toml"
       - "apps/pulse/kmp/**"
       - ".github/workflows/ci-stack-kmp-multiplatform.yml"
   pull_request:
     branches:
       - main
     paths:
+      - "build-logic/**"
+      - "gradle/libs.versions.toml"
       - "apps/pulse/kmp/**"
       - ".github/workflows/ci-stack-kmp-multiplatform.yml"
   merge_group:
