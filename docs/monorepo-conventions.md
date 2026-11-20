@@ -97,7 +97,10 @@ New apps and vertical product slices are generated and verified via `@cmp/factor
 ## TypeScript
 
 - All new code should be TypeScript. No `// @ts-ignore` without a comment explaining why.
-- Each package has its own `tsconfig.json` that extends a base config.
+- Shared presets live in `@cmp/config` (`packages/config/`) and use the `@cmp/` monorepo scope:
+  - TypeScript: `tsconfig.base.json`, `tsconfig.library.json`, `tsconfig.node.json`, `tsconfig.angular.json` (all enforce `"strict": true`).
+  - ESLint & Prettier: `eslint.config.mjs` (`@cmp/config/eslint`) and `prettier.config.mjs` (`@cmp/config/prettier`), each exporting `base`, `node`, `library`, and `angular` presets.
+- Each root workspace package extends `@cmp/config/tsconfig.<preset>.json` with a one-line `extends`; standalone `apps/pulse/web` (excluded from `pnpm-workspace.yaml`) extends `../../../packages/config/tsconfig.angular.json` directly so `npm` builds remain isolated.
 - Use `"strict": true`. Do not loosen strictness to avoid errors — fix the types.
 - Project references (`composite: true`) should be used for packages that are
   imported by other packages. This enables incremental builds.

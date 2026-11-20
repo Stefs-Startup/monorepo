@@ -2,8 +2,22 @@
   "name": "@cmp/config",
   "version": "0.0.0",
   "private": true,
-  "description": "Shared configuration files for the CMP monorepo",
+  "type": "module",
+  "description": "Shared TypeScript, ESLint, and Prettier configuration presets for the CMP monorepo",
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tsconfig.library.json": "./tsconfig.library.json",
+    "./tsconfig.node.json": "./tsconfig.node.json",
+    "./tsconfig.angular.json": "./tsconfig.angular.json",
+    "./eslint": "./eslint.config.mjs",
+    "./eslint.config.mjs": "./eslint.config.mjs",
+    "./prettier": "./prettier.config.mjs",
+    "./prettier.config.mjs": "./prettier.config.mjs"
+  },
   "scripts": {
+    "lint": "node --test config.test.mjs",
+    "typecheck": "node --test config.test.mjs",
+    "test": "node --test config.test.mjs",
     "clean": "rimraf dist node_modules"
   },
   "devDependencies": {
