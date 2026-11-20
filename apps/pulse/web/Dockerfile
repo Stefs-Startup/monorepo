@@ -13,7 +13,38 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build \
+# Inline monorepo-root tsconfig preset when building from standalone apps/pulse/web context.
+RUN node -e ' \
+  const fs = require("fs"); \
+  const cur = JSON.parse(fs.readFileSync("tsconfig.json", "utf8")); \
+  if (cur.extends && !fs.existsSync(cur.extends)) { \
+    delete cur.extends; \
+    cur.compileOnSave = false; \
+    cur.compilerOptions = Object.assign({ \
+      target: "ES2022", \
+      module: "ES2022", \
+      moduleResolution: "bundler", \
+      strict: true, \
+      esModuleInterop: true, \
+      skipLibCheck: true, \
+      forceConsistentCasingInFileNames: true, \
+      isolatedModules: true, \
+      noImplicitOverride: true, \
+      noPropertyAccessFromIndexSignature: true, \
+      noImplicitReturns: true, \
+      noFallthroughCasesInSwitch: true, \
+      experimentalDecorators: true, \
+      importHelpers: true \
+    }, cur.compilerOptions || {}); \
+    cur.angularCompilerOptions = Object.assign({ \
+      enableI18nLegacyMessageIdFormat: false, \
+      strictInjectionParameters: true, \
+      strictInputAccessModifiers: true, \
+      strictTemplates: true \
+    }, cur.angularCompilerOptions || {}); \
+    fs.writeFileSync("tsconfig.json", JSON.stringify(cur, null, 2)); \
+  }' \
+    && npm run build \
     && test -f dist/pulse-web/browser/index.html
 
 # --- Stage 2: Unprivileged Nginx runtime (UID 101, zero Node.js in prod) ----
