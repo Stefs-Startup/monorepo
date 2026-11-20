@@ -1,3 +1,5 @@
+export * from "./agent-ready-spec-cli.js";
+export * from "./agent-ready-spec.js";
 export * from "./generators.js";
 export * from "./plan-critic.js";
 export * from "./pr-guard-cli.js";
