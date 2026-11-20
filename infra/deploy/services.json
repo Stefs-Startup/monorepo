@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Declarative cross-surface deployment, health-probe, and smoke-verification contract for RFC-0002.",
+  "cloudRunDefaults": {
+    "project": "gw-cli-490302",
+    "region": "us-central1",
+    "artifactRepo": "cmp-apps"
+  },
+  "surfaces": [
+    {
+      "name": "pulse-backend",
+      "path": "apps/pulse/backend",
+      "stack": "springboot-java21",
+      "pattern": "distroless-api",
+      "localPort": 8080,
+      "cloudRunService": "pulse-backend",
+      "cloudRun": {
+        "memory": "1Gi",
+        "cpu": "1",
+        "cpuBoost": true,
+        "minInstances": 0,
+        "maxInstances": 2,
+        "concurrency": 80,
+        "timeoutSeconds": 60,
+        "allowUnauthenticated": true
+      },
+      "livenessPath": "/actuator/health/liveness",
+      "readinessPath": "/actuator/health/readiness",
+      "infoPath": "/actuator/info",
+      "smokePath": "/api/v1/pulse/state",
+      "smokeExpectSubstring": "HABITUALLY_UNDONE",
+      "revisionJsonPath": "app.revision",
+      "drillEnvVar": "PULSE_SIMULATE_UNHEALTHY_READINESS"
+    },
+    {
+      "name": "pulse-web",
+      "path": "apps/pulse/web",
+      "stack": "angular21-nginx",
+      "pattern": "spa-edge-proxy",
+      "localPort": 8081,
+      "cloudRunService": "pulse-web",
+      "cloudRun": {
+        "memory": "256Mi",
+        "cpu": "1",
+        "cpuBoost": false,
+        "minInstances": 0,
+        "maxInstances": 2,
+        "concurrency": 80,
+        "timeoutSeconds": 30,
+        "allowUnauthenticated": true,
+        "upstreamSurface": "pulse-backend"
+      },
+      "livenessPath": "/livez",
+      "readinessPath": "/readyz",
+      "infoPath": "/version.json",
+      "smokePath": "/api/v1/pulse/state",
+      "smokeExpectSubstring": "HABITUALLY_UNDONE",
+      "htmlSmokePath": "/",
+      "htmlExpectSubstring": "app-root",
+      "revisionJsonPath": "revision",
+      "drillEnvVar": "PULSE_SIMULATE_UNHEALTHY_READINESS"
+    }
+  ],
+  "nonHttpSurfaces": [
+    {
+      "name": "pulse-android",
+      "path": "apps/pulse/app",
+      "stack": "android-compose",
+      "distributionChannel": "Firebase App Distribution -> Google Play Internal (STE-42)"
+    },
+    {
+      "name": "pulse-kmp",
+      "path": "apps/pulse/kmp",
+      "stack": "kotlin-multiplatform-wasmjs",
+      "distributionChannel": "Shared pure domain core + wasmJs bundle"
+    },
+    {
+      "name": "ytm-menubar",
+      "path": "apps/ytm-menubar",
+      "stack": "macos-swiftpm",
+      "distributionChannel": "Native macOS binary (EXP-004 parked)"
+    }
+  ]
+}

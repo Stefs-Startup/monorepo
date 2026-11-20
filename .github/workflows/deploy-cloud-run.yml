@@ -1,0 +1,189 @@
+# =============================================================================
+# Reusable Cloud Run Deploy & Instant Rollback Workflow (RFC-0002 / ADR-0004)
+# =============================================================================
+# Delegates to scripts/deploy.sh and scripts/rollback.sh using declarative
+# surface metadata in infra/deploy/services.json.
+#
+# Auth: Uses short-lived OIDC Workload Identity Federation tokens per job
+#       (id-token: write) with zero static service-account JSON keys.
+#
+# Required repository/environment secrets:
+#   - GCP_WORKLOAD_IDENTITY_PROVIDER  (projects/<num>/locations/global/workloadIdentityPools/.../providers/...)
+#   - GCP_SERVICE_ACCOUNT             (<deployer-sa>@<project>.iam.gserviceaccount.com)
+# =============================================================================
+
+name: "Deploy & Rollback · Cloud Run"
+
+on:
+  workflow_dispatch:
+    inputs:
+      surface:
+        description: "Surface to deploy or roll back"
+        type: choice
+        required: true
+        default: "all"
+        options:
+          - all
+          - pulse-backend
+          - pulse-web
+      action:
+        description: "Operation mode"
+        type: choice
+        required: true
+        default: "deploy"
+        options:
+          - deploy
+          - rollback
+      target_revision:
+        description: "Optional Cloud Run revision name (rollback mode only)"
+        type: string
+        required: false
+        default: ""
+      environment:
+        description: "Target runtime environment label (APP_ENV)"
+        type: choice
+        required: true
+        default: "prod"
+        options:
+          - staging
+          - prod
+      build_mode:
+        description: "Image build strategy (cloudbuild or buildx)"
+        type: choice
+        required: false
+        default: "cloudbuild"
+        options:
+          - cloudbuild
+          - buildx
+
+  workflow_call:
+    inputs:
+      surface:
+        description: "Surface to deploy or roll back (all|pulse-backend|pulse-web)"
+        type: string
+        required: false
+        default: "all"
+      action:
+        description: "Operation mode (deploy|rollback)"
+        type: string
+        required: false
+        default: "deploy"
+      target_revision:
+        description: "Optional Cloud Run revision name (rollback mode only)"
+        type: string
+        required: false
+        default: ""
+      environment:
+        description: "Target runtime environment label (staging|prod)"
+        type: string
+        required: false
+        default: "prod"
+      build_mode:
+        description: "Image build strategy (cloudbuild|buildx)"
+        type: string
+        required: false
+        default: "cloudbuild"
+      gcp_project:
+        description: "Optional GCP project ID override"
+        type: string
+        required: false
+        default: ""
+      gcp_region:
+        description: "Optional GCP region override"
+        type: string
+        required: false
+        default: ""
+
+concurrency:
+  group: deploy-cloud-run-${{ inputs.environment || 'prod' }}-${{ inputs.surface || 'all' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  cloud-run:
+    name: "Cloud Run (${{ inputs.action || 'deploy' }} · ${{ inputs.surface || 'all' }})"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: ${{ inputs.environment || 'prod' }}
+    env:
+      DEPLOY_ACTION: ${{ inputs.action || 'deploy' }}
+      DEPLOY_SURFACE: ${{ inputs.surface || 'all' }}
+      TARGET_REVISION: ${{ inputs.target_revision || '' }}
+      DEPLOY_ENV: ${{ inputs.environment || 'prod' }}
+      BUILD_MODE: ${{ inputs.build_mode || 'cloudbuild' }}
+      GCP_PROJECT: ${{ inputs.gcp_project || vars.GCP_PROJECT || 'gw-cli-490302' }}
+      GCP_REGION: ${{ inputs.gcp_region || vars.GCP_REGION || 'us-central1' }}
+      HAS_WIF_CONFIG: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER != '' && secrets.GCP_SERVICE_ACCOUNT != '' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js (manifest parser)
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".node-version"
+
+      - name: Validate Workload Identity Federation secrets
+        run: |
+          if [ "${HAS_WIF_CONFIG}" != "true" ]; then
+            echo "::error::Missing GCP_WORKLOAD_IDENTITY_PROVIDER or GCP_SERVICE_ACCOUNT secrets. See docs/guides/01-single-command-prod-deploy-and-rollback-playbook.md."
+            exit 1
+          fi
+
+      - name: Authenticate to Google Cloud via short-lived OIDC WIF
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+
+      - name: Execute Cloud Run deploy or rollback
+        run: |
+          set -euo pipefail
+          chmod +x scripts/deploy.sh scripts/rollback.sh scripts/smoke-test.sh
+
+          if [ "${DEPLOY_ACTION}" = "deploy" ]; then
+            /bin/bash scripts/deploy.sh \
+              --surface "${DEPLOY_SURFACE}" \
+              --project "${GCP_PROJECT}" \
+              --region "${GCP_REGION}" \
+              --env "${DEPLOY_ENV}" \
+              --build-mode "${BUILD_MODE}"
+          elif [ "${DEPLOY_ACTION}" = "rollback" ]; then
+            if [ "${DEPLOY_SURFACE}" = "all" ]; then
+              echo "::error::Rollback requires a single concrete surface (pulse-backend or pulse-web)."
+              exit 2
+            fi
+            if [ -n "${TARGET_REVISION}" ]; then
+              /bin/bash scripts/rollback.sh \
+                --surface "${DEPLOY_SURFACE}" \
+                --project "${GCP_PROJECT}" \
+                --region "${GCP_REGION}" \
+                --to-revision "${TARGET_REVISION}"
+            else
+              /bin/bash scripts/rollback.sh \
+                --surface "${DEPLOY_SURFACE}" \
+                --project "${GCP_PROJECT}" \
+                --region "${GCP_REGION}"
+            fi
+          else
+            echo "::error::Unsupported action '${DEPLOY_ACTION}'"
+            exit 2
+          fi
+
+      - name: Publish deployment summary
+        if: always()
+        run: |
+          {
+            echo "## Cloud Run ${DEPLOY_ACTION} (${DEPLOY_SURFACE})"
+            echo ""
+            echo "- **Project:** \`${GCP_PROJECT}\`"
+            echo "- **Region:** \`${GCP_REGION}\`"
+            echo "- **Environment:** \`${DEPLOY_ENV}\`"
+            echo "- **Build Mode:** \`${BUILD_MODE}\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
