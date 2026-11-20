@@ -2,12 +2,12 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
   ConversationalMessage,
-  HorizonWindowBarItem,
   HorizonWindowCardModel,
   PartnerSettingsDto,
   PulseDashboardResponse,
   TaskAccountabilityStatus
 } from '../models/pulse.models';
+import { buildSeedDashboardState } from '../fixtures/pulse-seed';
 
 export type NavTab = 'HORIZON' | 'UNDONE_LOG' | 'SETTINGS';
 
@@ -192,132 +192,6 @@ export class PulseStateService {
   }
 
   private buildFallbackState(): PulseDashboardResponse {
-    const now = Date.now();
-    const dayMs = 86_400_000;
-    const sampleStatus: TaskAccountabilityStatus = {
-      task: {
-        id: 'task-tax-receipts',
-        googleTaskId: 'gtask-101',
-        taskListId: '@default',
-        taskListTitle: 'My Tasks',
-        title: 'Consolidate Q3 expense receipts & CPA export',
-        notes: 'Need to download PDF statements from two cards first',
-        isCompleted: false,
-        dueEpochMillis: now - 4 * dayMs,
-        completedEpochMillis: null,
-        createdEpochMillis: now - 14 * dayMs,
-        updatedEpochMillis: now - 6 * dayMs,
-        deferCount: 5,
-        commitment: 'NORMAL',
-        energy: 'DEEP_WORK',
-        blockerNote: '',
-        dirtySync: false
-      },
-      category: 'HABITUALLY_DEFERRED',
-      badgeLabel: 'Deferred 5× • 14d old',
-      daysOld: 14,
-      daysUntouched: 6,
-      daysOverdue: 4
-    };
-
-    const sampleBar: HorizonWindowBarItem = {
-      taskId: 'task-tax-receipts',
-      title: sampleStatus.task.title,
-      shortLabel: 'Consolidate Q3 expense rece…',
-      primaryMetricLabel: '5× deferred',
-      secondaryMetricLabel: '14d span',
-      intensityFraction: 1.0,
-      category: 'HABITUALLY_DEFERRED',
-      deferCount: 5,
-      daysOld: 14,
-      daysUntouched: 6,
-      daysOverdue: 4,
-      sortScore: 5014
-    };
-
-    return {
-      horizon: {
-        windows: [
-          {
-            windowType: 'HABITUALLY_UNDONE',
-            title: 'Habitually Undone',
-            shortTabTitle: 'Habitual (1)',
-            subtitle: 'Sorted descending by deferral count',
-            headlineStat: 'Max 5×',
-            emptyStateTitle: 'Zero Habitually Deferred Tasks',
-            emptyStateBody: 'No tasks have slipped 2 or more times.',
-            items: [sampleBar]
-          },
-          {
-            windowType: 'LONG_STANDING_DRIFT',
-            title: 'Long-Standing Drift',
-            shortTabTitle: 'Drifting (0)',
-            subtitle: 'Sorted descending by days untouched or overdue',
-            headlineStat: '0 tasks',
-            emptyStateTitle: 'Zero Long-Standing Drift',
-            emptyStateBody: 'Nothing is sitting untouched for 5+ days.',
-            items: []
-          },
-          {
-            windowType: 'ACTIVE_FLOW',
-            title: 'Committed & Active Flow',
-            shortTabTitle: 'Active (0)',
-            subtitle: "Today's Top 3 commitments first, then descending by age",
-            headlineStat: '0/3 Top-3',
-            emptyStateTitle: 'No Active Flow Tasks Yet',
-            emptyStateBody: 'Sync with Google Tasks or lock in up to 3 priorities.',
-            items: []
-          }
-        ],
-        habitualDeferralCount: 1,
-        longStandingCount: 0,
-        committedTodayCount: 0,
-        healthyBacklogCount: 0,
-        averageStalledDeferrals: 5.0,
-        oldestOpenDays: 14,
-        clarityRatioPercent: 0
-      },
-      allStatuses: [sampleStatus],
-      top3Commitments: [],
-      habituallyUndone: [sampleStatus],
-      longStandingDrift: [],
-      activeBacklog: [],
-      conversationThreadsByTaskId: {
-        'task-tax-receipts': [
-          {
-            id: 'msg-1',
-            role: 'PARTNER',
-            text: 'You\'ve carried "Consolidate Q3 expense receipts & CPA export" across 5 times (14 days). Zero guilt—what\'s the real friction holding this back right now?',
-            suggestedActionCode: null
-          }
-        ]
-      },
-      quickReplies: [
-        {
-          id: 'qr-5m',
-          label: 'Too big — shrink to 5m',
-          messageText: "It feels too big and vague to start right now. Let's shrink it to a 5m starter."
-        },
-        {
-          id: 'qr-top3',
-          label: "Lock into Today's Top 3",
-          messageText: "I'm ready to commit and finish this today."
-        }
-      ],
-      settings: {
-        partnerTone: 'Candid & Warm',
-        aiStreamingEnabled: true,
-        connectedGoogleAccount: 'stefan@pulse.local',
-        lastSyncStatus: 'Spring Boot 4 REST API',
-        morningRitualTime: '08:30',
-        eveningShutdownTime: '18:00',
-        zeroPiiTelemetryEnabled: true
-      },
-      breadcrumbs: [],
-      wcagContrastAudit: [],
-      swapRequired: false,
-      pendingSwapCandidateTaskId: null,
-      statusBanner: 'Connecting to Spring Boot 4 backend…'
-    };
+    return buildSeedDashboardState();
   }
 }

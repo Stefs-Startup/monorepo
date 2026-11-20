@@ -1,0 +1,81 @@
+# =============================================================================
+# Web E2E Pipeline — Pulse Web (STE-58, STE-61)
+# =============================================================================
+# Runs Playwright critical-journey E2E specs for apps/pulse/web:
+#   1. Journey 1: Onboarding, Google Tasks stub sync & settings
+#   2. Journey 2: Setting Today's Top 3 & 3/3 scarcity swap gate
+#   3. Journey 3: Left-undone rescue triage
+#
+# Supports both local `ng serve` and external PR preview URLs via BASE_URL.
+# Uploads Playwright HTML report & failure traces when any test fails.
+# =============================================================================
+
+name: "E2E · Pulse Web (Playwright)"
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "apps/pulse/web/**"
+      - ".github/workflows/e2e-pulse-web.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/pulse/web/**"
+      - ".github/workflows/e2e-pulse-web.yml"
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Optional PR preview BASE_URL (omit to run against local ng serve)"
+        required: false
+        type: string
+        default: ""
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  e2e-pulse-web:
+    name: "Playwright E2E (apps/pulse/web)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/pulse/web
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+          cache-dependency-path: apps/pulse/web/package-lock.json
+
+      - name: Install Angular workspace dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E critical journeys
+        env:
+          BASE_URL: ${{ inputs.base_url }}
+        run: npm run test:e2e
+
+      - name: Upload Playwright report and traces on failure
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pulse-web-playwright-traces
+          path: |
+            apps/pulse/web/playwright-report/
+            apps/pulse/web/test-results/
+          retention-days: 14
