@@ -19,6 +19,8 @@ on:
     branches:
       - main
     paths:
+      - "build-logic/**"
+      - "gradle/libs.versions.toml"
       - "apps/pulse/app/**"
       - "apps/pulse/gradle/**"
       - "apps/pulse/build.gradle.kts"
@@ -30,6 +32,8 @@ on:
     branches:
       - main
     paths:
+      - "build-logic/**"
+      - "gradle/libs.versions.toml"
       - "apps/pulse/app/**"
       - "apps/pulse/gradle/**"
       - "apps/pulse/build.gradle.kts"

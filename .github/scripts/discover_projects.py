@@ -46,8 +46,8 @@ DEFAULT_JAVA = "21"
 DEFAULT_NODE = "20"
 # Applied Android plugin or `android { }` block in a build script. Version catalogs are
 # deliberately ignored: a catalog may declare Android plugins a JVM build never applies.
-ANDROID_PATTERN = re.compile(r"com\.android\.|libs\.plugins\.android\b|^\s*android\s*\{", re.MULTILINE)
-KMP_PATTERN = re.compile(r'kotlin\(\s*"multiplatform"\s*\)|org\.jetbrains\.kotlin\.multiplatform', re.MULTILINE)
+ANDROID_PATTERN = re.compile(r"com\.android\.|libs\.plugins\.android\b|stefs\.android-app\b|^\s*android\s*\{", re.MULTILINE)
+KMP_PATTERN = re.compile(r'kotlin\(\s*"multiplatform"\s*\)|org\.jetbrains\.kotlin\.multiplatform|stefs\.kotlin-lib\b', re.MULTILINE)
 
 GLOBAL_CI_PATHS = (
     ".github/workflows/ci.yml",
@@ -321,6 +321,10 @@ def classify_changed_paths(
         if path_str in ROOT_GLOBAL_CONFIG_FILES and "." in node_by_path:
             selected_node.add(".")
             root_full_required = True
+            continue
+
+        if path_str == "gradle/libs.versions.toml" or path_is_within(path_str, "build-logic"):
+            selected_gradle.update(gradle_by_path.keys())
             continue
 
         matched_owner = next(

@@ -129,6 +129,15 @@ export function extractRepoToolchainPins(rootDir) {
   const appGradle = readOptionalText(
     path.join(rootDir, "apps/pulse/app/build.gradle.kts"),
   );
+  const jvmServiceConvention = readOptionalText(
+    path.join(rootDir, "build-logic/src/main/kotlin/stefs.jvm-service.gradle.kts"),
+  );
+  const kotlinLibConvention = readOptionalText(
+    path.join(rootDir, "build-logic/src/main/kotlin/stefs.kotlin-lib.gradle.kts"),
+  );
+  const androidAppConvention = readOptionalText(
+    path.join(rootDir, "build-logic/src/main/kotlin/stefs.android-app.gradle.kts"),
+  );
   const discoverPy = readOptionalText(
     path.join(rootDir, ".github/scripts/discover_projects.py"),
   );
@@ -151,12 +160,21 @@ export function extractRepoToolchainPins(rootDir) {
     nvmrc: nvmrc || null,
     nodeVersionFile: nodeVersionFile || null,
     packageManagerPnpm,
-    backendJavaVersion: matchSingle(
-      backendGradle,
-      /JavaLanguageVersion\.of\((\d+)\)/,
-    ),
-    kmpJvmToolchain: matchSingle(kmpGradle, /jvmToolchain\((\d+)\)/),
-    androidCompileSdk: matchSingle(appGradle, /compileSdk\s*=\s*(\d+)/),
+    backendJavaVersion:
+      matchSingle(backendGradle, /JavaLanguageVersion\.of\((\d+)\)/) ??
+      (backendGradle.includes("stefs.jvm-service")
+        ? matchSingle(jvmServiceConvention, /JavaLanguageVersion\.of\((\d+)\)/)
+        : null),
+    kmpJvmToolchain:
+      matchSingle(kmpGradle, /jvmToolchain\((\d+)\)/) ??
+      (kmpGradle.includes("stefs.kotlin-lib")
+        ? matchSingle(kotlinLibConvention, /jvmToolchain\((\d+)\)/)
+        : null),
+    androidCompileSdk:
+      matchSingle(appGradle, /compileSdk\s*=\s*(\d+)/) ??
+      (appGradle.includes("stefs.android-app")
+        ? matchSingle(androidAppConvention, /compileSdk\s*=\s*(\d+)/)
+        : null),
     discoverDefaultNode: matchSingle(
       discoverPy,
       /DEFAULT_NODE\s*=\s*["'](\d+)["']/,

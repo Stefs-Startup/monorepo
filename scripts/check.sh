@@ -144,6 +144,8 @@ path_to_stacks() {
     package.json|pnpm-lock.yaml|pnpm-workspace.yaml|turbo.json|.nvmrc|.node-version|apps/web/*|packages/*|tools/*|.github/workflows/ci-stack-pnpm-turborepo.yml)
       echo pnpm-turborepo ;;
     apps/pulse/web/*|.github/workflows/ci-stack-angular.yml) echo angular ;;
+    build-logic/*|gradle/libs.versions.toml)
+      echo springboot; echo kmp; echo android ;;
     apps/pulse/backend/*|.github/workflows/ci-stack-springboot-java.yml) echo springboot ;;
     apps/pulse/kmp/*|.github/workflows/ci-stack-kmp-multiplatform.yml) echo kmp ;;
     apps/pulse/app/*|apps/pulse/gradle/*|apps/pulse/build.gradle.kts|apps/pulse/settings.gradle.kts|apps/pulse/gradle.properties|apps/pulse/gradlew*|.github/workflows/ci-stack-android-kotlin.yml)
