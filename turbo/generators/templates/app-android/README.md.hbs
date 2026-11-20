@@ -1,0 +1,18 @@
+# `{{dashCase name}}`
+
+{{description}}
+
+Generated via `pnpm gen app android {{dashCase name}}` (`STE-48`).
+
+## Architecture
+- **Convention Plugin**: `id("stefs.android-app")` (`../../build-logic`) + shared `../../gradle/libs.versions.toml`
+- **UI**: Single-Activity Jetpack Compose + Material 3 with `enableEdgeToEdge()` (`app/src/main/java/com/cmp/androidapp/MainActivity.kt`)
+- **Distribution**: `:app:assembleDebug` produces debug APK artifacts ready for Firebase App Distribution
+
+## Development
+
+```bash
+./gradlew :app:lintDebug
+./gradlew :app:assembleDebug
+./gradlew :app:testDebugUnitTest
+```

@@ -1,0 +1,25 @@
+import '@angular/compiler';
+import { describe, expect, it } from 'vitest';
+import { AppComponent } from './app.component';
+import { APP_ROUTES } from './app.routes';
+import { createAuthSlotStore } from './auth/auth.slot';
+
+describe('{{pascalCase name}} Angular 21 Signals App', () => {
+  it('defines standalone AppComponent and routes', () => {
+    expect(AppComponent).toBeDefined();
+    expect(APP_ROUTES.map((r) => r.path)).toEqual(['', 'status']);
+  });
+
+  it('manages auth module slot signals cleanly', () => {
+    const auth = createAuthSlotStore();
+    expect(auth.isAuthenticated()).toBe(false);
+    expect(auth.session().provider).toBe('anonymous');
+
+    auth.signIn('user-42', 'google-oauth');
+    expect(auth.isAuthenticated()).toBe(true);
+    expect(auth.session().subjectId).toBe('user-42');
+
+    auth.signOut();
+    expect(auth.isAuthenticated()).toBe(false);
+  });
+});

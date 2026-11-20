@@ -1,0 +1,15 @@
+# `{{dashCase name}}` Engineering Constitution (Android Kotlin / Jetpack Compose App)
+
+## 1. Pure Functional Core & Edge-to-Edge Compose (`ADR-007`)
+- Keep domain state evaluation and formatting logic in pure Kotlin functions decoupled from Android `Context` or `Activity` instances.
+- Use a Single-Activity Jetpack Compose architecture with `enableEdgeToEdge()` and Material 3 `Scaffold` window insets.
+
+## 2. Convention Plugin & Firebase App Distribution Readiness
+- Applies `id("stefs.android-app")` from `../../build-logic` (`compileSdk = 35`, `minSdk = 28`, `targetSdk = 35`, Compose enabled) and shares `../../gradle/libs.versions.toml`.
+- Debug and release builds (`:app:assembleDebug`) produce distributable APK artifacts ready for Firebase App Distribution.
+
+## 3. Verification Gate
+Before any change is considered complete, all of the following must pass:
+- `./gradlew :app:lintDebug`
+- `./gradlew :app:assembleDebug`
+- `./gradlew :app:testDebugUnitTest`

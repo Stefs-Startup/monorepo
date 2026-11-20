@@ -1,0 +1,52 @@
+import { Component, computed, inject, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { AUTH_SLOT, AuthSlotStore, createAuthSlotStore } from './auth/auth.slot';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet],
+  template: `
+    <main class="shell">
+      <header class="header">
+        <h1>\{{ title() }}</h1>
+        <span class="auth-badge">
+          @if (auth.isAuthenticated()) {
+            Signed in (\{{ auth.session().subjectId }})
+          } @else {
+            Guest Mode
+          }
+        </span>
+      </header>
+      <section class="content">
+        <p>Active route: <strong>\{{ activeRoute() }}</strong></p>
+        <button type="button" (click)="selectRoute('/status')">View Status Route</button>
+      </section>
+      <router-outlet />
+    </main>
+  `,
+  styles: [`
+    .shell {
+      max-width: 840px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 12px;
+    }
+  `]
+})
+export class AppComponent {
+  readonly auth: AuthSlotStore = inject(AUTH_SLOT, { optional: true }) ?? createAuthSlotStore();
+  readonly appName = signal('{{dashCase name}}');
+  readonly activeRoute = signal('/');
+  readonly title = computed(() => `${this.appName()} (${this.activeRoute()})`);
+
+  selectRoute(route: string): void {
+    this.activeRoute.set(route);
+  }
+}
