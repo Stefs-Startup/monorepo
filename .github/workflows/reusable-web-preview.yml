@@ -5,6 +5,9 @@
 # a declared web surface in infra/deploy/services.json and posts/updates a
 # sticky PR comment with the live HTTPS preview URL.
 #
+# Scope: Monorepo-internal (assumes caller repo has infra/deploy/services.json,
+# scripts/deploy.sh, and scripts/smoke-test.sh).
+#
 # Skips gracefully when GCP Workload Identity Federation secrets are not yet
 # configured so PR CI remains unblocked.
 # =============================================================================

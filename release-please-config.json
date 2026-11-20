@@ -1,0 +1,81 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "separate-pull-requests": true,
+  "include-component-in-tag": true,
+  "tag-separator": "-",
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "changelog-sections": [
+    { "type": "feat", "section": "Features" },
+    { "type": "fix", "section": "Bug Fixes" },
+    { "type": "perf", "section": "Performance Improvements" },
+    { "type": "refactor", "section": "Code Refactoring" },
+    { "type": "docs", "section": "Documentation", "hidden": false },
+    { "type": "ci", "section": "CI/CD", "hidden": true },
+    { "type": "chore", "section": "Miscellaneous", "hidden": true },
+    { "type": "build", "section": "Build System", "hidden": true },
+    { "type": "test", "section": "Tests", "hidden": true }
+  ],
+  "packages": {
+    "apps/pulse/web": {
+      "release-type": "node",
+      "package-name": "pulse-web",
+      "component": "pulse-web",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "apps/pulse/backend": {
+      "release-type": "simple",
+      "package-name": "pulse-backend",
+      "component": "pulse-backend",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "apps/pulse/backend/build.gradle.kts"
+        }
+      ]
+    },
+    "apps/pulse/kmp": {
+      "release-type": "simple",
+      "package-name": "pulse-kmp",
+      "component": "pulse-kmp",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "apps/pulse/kmp/build.gradle.kts"
+        }
+      ]
+    },
+    "apps/web": {
+      "release-type": "node",
+      "package-name": "@cmp/web",
+      "component": "cmp-web",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "packages/config": {
+      "release-type": "node",
+      "package-name": "@cmp/config",
+      "component": "cmp-config",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "packages/factory": {
+      "release-type": "node",
+      "package-name": "@cmp/factory",
+      "component": "cmp-factory",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "packages/utils": {
+      "release-type": "node",
+      "package-name": "@cmp/utils",
+      "component": "cmp-utils",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "tools/blast-radius": {
+      "release-type": "node",
+      "package-name": "@cmp/blast-radius",
+      "component": "cmp-blast-radius",
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}

@@ -13,7 +13,7 @@ The monorepo's own [`ci.yml`](../.github/workflows/ci.yml) calls them for every 
 > [!NOTE]
 > While `Stefs-Startup/monorepo` is private, other repositories can call these workflows only after
 > **Settings → Actions → General → Access → "Accessible from repositories in the `Stefs-Startup` organization"** is enabled.
-> Pin to a tag or commit SHA instead of `@main` once versioned releases exist.
+> Pin external callers to `@v1` (or an immutable `@v1.0.0` / commit SHA) once `v1` tags are cut; `@main` works until then.
 
 ---
 
@@ -106,3 +106,35 @@ Exclude experimental projects, or override a project's inputs, in [`.github/ci-p
 ```
 
 Branch protection should require only the **Deploy & Distribution** check. The per-project job names change as apps are added.
+
+---
+
+## v1 Versioning Readiness & Release Checklist (STE-39)
+
+### Audit Summary
+
+| Workflow | Scope | Action Pinning | Permissions | v1 Readiness |
+| :--- | :--- | :--- | :--- | :--- |
+| [`reusable-node.yml`](../.github/workflows/reusable-node.yml) | Org-wide | All `uses:` pinned to commit SHAs | `contents: read` | Ready (`working-directory`, `node-version`, `scripts`, `turbo-filter` configurable) |
+| [`reusable-gradle.yml`](../.github/workflows/reusable-gradle.yml) | Org-wide | All `uses:` pinned to commit SHAs | `contents: read` | Ready (`auto \| android \| kmp \| jvm` detection, configurable task gates) |
+| [`reusable-web-preview.yml`](../.github/workflows/reusable-web-preview.yml) | Monorepo-internal | All `uses:` pinned to commit SHAs | `contents: read`, `id-token: write`, `pull-requests: write` | Internal only (expects `infra/deploy/services.json`, `scripts/deploy.sh`, `scripts/smoke-test.sh`) |
+
+### Checklist for Cutting `v1.0.0` / Moving `v1` Tag
+
+1. **Enable Organization Actions Access** (required while `Stefs-Startup/monorepo` is private):
+   - In GitHub: **Settings → Actions → General → Access** → select **Accessible from repositories in the `Stefs-Startup` organization** → **Save**.
+2. **Cut `v1.0.0` and the moving `v1` major tag** from a green `main` commit:
+   ```bash
+   git checkout main && git pull --ff-only
+   git tag -a v1.0.0 -m "chore(release): reusable workflows v1.0.0"
+   git tag -fa v1 -m "chore(release): update v1 floating tag to v1.0.0"
+   git push origin v1.0.0
+   git push origin v1 --force
+   ```
+   - For subsequent non-breaking fixes (`v1.0.1`, `v1.1.0`), create the immutable `v1.x.y` tag and fast-forward/force-update `v1` to point to it.
+   - Any breaking input, output, or secret contract change requires cutting `v2.0.0` / `v2` rather than breaking `v1` callers.
+3. **Update External Repository Callers** to pin `@v1` (or `@v1.0.0` / commit SHA):
+   ```yaml
+   uses: Stefs-Startup/monorepo/.github/workflows/reusable-node.yml@v1
+   ```
+4. **Verify Cross-Repo Execution**: trigger a workflow run in a consumer repo (or via `workflow_dispatch`) and confirm `reusable-node.yml@v1` / `reusable-gradle.yml@v1` resolves without permission errors.
