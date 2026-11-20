@@ -1,0 +1,7 @@
+# Exclude local Gradle caches, build outputs, IDE noise, and git metadata
+# so Docker build contexts stay fast and reproducible.
+.gradle
+build
+.git
+.DS_Store
+*.md

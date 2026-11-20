@@ -1,0 +1,33 @@
+#!/bin/sh
+# Sourced (`.envsh`) by nginx-unprivileged's /docker-entrypoint.sh BEFORE
+# 20-envsubst-on-templates.sh runs. Exported variables feed directly into
+# /etc/nginx/templates/default.conf.template.
+
+set -eu
+
+export PORT="${PORT:-8080}"
+export API_UPSTREAM_URL="${API_UPSTREAM_URL:-http://pulse-backend:8080}"
+export APP_VERSION="${APP_VERSION:-0.6.0}"
+export APP_REVISION="${K_REVISION:-${APP_REVISION:-local}}"
+export APP_ENV="${APP_ENV:-local}"
+
+if [ "${PULSE_SIMULATE_UNHEALTHY_READINESS:-false}" = "true" ]; then
+  export READY_STATUS_CODE="503"
+  export READY_STATUS_TEXT="DOWN"
+else
+  export READY_STATUS_CODE="200"
+  export READY_STATUS_TEXT="UP"
+fi
+
+# Minimal POSIX JSON string escape (backslashes and double quotes) for metadata.
+json_escape() {
+  printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
+SAFE_VERSION="$(json_escape "$APP_VERSION")"
+SAFE_REVISION="$(json_escape "$APP_REVISION")"
+SAFE_ENV="$(json_escape "$APP_ENV")"
+
+# Write non-PII revision metadata to /tmp (writable by non-root UID 101).
+printf '{"surface":"pulse-web","version":"%s","revision":"%s","environment":"%s"}\n' \
+  "$SAFE_VERSION" "$SAFE_REVISION" "$SAFE_ENV" > /tmp/version.json

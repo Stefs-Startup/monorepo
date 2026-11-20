@@ -1,12 +1,58 @@
 server:
-  port: 8080
+  # 12-Factor port binding: Cloud Run & Compose inject PORT; local dev defaults to 8080.
+  port: ${PORT:8080}
+  # Drain active HTTP requests cleanly before stopping Tomcat on SIGTERM during rollouts.
+  shutdown: graceful
 
 spring:
   application:
     name: pulse-accountability-backend
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
 
 management:
   endpoints:
     web:
       exposure:
+        # Expose only health and non-PII revision metadata (never env/heapdump in prod).
         include: health,info
+  endpoint:
+    health:
+      # Enables /actuator/health/liveness and /actuator/health/readiness Kubernetes/Cloud Run probes.
+      probes:
+        enabled: true
+      group:
+        liveness:
+          # Liveness answers "is the JVM wedged?" — deliberately excludes dependency/drill checks.
+          include: livenessState
+          show-details: always
+        readiness:
+          # Readiness answers "should the load balancer send traffic to this revision?"
+          include: readinessState,deploymentDrill
+          show-details: always
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  info:
+    env:
+      # Allows info.app.* keys below to render at GET /actuator/info for revision verification.
+      enabled: true
+
+info:
+  app:
+    name: pulse-backend
+    version: ${APP_VERSION:0.6.0}
+    # K_REVISION is automatically injected by Cloud Run; APP_REVISION covers local Docker/CI drills.
+    revision: ${K_REVISION:${APP_REVISION:local}}
+    environment: ${APP_ENV:local}
+
+pulse:
+  cors:
+    # Comma-separated origin patterns for cross-origin SPA requests (12-factor override per env).
+    allowed-origin-patterns: ${CORS_ALLOWED_ORIGINS:http://localhost:*,http://127.0.0.1:*}
+  drill:
+    # Safe RFC-0002 bad-deploy drill switch: forces readiness 503 while leaving liveness 200.
+    simulate-unhealthy-readiness: ${PULSE_SIMULATE_UNHEALTHY_READINESS:false}
+

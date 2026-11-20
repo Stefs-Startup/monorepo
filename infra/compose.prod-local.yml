@@ -1,0 +1,61 @@
+# =============================================================================
+# RFC-0002 Local Production-Parity Stack
+# Runs all 3 HTTP surfaces using the exact same non-root Dockerfiles and
+# 12-factor environment variable contracts intended for Google Cloud Run.
+#
+# Usage:
+#   APP_REVISION=local-v1 docker compose -f infra/compose.prod-local.yml up -d --build
+#   /bin/bash scripts/smoke-test.sh --surface all-local --expect-revision local-v1
+#   docker compose -f infra/compose.prod-local.yml down
+# =============================================================================
+
+services:
+  pulse-backend:
+    build:
+      context: ../apps/pulse/backend
+      dockerfile: Dockerfile
+    image: cmp/pulse-backend:local
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: "8080"
+      APP_VERSION: "${APP_VERSION:-0.6.0}"
+      APP_REVISION: "${APP_REVISION:-local-m1}"
+      APP_ENV: "local-prod-parity"
+      CORS_ALLOWED_ORIGINS: "${CORS_ALLOWED_ORIGINS:-http://localhost:*,http://127.0.0.1:*}"
+      # Set PULSE_SIMULATE_UNHEALTHY_READINESS=true to drill readiness 503 vs liveness 200.
+      PULSE_SIMULATE_UNHEALTHY_READINESS: "${PULSE_SIMULATE_UNHEALTHY_READINESS:-false}"
+    healthcheck:
+      test: ["CMD", "java", "-cp", "/probe", "HttpHealthProbe", "/actuator/health/readiness"]
+      interval: 5s
+      timeout: 3s
+      start_period: 15s
+      retries: 6
+
+  pulse-web:
+    build:
+      context: ../apps/pulse/web
+      dockerfile: Dockerfile
+    image: cmp/pulse-web:local
+    ports:
+      - "8081:8080"
+    depends_on:
+      pulse-backend:
+        # Wait until Spring Boot passes /actuator/health/readiness before booting edge Nginx.
+        condition: service_healthy
+    environment:
+      PORT: "8080"
+      # Internal Docker Compose DNS resolves `pulse-backend` to the Spring Boot container.
+      # In Cloud Run (Milestone 2), this becomes the backend's *.run.app HTTPS URL.
+      API_UPSTREAM_URL: "${API_UPSTREAM_URL:-http://pulse-backend:8080}"
+      APP_VERSION: "${APP_VERSION:-0.6.0}"
+      APP_REVISION: "${APP_REVISION:-local-m1}"
+      APP_ENV: "local-prod-parity"
+      PULSE_SIMULATE_UNHEALTHY_READINESS: "${PULSE_SIMULATE_UNHEALTHY_READINESS:-false}"
+    healthcheck:
+      test: ["CMD", "sh", "-c", "wget -qO- http://127.0.0.1:8080/readyz >/dev/null || exit 1"]
+      interval: 5s
+      timeout: 3s
+      start_period: 5s
+      retries: 5
+

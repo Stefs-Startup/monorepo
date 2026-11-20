@@ -1,0 +1,81 @@
+# =============================================================================
+# RFC-0002 Surface 2: apps/pulse/web Nginx Edge Proxy + SPA Server
+# Rendered at startup by 20-envsubst-on-templates.sh (filtered by
+# NGINX_ENVSUBST_FILTER so $uri, $proxy_host, $scheme, etc. remain intact).
+# =============================================================================
+
+server {
+    # Bind to unprivileged Cloud Run / Compose PORT (never privileged port 80).
+    listen ${PORT};
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Baseline security headers
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # Liveness probe: answers "is the Nginx worker alive?"
+    # Note: Use /livez instead of /healthz because Google Front End (Cloud Run) intercepts /healthz.
+    location = /livez {
+        access_log off;
+        default_type application/json;
+        add_header Cache-Control "no-store" always;
+        return 200 '{"status":"UP","surface":"pulse-web","revision":"${APP_REVISION}"}';
+    }
+
+    # Readiness probe: switches to 503 when PULSE_SIMULATE_UNHEALTHY_READINESS=true
+    location = /readyz {
+        access_log off;
+        default_type application/json;
+        add_header Cache-Control "no-store" always;
+        return ${READY_STATUS_CODE} '{"status":"${READY_STATUS_TEXT}","surface":"pulse-web","revision":"${APP_REVISION}"}';
+    }
+
+    # Non-PII revision/version endpoint populated by 15-runtime-meta.envsh
+    location = /version.json {
+        alias /tmp/version.json;
+        default_type application/json;
+        add_header Cache-Control "no-store" always;
+    }
+
+    # Edge reverse proxy to Spring Boot backend (replaces angular proxy.conf.json in prod).
+    # PITFALL 1: Do NOT add a trailing slash after ${API_UPSTREAM_URL}; a trailing
+    #   slash rewrites `/api/v1/pulse/state` into `/v1/pulse/state` and causes 404s.
+    # PITFALL 2: Cloud Run HTTPS origins reject connections without SNI
+    #   (`proxy_ssl_server_name on`) or when Host stays the frontend domain
+    #   (`Host $proxy_host` sends the backend's *.run.app hostname, avoiding GFE 404).
+    location /api/ {
+        proxy_pass ${API_UPSTREAM_URL};
+        proxy_http_version 1.1;
+        proxy_ssl_server_name on;
+        proxy_set_header Host $proxy_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 30s;
+    }
+
+    # Content-hashed Angular build artifacts are safe to cache for 1 year.
+    location ~* \.(?:js|css|woff2?|svg|png|ico)$ {
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        add_header X-Content-Type-Options "nosniff" always;
+    }
+
+    # Never cache index.html aggressively so rollouts & rollbacks take effect immediately.
+    location = /index.html {
+        add_header Cache-Control "no-cache" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    }
+
+    # Angular SPA client-side route fallback.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
