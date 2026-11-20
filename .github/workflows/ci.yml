@@ -45,13 +45,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Test project discovery rules
+        run: python3 -I -m unittest discover -s .github/scripts -p 'test_*.py' -v
 
       - name: Discover projects
         id: discover
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
         run: |
           {
             echo '```'
-            python3 -I .github/scripts/discover_projects.py
+            if [ "$EVENT_NAME" = "pull_request" ] && [ -n "$BASE_REF" ]; then
+              python3 -I .github/scripts/discover_projects.py --base-ref "origin/$BASE_REF"
+            else
+              python3 -I .github/scripts/discover_projects.py --all
+            fi
             echo '```'
           } | tee -a "$GITHUB_STEP_SUMMARY"
 
@@ -96,6 +108,7 @@ jobs:
       scripts: ${{ matrix.project.scripts }}
       artifact-name: ${{ matrix.project.artifact-name }}
       artifact-paths: ${{ matrix.project.artifact-paths }}
+      turbo-filter: ${{ matrix.project.turbo-filter }}
 
   # ---------------------------------------------------------------------------
   # Release Readiness Scorecard Gate — mark this as the required check.

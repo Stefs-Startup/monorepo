@@ -26,6 +26,24 @@ scripts/check.sh --list      # show the exact command behind every stack/gate
 
 `pnpm-turborepo` covers `apps/web`, `packages/*`, and `tools/*` (`@cmp/blast-radius`, `@cmp/blast-radius-ui`). `scripts/check.sh --changed` maps changes under `tools/*` to `pnpm-turborepo`, matching `.github/workflows/ci-stack-pnpm-turborepo.yml`.
 
+## Affected-Only CI Discovery (`STE-40`)
+
+`.github/workflows/ci.yml` passes `--base-ref "origin/$BASE_REF"` to `.github/scripts/discover_projects.py` on `pull_request` events so CI only schedules impacted Gradle and Node projects (with `turbo --filter=...[<base_ref>]` on root workspace member changes), while pushes to `main` and `merge_group` run `--all` without filtering:
+
+```bash
+# Docs-only change returns zero Gradle/Node jobs
+python3 .github/scripts/discover_projects.py --changed-files docs/README.md --json
+
+# Shared package change triggers root workspace with Turborepo filter
+python3 .github/scripts/discover_projects.py --changed-files packages/utils/src/index.ts --json
+
+# Run full matrix (main pushes / merge_group)
+python3 .github/scripts/discover_projects.py --all --json
+
+# Unit tests for discovery and affected-only filtering
+CI=true python3 -m unittest discover -s .github/scripts -p 'test_*.py' -v
+```
+
 Gate 4 (Release Readiness Scorecard) only aggregates Gates 1-3, so it has no local step.
 
 ### Repo-wide & SOTA QE gates (`--gate`)

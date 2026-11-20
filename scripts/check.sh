@@ -149,7 +149,7 @@ path_to_stacks() {
     apps/pulse/app/*|apps/pulse/gradle/*|apps/pulse/build.gradle.kts|apps/pulse/settings.gradle.kts|apps/pulse/gradle.properties|apps/pulse/gradlew*|.github/workflows/ci-stack-android-kotlin.yml)
       echo android ;;
     apps/ytm-menubar/*) echo ytm-menubar ;;
-    .github/workflows/reusable-*|.github/scripts/*|scripts/check.sh) echo "${ALL_STACKS[@]}" ;;
+    .github/workflows/ci.yml|.github/ci-projects.json|.github/workflows/reusable-*|.github/scripts/*|scripts/check.sh) echo "${ALL_STACKS[@]}" ;;
   esac
 }
 
