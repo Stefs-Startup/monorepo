@@ -1,0 +1,215 @@
+# =============================================================================
+# Agent PR Guard (Dedupe, Cap & Stale Sweep) — STE-52
+# =============================================================================
+# Enforces one Linear issue -> one open PR, caps concurrent coding-agent PRs
+# at 5 (excluding Dependabot/Renovate), validates coding-agent Linear branch
+# naming, and closes stale coding-agent PRs after 7 days of inactivity.
+# =============================================================================
+
+name: Agent PR Guard (Dedupe, Cap & Stale Sweep)
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited, labeled, unlabeled]
+  schedule:
+    # Daily stale coding-agent sweep at 09:00 UTC
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Guard evaluation mode"
+        type: choice
+        required: true
+        default: "stale"
+        options:
+          - stale
+          - pr
+      pr_number:
+        description: "Target PR number (required when mode=pr)"
+        type: string
+        required: false
+        default: ""
+      dry_run:
+        description: "Report findings without posting comments or closing PRs"
+        type: boolean
+        required: true
+        default: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  agent-pr-guard:
+    name: "Agent PR Guard"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          package_json_file: package.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Build @cmp/factory guard module
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter @cmp/factory... build
+
+      - name: Evaluate PR guard policy & enforce rules
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const path = require('path');
+            const { pathToFileURL } = require('url');
+            const guardMod = await import(
+              pathToFileURL(path.resolve('packages/factory/dist/src/pr-guard-github.js')).href
+            );
+
+            const { owner, repo } = context.repo;
+            const rawPrs = await github.paginate(github.rest.pulls.list, {
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100
+            });
+
+            const byNumber = new Map();
+            for (const pr of rawPrs) {
+              const snap = guardMod.toPullRequestSnapshot(pr);
+              byNumber.set(snap.number, snap);
+            }
+
+            if (context.eventName === 'pull_request' && context.payload.pull_request) {
+              const eventSnap = guardMod.toPullRequestSnapshot(context.payload.pull_request);
+              byNumber.set(eventSnap.number, eventSnap);
+            }
+
+            const openPrs = Array.from(byNumber.values());
+            const isDispatch = context.eventName === 'workflow_dispatch';
+            const mode = context.eventName === 'pull_request'
+              ? 'pr'
+              : isDispatch
+                ? (context.payload.inputs?.mode || 'stale')
+                : 'stale';
+            const dryRun = isDispatch
+              ? String(context.payload.inputs?.dry_run ?? 'true') === 'true'
+              : false;
+
+            let targetPrNumber;
+            if (mode === 'pr') {
+              targetPrNumber = context.payload.pull_request?.number
+                ?? Number.parseInt(String(context.payload.inputs?.pr_number || ''), 10);
+              if (!Number.isFinite(targetPrNumber) || targetPrNumber <= 0) {
+                core.setFailed('A valid pr_number is required when running workflow_dispatch in mode=pr.');
+                return;
+              }
+            }
+
+            const isForkPr = Boolean(context.payload.pull_request?.head?.repo?.fork);
+            const client = {
+              async upsertStickyComment(prNumber, marker, body) {
+                try {
+                  const comments = await github.paginate(github.rest.issues.listComments, {
+                    owner,
+                    repo,
+                    issue_number: prNumber,
+                    per_page: 100
+                  });
+                  const existing = comments.find((c) => c.body && c.body.includes(marker));
+                  if (existing) {
+                    await github.rest.issues.updateComment({
+                      owner,
+                      repo,
+                      comment_id: existing.id,
+                      body
+                    });
+                  } else {
+                    await github.rest.issues.createComment({
+                      owner,
+                      repo,
+                      issue_number: prNumber,
+                      body
+                    });
+                  }
+                } catch (err) {
+                  const status = err && typeof err === 'object' ? err.status : undefined;
+                  if (status === 403 && isForkPr) {
+                    core.warning(`Skipping PR #${prNumber} comment on forked pull request due to read-only token permissions.`);
+                  } else {
+                    throw err;
+                  }
+                }
+              },
+              async closePullRequest(prNumber) {
+                try {
+                  await github.rest.pulls.update({
+                    owner,
+                    repo,
+                    pull_number: prNumber,
+                    state: 'closed'
+                  });
+                } catch (err) {
+                  const status = err && typeof err === 'object' ? err.status : undefined;
+                  if (status === 403 && isForkPr) {
+                    core.warning(`Skipping PR #${prNumber} close on forked pull request due to read-only token permissions.`);
+                  } else {
+                    throw err;
+                  }
+                }
+              },
+              log(msg) {
+                core.info(msg);
+              }
+            };
+
+            const result = await guardMod.runGitHubPrGuard({
+              mode,
+              openPrs,
+              targetPrNumber,
+              dryRun,
+              client
+            });
+
+            core.info(JSON.stringify(result, null, 2));
+
+            await core.summary
+              .addHeading(`Agent PR Guard (${result.mode}${result.dryRun ? ' — DRY-RUN' : ''})`)
+              .addRaw(
+                mode === 'pr'
+                  ? [
+                      `- **PR:** #${result.prDecision.prNumber} (\`${result.prDecision.category}\`${result.prDecision.exempt ? ', `guard-exempt`' : ''})`,
+                      `- **Linear issues:** ${result.prDecision.issueKeys.length ? result.prDecision.issueKeys.join(', ') : 'none'}`,
+                      `- **Violations:** ${result.prDecision.violations.length}`,
+                      `- **Auto-closed:** ${result.closedPrNumbers.length > 0 ? 'yes' : 'no'}`
+                    ].join('\n')
+                  : [
+                      `- **Open PRs scanned:** ${openPrs.length}`,
+                      `- **Stale coding-agent PRs found:** ${result.staleResult.stalePrNumbers.join(', ') || 'none'}`,
+                      `- **Closed:** ${result.closedPrNumbers.join(', ') || 'none'}`,
+                      `- **Skipped (\`guard-exempt\`):** ${result.staleResult.skippedExemptPrNumbers.join(', ') || 'none'}`
+                    ].join('\n')
+              )
+              .write();
+
+            if (result.failed && !result.dryRun) {
+              core.setFailed(
+                `Agent PR guard failed for PR #${result.prDecision.prNumber}: ` +
+                result.prDecision.violations.map((v) => v.code).join(', ')
+              );
+            }

@@ -194,6 +194,19 @@ export function generateApp(options: GenerateAppOptions): GenerateAppResult {
 ## 5. Vertical Slices & Verification Gate
 - Generate new vertical slices with \`pnpm gen:slice ${name} <slice>\`.
 - Every change must pass \`pnpm --filter @cmp/${name} test\` and \`pnpm verify:slice\`.
+
+## Build & Test
+- Typecheck & lint: \`pnpm --filter @cmp/${name} lint && pnpm --filter @cmp/${name} typecheck\`
+- Build & test: \`pnpm --filter @cmp/${name} build && pnpm --filter @cmp/${name} test\`
+- Factory audit: \`pnpm verify:slice --target=@cmp/${name}\`
+
+## Do Not Touch
+- Do not bypass \`@cmp/utils\` security/accessibility primitives with bespoke copies.
+- Do not commit secrets, \`.env\` credentials, or unpinned CI action references.
+
+## Common Pitfalls
+- Run \`pnpm install\` at the repo root before testing a newly generated workspace package so \`workspace:*\` links resolve.
+- Keep domain modules in \`src/domain/\` and \`src/slices/\` pure (\`ADR-007\`) so unit tests run without DOM or network mocks.
 `;
 
   writeScaffoldFile(path.join(appDir, "AGENTS.md"), agentsMd, filesCreated);

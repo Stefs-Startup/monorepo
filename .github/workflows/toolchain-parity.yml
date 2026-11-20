@@ -1,0 +1,73 @@
+# =============================================================================
+# Toolchain Parity & Sandbox Bootstrap Gate (STE-53)
+# =============================================================================
+# Verifies that mise.toml pins match .nvmrc, .node-version, package.json,
+# Gradle build scripts, discover_projects.py, and CI stack workflows, and that
+# scripts/bootstrap.sh passes syntax and project discovery checks cleanly.
+# =============================================================================
+
+name: Toolchain Parity Gate
+
+on:
+  pull_request:
+    paths:
+      - "mise.toml"
+      - ".nvmrc"
+      - ".node-version"
+      - "package.json"
+      - "scripts/bootstrap.sh"
+      - "scripts/check-toolchain-parity*"
+      - ".github/scripts/discover_projects.py"
+      - ".github/workflows/ci-stack-*.yml"
+      - ".github/workflows/toolchain-parity.yml"
+      - "apps/pulse/**/build.gradle.kts"
+  push:
+    branches:
+      - main
+    paths:
+      - "mise.toml"
+      - ".nvmrc"
+      - ".node-version"
+      - "package.json"
+      - "scripts/bootstrap.sh"
+      - "scripts/check-toolchain-parity*"
+      - ".github/scripts/discover_projects.py"
+      - ".github/workflows/ci-stack-*.yml"
+      - ".github/workflows/toolchain-parity.yml"
+      - "apps/pulse/**/build.gradle.kts"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  toolchain-parity:
+    name: "Toolchain Parity & Bootstrap Check"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".nvmrc"
+
+      - name: Verify bootstrap script syntax
+        run: bash -n scripts/bootstrap.sh
+
+      - name: Run toolchain parity unit tests
+        run: CI=true node --test scripts/check-toolchain-parity.test.mjs
+
+      - name: Verify mise.toml parity against repo & CI
+        run: node scripts/check-toolchain-parity.mjs
+
+      - name: Run bootstrap read-only check & CI project discovery
+        run: ./scripts/bootstrap.sh --check-only
