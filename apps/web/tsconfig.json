@@ -1,13 +1,8 @@
 {
-  "extends": "@cmp/config/tsconfig.base.json",
+  "extends": "@cmp/config/tsconfig.library.json",
   "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
     "rootDir": ".",
-    "outDir": "dist",
-    "types": ["node"]
+    "outDir": "dist"
   },
   "include": ["src"]
 }
