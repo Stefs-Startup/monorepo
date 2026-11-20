@@ -32,4 +32,6 @@ jobs:
     with:
       surface: pulse-web
       pr-number: ${{ github.event.pull_request.number }}
-    secrets: inherit
+    secrets:
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}

@@ -34,6 +34,11 @@ on:
         description: "Image build strategy (cloudbuild or buildx)"
         type: string
         default: "cloudbuild"
+    secrets:
+      GCP_WORKLOAD_IDENTITY_PROVIDER:
+        required: false
+      GCP_SERVICE_ACCOUNT:
+        required: false
 
 permissions:
   contents: read
