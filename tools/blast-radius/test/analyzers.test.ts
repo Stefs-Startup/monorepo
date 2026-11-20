@@ -64,8 +64,25 @@ describe("Java AST analyzer on real apps/pulse/backend", () => {
     assert.equal(controller.isCriticalPath, true);
     assert.ok(controller.criticalPathTags.includes("@RestController"));
     assert.ok(controller.criticalPathTags.includes("@ExceptionHandler"));
+    const findLineInFile = (relPath: string, needle: string): number => {
+      const idx = fs
+        .readFileSync(path.join(REPO_ROOT, relPath), "utf8")
+        .split(/\r?\n/)
+        .findIndex((line) => line.includes(needle));
+      assert.ok(idx >= 0, `Expected "${needle}" in ${relPath}`);
+      return idx + 1;
+    };
+
+    const expectedRestControllerLine = findLineInFile(
+      "apps/pulse/backend/src/main/java/com/pulse/backend/api/PulseController.java",
+      "@RestController",
+    );
     assert.ok(
-      controller.touchpoints.some((t) => t.symbolName === "@RestController" && t.line === 25),
+      controller.touchpoints.some(
+        (t) =>
+          t.symbolName === "@RestController" &&
+          t.line === expectedRestControllerLine,
+      ),
     );
 
     const service = res.affectedFiles.find((f) =>
@@ -87,13 +104,28 @@ describe("Java AST analyzer on real apps/pulse/backend", () => {
     assert.equal(dtos.isDtoOrContract, true);
     assert.ok(dtos.criticalPathTags.includes("DTO"));
 
+    const pulseDtosRel =
+      "apps/pulse/backend/src/main/java/com/pulse/backend/api/PulseDtos.java";
+    const expectedDashboardLine = findLineInFile(
+      pulseDtosRel,
+      "public record PulseDashboardResponse(",
+    );
+    const expectedTriageLine = findLineInFile(
+      pulseDtosRel,
+      "public record TriageRequest(",
+    );
     assert.ok(
       res.dtoContracts.some(
-        (d) => d.symbolName === "PulseDashboardResponse" && d.line === 33,
+        (d) =>
+          d.symbolName === "PulseDashboardResponse" &&
+          d.line === expectedDashboardLine,
       ),
     );
     assert.ok(
-      res.dtoContracts.some((d) => d.symbolName === "TriageRequest" && d.line === 50),
+      res.dtoContracts.some(
+        (d) =>
+          d.symbolName === "TriageRequest" && d.line === expectedTriageLine,
+      ),
     );
   });
 
