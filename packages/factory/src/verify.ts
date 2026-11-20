@@ -56,6 +56,51 @@ function findLeftoverCatalogFiles(rootDir: string): string[] {
   return found;
 }
 
+function isBuildableSubAppDir(dirPath: string): boolean {
+  if (fs.existsSync(path.join(dirPath, "gradlew"))) {
+    return true;
+  }
+
+  const hasPackageJson = fs.existsSync(path.join(dirPath, "package.json"));
+  const hasLockfile =
+    fs.existsSync(path.join(dirPath, "package-lock.json")) ||
+    fs.existsSync(path.join(dirPath, "yarn.lock")) ||
+    fs.existsSync(path.join(dirPath, "pnpm-lock.yaml"));
+  if (hasPackageJson && hasLockfile) {
+    return true;
+  }
+
+  const hasGradleScript =
+    fs.existsSync(path.join(dirPath, "build.gradle.kts")) ||
+    fs.existsSync(path.join(dirPath, "build.gradle"));
+  const hasAndroidManifest = fs.existsSync(
+    path.join(dirPath, "src", "main", "AndroidManifest.xml"),
+  );
+  return hasGradleScript && hasAndroidManifest;
+}
+
+/**
+ * Discovers buildable nested sub-apps inside `<root>/apps/<app>` (such as `apps/pulse/{app,backend,web,kmp}`)
+ * so per-sub-app `AGENTS.md` context packs are verified without flagging plain asset/docs directories.
+ */
+export function discoverNestedSubApps(appPath: string): string[] {
+  if (!fs.existsSync(appPath)) {
+    return [];
+  }
+
+  const entries = fs.readdirSync(appPath, { withFileTypes: true });
+  return entries
+    .filter(
+      (entry) =>
+        entry.isDirectory() &&
+        !entry.name.startsWith(".") &&
+        !IGNORED_WALK_DIRS.has(entry.name) &&
+        isBuildableSubAppDir(path.join(appPath, entry.name)),
+    )
+    .map((entry) => entry.name)
+    .sort();
+}
+
 function runGuardrailAndAgentsAudit(
   rootDir: string,
   target?: string,
@@ -90,13 +135,22 @@ function runGuardrailAndAgentsAudit(
   }
 
   const violations: string[] = [];
+  const auditedPaths: string[] = [];
   for (const appName of appsToAudit) {
     const appPath = path.join(appsDir, appName);
+    auditedPaths.push(`apps/${appName}`);
     if (!fs.existsSync(path.join(appPath, "AGENTS.md"))) {
       violations.push(`apps/${appName}/AGENTS.md missing`);
     }
     if (!fs.existsSync(path.join(appPath, "README.md"))) {
       violations.push(`apps/${appName}/README.md missing`);
+    }
+
+    for (const subAppName of discoverNestedSubApps(appPath)) {
+      auditedPaths.push(`apps/${appName}/${subAppName}`);
+      if (!fs.existsSync(path.join(appPath, subAppName, "AGENTS.md"))) {
+        violations.push(`apps/${appName}/${subAppName}/AGENTS.md missing`);
+      }
     }
   }
 
@@ -116,7 +170,7 @@ function runGuardrailAndAgentsAudit(
   return {
     name: "Guardrail & AGENTS.md Audit",
     passed: true,
-    details: `Verified AGENTS.md, README.md, and zero catalog-info.yaml across ${appsToAudit.map((a) => `apps/${a}`).join(", ")}`,
+    details: `Verified AGENTS.md, README.md, and zero catalog-info.yaml across ${auditedPaths.join(", ")}`,
   };
 }
 
