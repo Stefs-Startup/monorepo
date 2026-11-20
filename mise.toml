@@ -1,0 +1,28 @@
+# Single source of truth for local, agent-sandbox, and CI toolchain pins (STE-53).
+# Verified for drift against .nvmrc, package.json, Gradle builds, and CI workflows
+# via: node scripts/check-toolchain-parity.mjs
+
+[tools]
+node = "20"
+pnpm = "9.12.3"
+java = "temurin-21"
+
+[env]
+ANDROID_COMPILE_SDK = "35"
+KMP_JVM_TOOLCHAIN = "17"
+
+[tasks.bootstrap]
+description = "Bootstrap a fresh worktree or agent sandbox non-interactively"
+run = "./scripts/bootstrap.sh"
+
+[tasks.parity]
+description = "Verify mise.toml toolchain pins match CI, Node, and Gradle configs"
+run = "node scripts/check-toolchain-parity.mjs"
+
+[tasks.discover]
+description = "Run CI project discovery"
+run = "python3 .github/scripts/discover_projects.py"
+
+[tasks.check]
+description = "Run CI-parity validation for changed stacks"
+run = "./scripts/check.sh --changed"
