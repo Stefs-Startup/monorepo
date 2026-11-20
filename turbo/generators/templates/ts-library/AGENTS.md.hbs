@@ -1,0 +1,16 @@
+# `@cmp/{{dashCase name}}` Engineering Constitution
+
+## 1. Pure Functional Core (`ADR-007`)
+- Keep domain rules, data transformations, and state transitions in `src/` as **pure, stateless functions** with zero network, filesystem, or UI side effects.
+- Use strict TypeScript (`"strict": true` via `@cmp/config/tsconfig.library.json`). Never use `@ts-ignore` or `any`.
+
+## 2. Dependency Boundaries
+- This library lives under `packages/{{dashCase name}}` and may depend only on `packages/*` (`workspace:*`).
+- Never import from `apps/*` (enforced by `.dependency-cruiser.cjs` and `@cmp/config/eslint`).
+
+## 3. Verification Gate
+Before any change is considered complete, all of the following must pass:
+- `pnpm --filter @cmp/{{dashCase name}} lint`
+- `pnpm --filter @cmp/{{dashCase name}} typecheck`
+- `pnpm --filter @cmp/{{dashCase name}} build`
+- `pnpm --filter @cmp/{{dashCase name}} test`

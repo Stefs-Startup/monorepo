@@ -15,6 +15,7 @@
     "test": "turbo test",
     "typecheck": "turbo typecheck",
     "clean": "turbo clean && rimraf node_modules",
+    "gen": "node scripts/gen.mjs",
     "gen:app": "node packages/factory/dist/src/cli.js gen:app",
     "gen:slice": "node packages/factory/dist/src/cli.js gen:slice",
     "verify:slice": "node packages/factory/dist/src/cli.js verify",

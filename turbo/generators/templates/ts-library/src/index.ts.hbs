@@ -1,0 +1,25 @@
+/**
+ * Metadata summary for a `@cmp/*` library module.
+ */
+export interface PackageSummary {
+  readonly scope: "@cmp";
+  readonly name: string;
+  readonly fullName: string;
+}
+
+/**
+ * Builds a normalized `@cmp/<name>` package summary from a kebab-case package name.
+ */
+export function createPackageSummary(name: string): PackageSummary {
+  const normalized = name.trim().toLowerCase();
+  if (!/^[a-z][a-z0-9-]*$/.test(normalized)) {
+    throw new Error(
+      `Invalid package name "${name}". Expected lowercase kebab-case matching /^[a-z][a-z0-9-]*$/.`,
+    );
+  }
+  return {
+    scope: "@cmp",
+    name: normalized,
+    fullName: `@cmp/${normalized}`,
+  };
+}
