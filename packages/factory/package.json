@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "test": "tsc -p tsconfig.json && node --test dist/src/factory.test.js dist/src/pr-guard-policy.test.js dist/src/agent-ready-spec.test.js dist/src/context-packs.test.js",
+    "test": "tsc -p tsconfig.json && node --test dist/src/factory.test.js dist/src/pr-guard-policy.test.js dist/src/agent-ready-spec.test.js dist/src/context-packs.test.js dist/src/agent-metrics.test.js",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "plan:critic": "node dist/src/cli.js plan:critic",

@@ -1,0 +1,127 @@
+# =============================================================================
+# Weekly Velocity & Agent Metrics Digest (STE-55)
+# =============================================================================
+# Computes DORA lead/cycle time, p50/p90 CI duration, and coding-agent merge &
+# rework rates grouped by task type, then publishes a rolling weekly digest issue.
+# =============================================================================
+
+name: Weekly Velocity & Agent Metrics
+
+on:
+  schedule:
+    # Every Monday at 13:00 UTC
+    - cron: "0 13 * * 1"
+  workflow_dispatch:
+    inputs:
+      window_days:
+        description: "Rolling lookback window in days (0 = all sampled runs/PRs)"
+        type: string
+        required: false
+        default: "7"
+      publish_issue:
+        description: "Create or update the rolling digest GitHub issue"
+        type: boolean
+        required: true
+        default: true
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+  issues: write
+
+jobs:
+  weekly-metrics:
+    name: "Weekly Velocity & Agent Digest"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          package_json_file: package.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Build @cmp/factory
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter @cmp/factory... build
+
+      - name: Compute velocity and coding-agent metrics
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          WINDOW_DAYS: ${{ github.event.inputs.window_days || '7' }}
+        run: |
+          node packages/factory/dist/src/agent-metrics-cli.js \
+            --live \
+            --repo="$GITHUB_REPOSITORY" \
+            --window-days="$WINDOW_DAYS" \
+            --out=agent-metrics.md \
+            --json-out=agent-metrics.json
+          cat agent-metrics.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish or update rolling GitHub digest issue
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.publish_issue != 'false'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- cmp-weekly-agent-metrics -->';
+            const title = 'Weekly Velocity & Agent Metrics Digest';
+            const body = fs.readFileSync('agent-metrics.md', 'utf8');
+            const { owner, repo } = context.repo;
+
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100
+            });
+            const existing = issues.find(
+              (issue) => !issue.pull_request && issue.body && issue.body.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: existing.number,
+                title,
+                body
+              });
+              core.info(`Updated digest issue #${existing.number}`);
+            } else {
+              const created = await github.rest.issues.create({
+                owner,
+                repo,
+                title,
+                body
+              });
+              core.info(`Created digest issue #${created.data.number}`);
+            }
+
+      - name: Upload metrics artifacts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: weekly-agent-metrics
+          path: |
+            agent-metrics.md
+            agent-metrics.json
+          retention-days: 30

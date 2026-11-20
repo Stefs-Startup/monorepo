@@ -1,3 +1,5 @@
+export * from "./agent-metrics-cli.js";
+export * from "./agent-metrics.js";
 export * from "./agent-ready-spec-cli.js";
 export * from "./agent-ready-spec.js";
 export * from "./generators.js";
