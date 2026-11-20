@@ -91,6 +91,7 @@ jobs:
       FIREBASE_APP_ID: ${{ inputs.firebase-app-id }}
       TESTER_GROUPS: ${{ inputs.tester-groups }}
       RELEASE_NOTES: ${{ inputs.release-notes }}
+      DEPLOY_ENV: ${{ inputs.environment }}
       HAS_SIGNING_CONFIG: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && secrets.ANDROID_KEYSTORE_PASSWORD != '' && secrets.ANDROID_KEY_ALIAS != '' && secrets.ANDROID_KEY_PASSWORD != '' }}
       HAS_FIREBASE_CONFIG: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON != '' && inputs.firebase-app-id != '' }}
       HAS_PLAY_CONFIG: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON != '' }}
@@ -109,7 +110,7 @@ jobs:
             {
               echo "## Android Distribution Skipped (\`$CHANNEL\`)"
               echo ""
-              echo "Configure Android signing secrets (\`ANDROID_KEYSTORE_BASE64\`, \`ANDROID_KEYSTORE_PASSWORD\`, \`ANDROID_KEY_ALIAS\`, \`ANDROID_KEY_PASSWORD\`) in the \`${{ inputs.environment }}\` environment to enable signed release builds."
+              echo "Configure Android signing secrets (\`ANDROID_KEYSTORE_BASE64\`, \`ANDROID_KEYSTORE_PASSWORD\`, \`ANDROID_KEY_ALIAS\`, \`ANDROID_KEY_PASSWORD\`) in the \`$DEPLOY_ENV\` environment to enable signed release builds."
             } >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
@@ -129,7 +130,7 @@ jobs:
             {
               echo "## Google Play Internal Track Skipped (\`$PACKAGE_NAME\`)"
               echo ""
-              echo "Configure \`PLAY_STORE_SERVICE_ACCOUNT_JSON\` in the \`${{ inputs.environment }}\` environment to publish signed AAB bundles to Google Play Internal."
+              echo "Configure \`PLAY_STORE_SERVICE_ACCOUNT_JSON\` in the \`$DEPLOY_ENV\` environment to publish signed AAB bundles to Google Play Internal."
             } >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
