@@ -14,7 +14,7 @@
 #   scripts/check.sh --list                    # list stacks and their commands
 #
 # Options:
-#   --gate quality|build|test|security|arch|a11y|mutation|all
+#   --gate quality|build|test|security|arch|a11y|mutation|contract|all
 #                                            Which CI gate(s) to run (default: all)
 #   --base <ref>                             Diff base for --changed (default: origin/main, then main)
 #
@@ -30,6 +30,7 @@
 #   arch     = architecture fitness gate (dependency-cruiser + ArchUnit)
 #   a11y     = accessibility E2E gate (apps/web Playwright a11y)
 #   mutation = mutation testing gate (Stryker + Pitest)
+#   contract = OpenAPI 3.1 sync + oasdiff breaking-change gate (RFC-0003 / ADR-0005)
 # Gate 4 (Deploy & Distribution) only aggregates Gates 1-3 and has no local step.
 # =============================================================================
 set -uo pipefail
@@ -65,10 +66,10 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-case "$GATE" in quality|build|test|security|arch|a11y|mutation|all) ;; *) echo "Invalid --gate: $GATE" >&2; exit 2 ;; esac
+case "$GATE" in quality|build|test|security|arch|a11y|mutation|contract|all) ;; *) echo "Invalid --gate: $GATE" >&2; exit 2 ;; esac
 if [[ -z "$MODE" ]]; then
   case "$GATE" in
-    security|arch|a11y|mutation) MODE="$GATE" ;;
+    security|arch|a11y|mutation|contract) MODE="$GATE" ;;
     *) usage >&2; exit 2 ;;
   esac
 fi
@@ -148,6 +149,7 @@ path_to_stacks() {
       echo springboot; echo kmp; echo android ;;
     apps/pulse/backend/*|.github/workflows/ci-stack-springboot-java.yml) echo springboot ;;
     apps/pulse/kmp/*|.github/workflows/ci-stack-kmp-multiplatform.yml) echo kmp ;;
+    apps/pulse/contracts/*|scripts/api-contract.sh|.github/workflows/ci-contract-pulse-api.yml) echo "springboot angular kmp" ;;
     apps/pulse/app/*|apps/pulse/gradle/*|apps/pulse/build.gradle.kts|apps/pulse/settings.gradle.kts|apps/pulse/gradle.properties|apps/pulse/gradlew*|.github/workflows/ci-stack-android-kotlin.yml)
       echo android ;;
     apps/ytm-menubar/*) echo ytm-menubar ;;
@@ -179,7 +181,7 @@ case "$MODE" in
     done
     exit 0 ;;
   all) SELECTED=("${ALL_STACKS[@]}") ;;
-  security|arch|a11y|mutation) SELECTED=() ;;
+  security|arch|a11y|mutation|contract) SELECTED=() ;;
   changed)
     seen_list=""
     while IFS= read -r f; do
@@ -196,7 +198,7 @@ case "$MODE" in
         *" $s "*) SELECTED+=("$s") ;;
       esac
     done
-    if [[ ${#SELECTED[@]} -eq 0 && "$GATE" != "security" && "$GATE" != "arch" && "$GATE" != "a11y" && "$GATE" != "mutation" ]]; then
+    if [[ ${#SELECTED[@]} -eq 0 && "$GATE" != "security" && "$GATE" != "arch" && "$GATE" != "a11y" && "$GATE" != "mutation" && "$GATE" != "contract" ]]; then
       echo "✓ No stack-affecting changes; nothing to check."; exit 0
     fi ;;
   stack)
@@ -382,6 +384,37 @@ if [[ "$GATE" == "mutation" ]]; then
   echo; echo "══════════ Summary ══════════"
   printf '%s\n' "${RESULTS[@]}"
   [[ $FAILED -eq 0 ]] && echo "✓ Mutation gate passed." || echo "✗ Mutation gate failed."
+  exit $FAILED
+fi
+
+if [[ "$GATE" == "contract" ]]; then
+  echo "Gate: contract (OpenAPI 3.1 sync + oasdiff breaking-change check)"
+  RESULTS=(); FAILED=0
+
+  if [[ ! -f "scripts/api-contract.sh" ]]; then
+    echo "✗ [contract:sync] scripts/api-contract.sh not found"
+    RESULTS+=("FAIL  contract:sync  (script missing)"); FAILED=1
+  else
+    start=$SECONDS
+    echo; echo "━━ [contract] /bin/bash scripts/api-contract.sh check"
+    if /bin/bash scripts/api-contract.sh check; then
+      RESULTS+=("PASS  contract:sync-check  ($((SECONDS - start))s)")
+    else
+      RESULTS+=("FAIL  contract:sync-check  ($((SECONDS - start))s)"); FAILED=1
+    fi
+
+    start=$SECONDS
+    echo; echo "━━ [contract] /bin/bash scripts/api-contract.sh breaking"
+    if /bin/bash scripts/api-contract.sh breaking; then
+      RESULTS+=("PASS  contract:oasdiff-breaking  ($((SECONDS - start))s)")
+    else
+      RESULTS+=("FAIL  contract:oasdiff-breaking  ($((SECONDS - start))s)"); FAILED=1
+    fi
+  fi
+
+  echo; echo "══════════ Summary ══════════"
+  printf '%s\n' "${RESULTS[@]}"
+  [[ $FAILED -eq 0 ]] && echo "✓ Contract gate passed." || echo "✗ Contract gate failed."
   exit $FAILED
 fi
 

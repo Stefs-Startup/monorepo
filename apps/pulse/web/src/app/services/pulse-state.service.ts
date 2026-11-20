@@ -1,11 +1,12 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { PulseApiClient } from '../api/pulse-api.client';
 import {
   ConversationalMessage,
   HorizonWindowCardModel,
   PartnerSettingsDto,
   PulseDashboardResponse,
-  TaskAccountabilityStatus
+  TaskAccountabilityStatus,
+  TriageActionCode
 } from '../models/pulse.models';
 import { buildSeedDashboardState } from '../fixtures/pulse-seed';
 
@@ -13,8 +14,7 @@ export type NavTab = 'HORIZON' | 'UNDONE_LOG' | 'SETTINGS';
 
 @Injectable({ providedIn: 'root' })
 export class PulseStateService {
-  private readonly http = inject(HttpClient);
-  private readonly apiBase = '/api/v1/pulse';
+  private readonly api = inject(PulseApiClient);
 
   readonly activeTab = signal<NavTab>('HORIZON');
   readonly activeWindowIndex = signal<number>(0);
@@ -56,7 +56,7 @@ export class PulseStateService {
 
   loadState(): void {
     this.isLoading.set(true);
-    this.http.get<PulseDashboardResponse>(`${this.apiBase}/state`).subscribe({
+    this.api.getState().subscribe({
       next: (res) => {
         this.dashboard.set(res);
         this.backendConnected.set(true);
@@ -102,9 +102,14 @@ export class PulseStateService {
     this.selectedTaskId.set(next.task.id);
   }
 
-  triageTask(taskId: string, action: string, waitingOn?: string, postponeDays?: number): void {
-    this.http
-      .post<PulseDashboardResponse>(`${this.apiBase}/tasks/${taskId}/triage`, {
+  triageTask(
+    taskId: string,
+    action: TriageActionCode,
+    waitingOn?: string | null,
+    postponeDays?: number | null
+  ): void {
+    this.api
+      .triageTask(taskId, {
         action,
         waitingOn,
         postponeDays
@@ -119,8 +124,8 @@ export class PulseStateService {
   }
 
   swapTop3(toRemoveTaskId: string, toAddTaskId: string): void {
-    this.http
-      .post<PulseDashboardResponse>(`${this.apiBase}/tasks/swap`, {
+    this.api
+      .swapTop3({
         toRemoveTaskId,
         toAddTaskId
       })
@@ -143,18 +148,16 @@ export class PulseStateService {
 
   sendChatMessage(taskId: string, message: string): void {
     if (!message.trim()) return;
-    this.http
-      .post<PulseDashboardResponse>(`${this.apiBase}/tasks/${taskId}/chat`, { message })
-      .subscribe({
-        next: (res) => {
-          this.dashboard.set(res);
-          this.backendConnected.set(true);
-        }
-      });
+    this.api.sendChatMessage(taskId, { message }).subscribe({
+      next: (res) => {
+        this.dashboard.set(res);
+        this.backendConnected.set(true);
+      }
+    });
   }
 
   updateSettings(updated: PartnerSettingsDto): void {
-    this.http.put<PulseDashboardResponse>(`${this.apiBase}/settings`, updated).subscribe({
+    this.api.updateSettings(updated).subscribe({
       next: (res) => {
         this.dashboard.set(res);
         this.backendConnected.set(true);
@@ -163,7 +166,7 @@ export class PulseStateService {
   }
 
   resetDemo(): void {
-    this.http.post<PulseDashboardResponse>(`${this.apiBase}/demo/reset`, {}).subscribe({
+    this.api.resetDemo().subscribe({
       next: (res) => {
         this.dashboard.set(res);
         this.backendConnected.set(true);

@@ -4,10 +4,10 @@
 # 1. Discover — .github/scripts/discover_projects.py finds every project by
 #    convention (gradlew → Gradle, package.json + lockfile → Node) and honours
 #    .github/ci-projects.json (excludes such as experimental apps/backstage).
-# 2. One reusable language workflow per discovered project, each running the
-#    Code Quality → Build → Test gates:
-#      .github/workflows/reusable-node.yml    (npm / pnpm + Turborepo / yarn)
-#      .github/workflows/reusable-gradle.yml  (Java, Kotlin, Spring Boot, Android)
+# 2. One reusable language workflow per discovered project + API contract gate:
+#      .github/workflows/reusable-node.yml        (npm / pnpm + Turborepo / yarn)
+#      .github/workflows/reusable-gradle.yml      (Java, Kotlin, Spring Boot, Android)
+#      .github/workflows/ci-contract-pulse-api.yml (Pulse OpenAPI 3.1 sync & diff)
 # 3. Deploy & Distribution — the single required status check: fails if any
 #    project failed, then summarises the staged artifacts.
 #
@@ -110,6 +110,11 @@ jobs:
       artifact-paths: ${{ matrix.project.artifact-paths }}
       turbo-filter: ${{ matrix.project.turbo-filter }}
 
+  contracts:
+    name: API Contracts · Pulse OpenAPI 3.1
+    needs: discover
+    uses: ./.github/workflows/ci-contract-pulse-api.yml
+
   # ---------------------------------------------------------------------------
   # Release Readiness Scorecard Gate — mark this as the required check.
   # ---------------------------------------------------------------------------
@@ -119,6 +124,7 @@ jobs:
       - discover
       - gradle
       - node
+      - contracts
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 10

@@ -50,6 +50,9 @@ While Android mobile (`< 600.dp`) uses Material 3 touch patterns, **Web & Deskto
   - Use standalone components (`standalone: true`), fine-grained Signals (`signal()`, `computed()`), modern template control flow (`@if`, `@for`, `@switch`), and CSS custom properties verified by `WcagContrastEngine`.
 - **Spring Boot 4 + Java 21 (`backend/`)**:
   - Model domain payloads with immutable Java 21 `record` types, `sealed interface` hierarchies (`PinDecision`, `TriageAction`), and exhaustive pattern-matching `switch` expressions. Verify REST controllers with `MockMvc` contract tests (`PulseControllerContractTest`).
+- **Contract-First OpenAPI 3.1 Across All Stacks (`ADR-0005` / `REQ-PULSE-003`)**:
+  - Export the single source of truth from Spring Boot (`./gradlew exportOpenApiSpec` -> [`apps/pulse/contracts/pulse-api.openapi.json`](../../contracts/pulse-api.openapi.json)) while keeping `com.pulse.backend.domain` annotation-free via `OpenApiContractConfig`.
+  - Generate Angular TS types via `openapi-typescript` + `PulseApiClient` and KMP `@Serializable` models via `openapi-generator` (`syncPulseApiModels`) + `PulseApiContractMapper` (`ignoreUnknownKeys = true`). Validate sync and breaking changes via `scripts/check.sh --gate contract` (see [Contract-First API Playbook](../../../../docs/guides/02-contract-first-apis-openapi-playbook.md)).
 
 ---
 

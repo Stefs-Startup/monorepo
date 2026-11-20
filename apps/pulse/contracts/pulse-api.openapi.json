@@ -1,0 +1,936 @@
+{
+  "components": {
+    "schemas": {
+      "AccountabilityCategory": {
+        "enum": [
+          "HABITUALLY_DEFERRED",
+          "LONG_STANDING_GHOSTED",
+          "ACTIVE_COMMITTED",
+          "HEALTHY_BACKLOG",
+          "COMPLETED_OR_PARKED"
+        ],
+        "type": "string"
+      },
+      "ApiErrorResponse": {
+        "description": "Standardized zero-PII error response returned for 400 and 404 failures.",
+        "properties": {
+          "error": {
+            "description": "Scrubbed human-readable error message.",
+            "example": "Task not found: task-unknown",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "type": "object"
+      },
+      "BreadcrumbEntry": {
+        "properties": {
+          "event": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "timestampIso": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "event",
+          "summary",
+          "timestampIso"
+        ],
+        "type": "object"
+      },
+      "ChatMessageRequest": {
+        "description": "Request payload containing a user reflection turn for a specific task.",
+        "properties": {
+          "message": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "type": "object"
+      },
+      "ChatRole": {
+        "enum": [
+          "PARTNER",
+          "USER"
+        ],
+        "type": "string"
+      },
+      "ContrastAuditEntry": {
+        "properties": {
+          "backgroundRgb": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "contrastRatio": {
+            "format": "double",
+            "type": "number"
+          },
+          "foregroundRgb": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "minimumRequired": {
+            "format": "double",
+            "type": "number"
+          },
+          "pairName": {
+            "type": "string"
+          },
+          "passesWcagAA": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "backgroundRgb",
+          "contrastRatio",
+          "foregroundRgb",
+          "minimumRequired",
+          "pairName",
+          "passesWcagAA"
+        ],
+        "type": "object"
+      },
+      "ConversationalMessage": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/ChatRole"
+          },
+          "suggestedActionCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "suggestedActionCode",
+          "text"
+        ],
+        "type": "object"
+      },
+      "HorizonWindowBarItem": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/AccountabilityCategory"
+          },
+          "daysOld": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "daysOverdue": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "daysUntouched": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "deferCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "intensityFraction": {
+            "format": "float",
+            "type": "number"
+          },
+          "primaryMetricLabel": {
+            "type": "string"
+          },
+          "secondaryMetricLabel": {
+            "type": "string"
+          },
+          "shortLabel": {
+            "type": "string"
+          },
+          "sortScore": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "category",
+          "daysOld",
+          "daysOverdue",
+          "daysUntouched",
+          "deferCount",
+          "intensityFraction",
+          "primaryMetricLabel",
+          "secondaryMetricLabel",
+          "shortLabel",
+          "sortScore",
+          "taskId",
+          "title"
+        ],
+        "type": "object"
+      },
+      "HorizonWindowCardModel": {
+        "properties": {
+          "emptyStateBody": {
+            "type": "string"
+          },
+          "emptyStateTitle": {
+            "type": "string"
+          },
+          "headlineStat": {
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/HorizonWindowBarItem"
+            },
+            "type": "array"
+          },
+          "shortTabTitle": {
+            "type": "string"
+          },
+          "subtitle": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "windowType": {
+            "$ref": "#/components/schemas/HorizonWindowType"
+          }
+        },
+        "required": [
+          "emptyStateBody",
+          "emptyStateTitle",
+          "headlineStat",
+          "items",
+          "shortTabTitle",
+          "subtitle",
+          "title",
+          "windowType"
+        ],
+        "type": "object"
+      },
+      "HorizonWindowType": {
+        "enum": [
+          "HABITUALLY_UNDONE",
+          "LONG_STANDING_DRIFT",
+          "ACTIVE_FLOW"
+        ],
+        "type": "string"
+      },
+      "PartnerSettingsDto": {
+        "description": "User preferences for partner tone, Google Tasks sync, daily ritual windows, and zero-PII telemetry.",
+        "properties": {
+          "aiStreamingEnabled": {
+            "description": "Whether live streaming AI reflections are enabled.",
+            "type": "boolean"
+          },
+          "connectedGoogleAccount": {
+            "description": "Connected Google account identifier or pseudonymized handle.",
+            "type": "string"
+          },
+          "eveningShutdownTime": {
+            "description": "Evening honest shutdown local time (HH:mm).",
+            "example": "18:00",
+            "type": "string"
+          },
+          "lastSyncStatus": {
+            "description": "Human-readable sync status banner.",
+            "type": "string"
+          },
+          "morningRitualTime": {
+            "description": "Morning anchor check-in local time (HH:mm).",
+            "example": "08:30",
+            "type": "string"
+          },
+          "partnerTone": {
+            "description": "Partner coaching tone label.",
+            "example": "Candid & Warm",
+            "type": "string"
+          },
+          "zeroPiiTelemetryEnabled": {
+            "description": "Whether zero-PII diagnostic breadcrumbs are recorded.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "aiStreamingEnabled",
+          "connectedGoogleAccount",
+          "eveningShutdownTime",
+          "lastSyncStatus",
+          "morningRitualTime",
+          "partnerTone",
+          "zeroPiiTelemetryEnabled"
+        ],
+        "type": "object"
+      },
+      "PulseDashboardResponse": {
+        "description": "Full Pulse dashboard state snapshot returned across Horizon, Undone Log, and Settings.",
+        "properties": {
+          "activeBacklog": {
+            "items": {
+              "$ref": "#/components/schemas/TaskAccountabilityStatus"
+            },
+            "type": "array"
+          },
+          "allStatuses": {
+            "items": {
+              "$ref": "#/components/schemas/TaskAccountabilityStatus"
+            },
+            "type": "array"
+          },
+          "breadcrumbs": {
+            "items": {
+              "$ref": "#/components/schemas/BreadcrumbEntry"
+            },
+            "type": "array"
+          },
+          "conversationThreadsByTaskId": {
+            "additionalProperties": {
+              "items": {
+                "$ref": "#/components/schemas/ConversationalMessage"
+              },
+              "type": "array"
+            },
+            "type": "object"
+          },
+          "habituallyUndone": {
+            "items": {
+              "$ref": "#/components/schemas/TaskAccountabilityStatus"
+            },
+            "type": "array"
+          },
+          "horizon": {
+            "$ref": "#/components/schemas/TaskHorizonAnalyticsSnapshot"
+          },
+          "longStandingDrift": {
+            "items": {
+              "$ref": "#/components/schemas/TaskAccountabilityStatus"
+            },
+            "type": "array"
+          },
+          "pendingSwapCandidateTaskId": {
+            "description": "Task awaiting Top-3 swap selection when Today's Top 3 is already full (3/3).",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "quickReplies": {
+            "items": {
+              "$ref": "#/components/schemas/QuickReplySpecDto"
+            },
+            "type": "array"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/PartnerSettingsDto"
+          },
+          "statusBanner": {
+            "type": "string"
+          },
+          "swapRequired": {
+            "type": "boolean"
+          },
+          "top3Commitments": {
+            "items": {
+              "$ref": "#/components/schemas/TaskAccountabilityStatus"
+            },
+            "type": "array"
+          },
+          "wcagContrastAudit": {
+            "items": {
+              "$ref": "#/components/schemas/ContrastAuditEntry"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "activeBacklog",
+          "allStatuses",
+          "breadcrumbs",
+          "conversationThreadsByTaskId",
+          "habituallyUndone",
+          "horizon",
+          "longStandingDrift",
+          "pendingSwapCandidateTaskId",
+          "quickReplies",
+          "settings",
+          "statusBanner",
+          "swapRequired",
+          "top3Commitments",
+          "wcagContrastAudit"
+        ],
+        "type": "object"
+      },
+      "QuickReplySpecDto": {
+        "description": "One-tap quick reply chip offered inside the Partner Reflect overlay.",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "messageText": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "messageText"
+        ],
+        "type": "object"
+      },
+      "SwapTop3Request": {
+        "description": "Request payload to swap a currently pinned Top-3 task out in favor of a new candidate task.",
+        "properties": {
+          "toAddTaskId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "toRemoveTaskId": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "toAddTaskId",
+          "toRemoveTaskId"
+        ],
+        "type": "object"
+      },
+      "TaskAccountabilityStatus": {
+        "properties": {
+          "badgeLabel": {
+            "type": "string"
+          },
+          "category": {
+            "$ref": "#/components/schemas/AccountabilityCategory"
+          },
+          "daysOld": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "daysOverdue": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "daysUntouched": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "task": {
+            "$ref": "#/components/schemas/TaskItem"
+          }
+        },
+        "required": [
+          "badgeLabel",
+          "category",
+          "daysOld",
+          "daysOverdue",
+          "daysUntouched",
+          "task"
+        ],
+        "type": "object"
+      },
+      "TaskCommitmentState": {
+        "enum": [
+          "NORMAL",
+          "TODAY_TOP_3",
+          "DEFERRED_INTENTIONALLY",
+          "SOMEDAY_PARKED"
+        ],
+        "type": "string"
+      },
+      "TaskEnergyLevel": {
+        "enum": [
+          "QUICK_WIN",
+          "FOCUSED",
+          "DEEP_WORK"
+        ],
+        "type": "string"
+      },
+      "TaskHorizonAnalyticsSnapshot": {
+        "properties": {
+          "averageStalledDeferrals": {
+            "format": "double",
+            "type": "number"
+          },
+          "clarityRatioPercent": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "committedTodayCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "habitualDeferralCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "healthyBacklogCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "longStandingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "oldestOpenDays": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "windows": {
+            "items": {
+              "$ref": "#/components/schemas/HorizonWindowCardModel"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "averageStalledDeferrals",
+          "clarityRatioPercent",
+          "committedTodayCount",
+          "habitualDeferralCount",
+          "healthyBacklogCount",
+          "longStandingCount",
+          "oldestOpenDays",
+          "windows"
+        ],
+        "type": "object"
+      },
+      "TaskItem": {
+        "properties": {
+          "blockerNote": {
+            "type": "string"
+          },
+          "commitment": {
+            "$ref": "#/components/schemas/TaskCommitmentState"
+          },
+          "completedEpochMillis": {
+            "format": "int64",
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "createdEpochMillis": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "deferCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "dirtySync": {
+            "type": "boolean"
+          },
+          "dueEpochMillis": {
+            "format": "int64",
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "energy": {
+            "$ref": "#/components/schemas/TaskEnergyLevel"
+          },
+          "googleTaskId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "taskListId": {
+            "type": "string"
+          },
+          "taskListTitle": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedEpochMillis": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "blockerNote",
+          "commitment",
+          "completedEpochMillis",
+          "createdEpochMillis",
+          "deferCount",
+          "dirtySync",
+          "dueEpochMillis",
+          "energy",
+          "googleTaskId",
+          "id",
+          "isCompleted",
+          "notes",
+          "taskListId",
+          "taskListTitle",
+          "title",
+          "updatedEpochMillis"
+        ],
+        "type": "object"
+      },
+      "TriageActionCode": {
+        "description": "Triage action to execute.",
+        "enum": [
+          "COMMIT_TODAY",
+          "PIN_TOP_3",
+          "UNPIN",
+          "SHRINK_TO_5M",
+          "RESCHEDULE",
+          "DELEGATE",
+          "PARK_SOMEDAY",
+          "DROP_CONSCIOUSLY",
+          "COMPLETE"
+        ],
+        "type": "string"
+      },
+      "TriageRequest": {
+        "description": "Request payload to apply a deterministic triage action to a task.",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/TriageActionCode"
+          },
+          "postponeDays": {
+            "description": "Optional number of days to postpone when action is RESCHEDULE (defaults to 1).",
+            "format": "int32",
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "waitingOn": {
+            "description": "Optional blocker description when action is DELEGATE.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Contract-first OpenAPI 3.1.0 specification shared across Spring Boot 4 (Java 21), Angular 21 (openapi-typescript), and Kotlin Multiplatform (JVM + wasmJs). Evolved under Expand-and-Contract compatibility enforced by oasdiff.",
+    "title": "Pulse Accountability API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/pulse/demo/reset": {
+      "post": {
+        "description": "Restores the deterministic 8-task demo dataset and clears any pending Top-3 swap state.",
+        "operationId": "resetDemo",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PulseDashboardResponse"
+                }
+              }
+            },
+            "description": "Reset Pulse dashboard state"
+          }
+        },
+        "summary": "Reset demo Google Tasks state",
+        "tags": [
+          "Pulse"
+        ]
+      }
+    },
+    "/api/v1/pulse/settings": {
+      "put": {
+        "description": "Updates partner tone, streaming flag, ritual times, and zero-PII telemetry configuration.",
+        "operationId": "updateSettings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartnerSettingsDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PulseDashboardResponse"
+                }
+              }
+            },
+            "description": "Updated dashboard state with new settings"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Malformed settings payload"
+          }
+        },
+        "summary": "Update partner settings and ritual cadence",
+        "tags": [
+          "Pulse"
+        ]
+      }
+    },
+    "/api/v1/pulse/state": {
+      "get": {
+        "description": "Returns the 3-window descending Horizon snapshot, categorized tasks, reflection threads, settings, breadcrumbs, and WCAG 2.2 AA audit.",
+        "operationId": "getPulseState",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PulseDashboardResponse"
+                }
+              }
+            },
+            "description": "Current Pulse dashboard state"
+          }
+        },
+        "summary": "Get current Pulse dashboard state",
+        "tags": [
+          "Pulse"
+        ]
+      }
+    },
+    "/api/v1/pulse/tasks/swap": {
+      "post": {
+        "description": "Replaces an existing pinned Top-3 task with a new candidate task while preserving the 3-slot scarcity cap.",
+        "operationId": "swapTop3",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwapTop3Request"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PulseDashboardResponse"
+                }
+              }
+            },
+            "description": "Updated dashboard state after swapping Top-3 commitments"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid swap request or task cannot be swapped"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Referenced task not found"
+          }
+        },
+        "summary": "Swap a Today's Top 3 commitment",
+        "tags": [
+          "Pulse"
+        ]
+      }
+    },
+    "/api/v1/pulse/tasks/{taskId}/chat": {
+      "post": {
+        "description": "Appends a user reflection message and deterministic partner reply to the task's thread without mutating task idle age.",
+        "operationId": "sendChatMessage",
+        "parameters": [
+          {
+            "description": "Unique task identifier",
+            "example": "task-tax-receipts",
+            "in": "path",
+            "name": "taskId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatMessageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PulseDashboardResponse"
+                }
+              }
+            },
+            "description": "Updated dashboard state with appended conversation turn"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Blank or malformed chat message payload"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Task not found"
+          }
+        },
+        "summary": "Send a partner reflection chat turn",
+        "tags": [
+          "Pulse"
+        ]
+      }
+    },
+    "/api/v1/pulse/tasks/{taskId}/triage": {
+      "post": {
+        "description": "Executes a deterministic triage move (Top-3 commit/unpin, shrink to 5m, reschedule, delegate, park, drop, or complete) and returns updated state.",
+        "operationId": "triageTask",
+        "parameters": [
+          {
+            "description": "Unique task identifier",
+            "example": "task-tax-receipts",
+            "in": "path",
+            "name": "taskId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TriageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PulseDashboardResponse"
+                }
+              }
+            },
+            "description": "Updated dashboard state after triage"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid triage payload or unsupported action"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Task not found"
+          }
+        },
+        "summary": "Apply a triage action to a task",
+        "tags": [
+          "Pulse"
+        ]
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "Same-origin / Nginx edge-proxied Pulse API",
+      "url": "/"
+    }
+  ],
+  "tags": [
+    {
+      "description": "Accountability horizon analytics, Top-3 scarcity gate, task triage, reflection chat, and partner settings.",
+      "name": "Pulse"
+    }
+  ]
+}

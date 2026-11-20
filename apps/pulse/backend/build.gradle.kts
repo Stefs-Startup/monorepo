@@ -11,6 +11,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.2.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
@@ -79,4 +80,17 @@ tasks.register("codeQuality") {
         }
         println("PASS Spring Boot 4 / Java 21 codeQuality: pure domain boundaries and compiler lint verified.")
     }
+}
+
+tasks.register<Test>("exportOpenApiSpec") {
+    group = "documentation"
+    description = "Exports the canonical OpenAPI 3.1 contract from Spring Boot MockMvc to apps/pulse/contracts/pulse-api.openapi.json."
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching("com.pulse.backend.api.OpenApiContractExportTest")
+    }
+    systemProperty("pulse.openapi.export", "true")
+    outputs.upToDateWhen { false }
 }
