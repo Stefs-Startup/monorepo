@@ -28,6 +28,7 @@
 #   --image <existing-image-uri>    Skip build & deploy existing image (single surface only)
 #   --app-version <ver>             Override APP_VERSION env var
 #   --canary-percent <1-100>        Traffic % to shift after canary smoke passes (default: 100)
+#   --preview-tag <tag>             Deploy zero-traffic preview revision under tag (no prod shift)
 #   --drill-unhealthy-readiness     Inject 503 readiness drill knob on canary (single surface only)
 #   --retries <N>                   Smoke-test retry attempts (default: 8; 2 in drill mode)
 #   --delay <sec>                   Seconds between smoke retries (default: 3)
@@ -48,6 +49,7 @@ BUILD_MODE="cloudbuild"
 EXISTING_IMAGE=""
 APP_VERSION_OVERRIDE=""
 CANARY_PERCENT="100"
+PREVIEW_TAG=""
 DRILL_UNHEALTHY="0"
 RETRIES=""
 DELAY="3"
@@ -95,6 +97,10 @@ while [ $# -gt 0 ]; do
     --canary-percent)
       shift
       CANARY_PERCENT="${1:?--canary-percent requires a value}"
+      ;;
+    --preview-tag)
+      shift
+      PREVIEW_TAG="${1:?--preview-tag requires a value}"
       ;;
     --drill-unhealthy-readiness)
       DRILL_UNHEALTHY="1"
@@ -462,7 +468,13 @@ deploy_surface() {
       process.stdout.write(traffic[0]?.revisionName ?? (s.status?.latestReadyRevisionName ?? ""));
     ' "$existing_json")"
 
-    echo "=== [$svc] Deploying zero-traffic canary revision (current live: $prev_rev) ==="
+    local deploy_tag="canary"
+    if [ -n "$PREVIEW_TAG" ]; then
+      deploy_tag="$PREVIEW_TAG"
+      echo "=== [$svc] Deploying zero-traffic PR preview revision under tag '$deploy_tag' (prod stays on $prev_rev) ==="
+    else
+      echo "=== [$svc] Deploying zero-traffic canary revision (current live: $prev_rev) ==="
+    fi
     # shellcheck disable=SC2086
     gcloud run deploy "$cr_service" \
       --image="$deploy_image" \
@@ -479,7 +491,7 @@ deploy_surface() {
       --revision-suffix="$rev_suffix" \
       --env-vars-file="$env_file" \
       --no-traffic \
-      --tag=canary \
+      --tag="$deploy_tag" \
       $extra_flags \
       --quiet
 
@@ -488,16 +500,17 @@ deploy_surface() {
     new_rev="$(node -e 'const s = JSON.parse(process.argv[1]); process.stdout.write(s.status?.latestCreatedRevisionName ?? "");' "$svc_json")"
     canary_url="$(node -e '
       const s = JSON.parse(process.argv[1]);
-      const entry = (s.status?.traffic ?? []).find((t) => t.tag === "canary");
+      const tag = process.argv[2];
+      const entry = (s.status?.traffic ?? []).find((t) => t.tag === tag);
       process.stdout.write(entry?.url ?? "");
-    ' "$svc_json")"
+    ' "$svc_json" "$deploy_tag")"
 
     if [ -z "$canary_url" ] || [ -z "$new_rev" ]; then
-      echo "Error: could not resolve canary URL or revision for '$cr_service' (new_rev=$new_rev, canary_url=$canary_url)" >&2
+      echo "Error: could not resolve tagged URL or revision for '$cr_service' (tag=$deploy_tag, new_rev=$new_rev, url=$canary_url)" >&2
       exit 1
     fi
 
-    echo "=== [$svc] Smoke-testing canary $canary_url (revision: $new_rev) before traffic shift ==="
+    echo "=== [$svc] Smoke-testing tagged revision $canary_url (revision: $new_rev) ==="
     if ! /bin/bash "$ROOT/scripts/smoke-test.sh" \
       --surface "$svc" \
       --url "$canary_url" \
@@ -507,10 +520,22 @@ deploy_surface() {
       --timeout "$TIMEOUT"; then
       echo "" >&2
       echo "CANARY SMOKE GATE BLOCKED PROMOTION for '$cr_service':" >&2
-      echo "  Failed Canary Revision : $new_rev ($canary_url)" >&2
+      echo "  Failed Revision        : $new_rev ($canary_url)" >&2
       echo "  Production Traffic Safe: 100% still on $prev_rev ($prod_url)" >&2
       echo "  Recent Logs Hint       : gcloud run services logs read $cr_service --region=$REGION --project=$PROJECT --limit=20" >&2
       exit 1
+    fi
+
+    if [ -n "$PREVIEW_TAG" ]; then
+      echo "=== [$svc] Preview ready at $canary_url (production traffic untouched on $prev_rev) ==="
+      if [ -n "${GITHUB_OUTPUT:-}" ]; then
+        {
+          echo "preview_url=$canary_url"
+          echo "preview_revision=$new_rev"
+        } >> "$GITHUB_OUTPUT"
+      fi
+      SUMMARY_LINES="${SUMMARY_LINES}${svc}|${new_rev}|${canary_url}|${deploy_image}\n"
+      return 0
     fi
 
     if [ "$CANARY_PERCENT" -lt 100 ] && [ -n "$prev_rev" ] && [ "$prev_rev" != "$new_rev" ]; then

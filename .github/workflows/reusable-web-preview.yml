@@ -1,0 +1,154 @@
+# =============================================================================
+# Reusable Workflow — Cloud Run PR Preview Environment (STE-43)
+# =============================================================================
+# Deploys a zero-traffic Cloud Run tagged preview revision (`pr-<number>`) for
+# a declared web surface in infra/deploy/services.json and posts/updates a
+# sticky PR comment with the live HTTPS preview URL.
+#
+# Skips gracefully when GCP Workload Identity Federation secrets are not yet
+# configured so PR CI remains unblocked.
+# =============================================================================
+
+name: "Reusable · Web PR Preview"
+
+on:
+  workflow_call:
+    inputs:
+      surface:
+        description: "Surface name from infra/deploy/services.json (e.g. pulse-web)"
+        type: string
+        required: true
+      pr-number:
+        description: "Pull request number used for the preview revision tag"
+        type: number
+        required: true
+      gcp-project:
+        description: "Optional GCP project ID override"
+        type: string
+        default: ""
+      gcp-region:
+        description: "Optional GCP region override"
+        type: string
+        default: ""
+      build-mode:
+        description: "Image build strategy (cloudbuild or buildx)"
+        type: string
+        default: "cloudbuild"
+    secrets:
+      GCP_WORKLOAD_IDENTITY_PROVIDER:
+        required: false
+      GCP_SERVICE_ACCOUNT:
+        required: false
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+jobs:
+  preview:
+    name: "PR Preview · ${{ inputs.surface }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SURFACE: ${{ inputs.surface }}
+      PR_NUMBER: ${{ inputs.pr-number }}
+      BUILD_MODE: ${{ inputs.build-mode }}
+      GCP_PROJECT: ${{ inputs.gcp-project || vars.GCP_PROJECT || 'gw-cli-490302' }}
+      GCP_REGION: ${{ inputs.gcp-region || vars.GCP_REGION || 'us-central1' }}
+      HAS_WIF_CONFIG: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER != '' && secrets.GCP_SERVICE_ACCOUNT != '' }}
+    steps:
+      - name: Check Workload Identity Federation configuration
+        id: config
+        run: |
+          if [ "$HAS_WIF_CONFIG" != "true" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "## Cloud Run PR Preview Skipped (\`$SURFACE\`)"
+              echo ""
+              echo "Configure \`GCP_WORKLOAD_IDENTITY_PROVIDER\` and \`GCP_SERVICE_ACCOUNT\` secrets to enable live PR preview deployments."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js (manifest parser)
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".node-version"
+
+      - name: Authenticate to Google Cloud via short-lived OIDC WIF
+        if: steps.config.outputs.enabled == 'true'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud CLI
+        if: steps.config.outputs.enabled == 'true'
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+
+      - name: Deploy zero-traffic preview revision
+        id: deploy
+        if: steps.config.outputs.enabled == 'true'
+        run: |
+          set -euo pipefail
+          chmod +x scripts/deploy.sh scripts/smoke-test.sh
+          /bin/bash scripts/deploy.sh \
+            --surface "$SURFACE" \
+            --project "$GCP_PROJECT" \
+            --region "$GCP_REGION" \
+            --env preview \
+            --build-mode "$BUILD_MODE" \
+            --preview-tag "pr-${PR_NUMBER}"
+
+      - name: Post or update sticky PR preview URL comment
+        if: steps.config.outputs.enabled == 'true' && steps.deploy.outputs.preview_url != ''
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          PREVIEW_URL: ${{ steps.deploy.outputs.preview_url }}
+          PREVIEW_REVISION: ${{ steps.deploy.outputs.preview_revision }}
+        with:
+          script: |
+            const surface = process.env.SURFACE;
+            const prNumber = Number(process.env.PR_NUMBER);
+            const url = process.env.PREVIEW_URL;
+            const revision = process.env.PREVIEW_REVISION;
+            const marker = `<!-- cmp-web-preview:${surface} -->`;
+            const body = [
+              marker,
+              `### Cloud Run PR Preview — \`${surface}\``,
+              '',
+              `- **Preview URL:** ${url}`,
+              `- **Revision:** \`${revision}\` (\`0%\` production traffic)`,
+              `- **Commit:** \`${context.sha.slice(0, 7)}\``
+            ].join('\n');
+
+            const { owner, repo } = context.repo;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number: prNumber,
+              per_page: 100
+            });
+            const existing = comments.find((c) => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body
+              });
+            }
