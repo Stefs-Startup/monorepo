@@ -1,0 +1,99 @@
+# =============================================================================
+# Android Continuous Distribution — Pulse Android (STE-42)
+# =============================================================================
+# Two-stage Android release pipeline for apps/pulse/app:
+#   1. Push to `main` (Android-affected paths) -> Firebase App Distribution
+#      (`internal-testers` group in `staging` environment)
+#   2. Push tag `pulse-android-v*` -> Google Play Internal Track
+#      (`prod` environment)
+#   3. Manual `workflow_dispatch` -> either `firebase` or `play-internal`
+#
+# Delegates to `.github/workflows/reusable-android-deploy.yml` and skips
+# gracefully with a step summary when signing/distribution secrets are unset.
+# =============================================================================
+
+name: "Deploy · Pulse Android (Firebase & Play Internal)"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "build-logic/**"
+      - "gradle/libs.versions.toml"
+      - "apps/pulse/app/**"
+      - "apps/pulse/build.gradle.kts"
+      - "apps/pulse/settings.gradle.kts"
+      - "apps/pulse/gradle.properties"
+      - ".github/workflows/reusable-android-deploy.yml"
+      - ".github/workflows/deploy-pulse-android.yml"
+    tags:
+      - "pulse-android-v*"
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Target distribution channel"
+        type: choice
+        required: true
+        default: "firebase"
+        options:
+          - firebase
+          - play-internal
+      tester_groups:
+        description: "Firebase App Distribution tester groups"
+        type: string
+        required: false
+        default: "internal-testers"
+      release_notes:
+        description: "Optional release notes override"
+        type: string
+        required: false
+        default: ""
+
+concurrency:
+  group: deploy-pulse-android-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  firebase-app-distribution:
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && inputs.channel == 'firebase')
+    uses: ./.github/workflows/reusable-android-deploy.yml
+    with:
+      working-directory: apps/pulse
+      app-module: ":app"
+      package-name: com.pulse.accountability
+      channel: firebase
+      firebase-app-id: ${{ vars.FIREBASE_ANDROID_APP_ID || '' }}
+      tester-groups: ${{ inputs.tester_groups || 'internal-testers' }}
+      release-notes: ${{ inputs.release_notes || '' }}
+      environment: staging
+    secrets:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+
+  play-internal-track:
+    if: >-
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/pulse-android-v')) ||
+      (github.event_name == 'workflow_dispatch' && inputs.channel == 'play-internal')
+    uses: ./.github/workflows/reusable-android-deploy.yml
+    with:
+      working-directory: apps/pulse
+      app-module: ":app"
+      package-name: com.pulse.accountability
+      channel: play-internal
+      release-notes: ${{ inputs.release_notes || '' }}
+      environment: prod
+    secrets:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      PLAY_STORE_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}

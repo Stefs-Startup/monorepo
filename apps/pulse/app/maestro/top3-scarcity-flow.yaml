@@ -1,0 +1,10 @@
+appId: com.pulse.accountability
+name: "Pulse Android — Journey 2: Setting Today's Top 3 & Scarcity Swap Gate"
+---
+- launchApp
+- tapOn: "Undone Log"
+- assertVisible: "Committed Today (0/3)"
+- assertVisible: "No Tasks Locked in for Today"
+- tapOn: "Talk it through"
+- tapOn: "Lock into Today's Top 3"
+- assertVisible: "Committed Today (1/3)"

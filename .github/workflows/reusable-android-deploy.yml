@@ -1,0 +1,274 @@
+# =============================================================================
+# Reusable Workflow — Android Distribution (Firebase App Distribution -> Play Internal)
+# =============================================================================
+# Builds a signed Android release artifact (APK for Firebase App Distribution or
+# AAB for Google Play Internal track) and distributes it to the target channel.
+#
+# Skips gracefully with an actionable GitHub Step Summary when Android keystore
+# or Firebase / Google Play service-account secrets are not yet configured.
+#
+# Usage from any repository in the organization (pin @v1 once v1.0.0/v1 tags are cut; @main works until then):
+#
+#   jobs:
+#     distribute:
+#       uses: Stefs-Startup/monorepo/.github/workflows/reusable-android-deploy.yml@v1
+#       with:
+#         working-directory: apps/pulse
+#         channel: firebase
+# =============================================================================
+
+name: "Reusable · Android Distribution"
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: "Directory containing gradlew."
+        type: string
+        default: "apps/pulse"
+      app-module:
+        description: "Gradle Android application module path (e.g. :app)."
+        type: string
+        default: ":app"
+      package-name:
+        description: "Android applicationId / Google Play package name."
+        type: string
+        default: "com.pulse.accountability"
+      channel:
+        description: "Distribution channel: firebase (App Distribution) or play-internal (Play Store Internal Track)."
+        type: string
+        required: true
+      firebase-app-id:
+        description: "Firebase Android App ID (1:...:android:...) for firebase channel."
+        type: string
+        default: ""
+      tester-groups:
+        description: "Comma-separated Firebase App Distribution tester groups."
+        type: string
+        default: "internal-testers"
+      release-notes:
+        description: "Optional release notes text."
+        type: string
+        default: ""
+      environment:
+        description: "GitHub environment name for secret scoping (staging | prod)."
+        type: string
+        default: "staging"
+      timeout-minutes:
+        description: "Job timeout in minutes."
+        type: number
+        default: 30
+    secrets:
+      ANDROID_KEYSTORE_BASE64:
+        required: false
+      ANDROID_KEYSTORE_PASSWORD:
+        required: false
+      ANDROID_KEY_ALIAS:
+        required: false
+      ANDROID_KEY_PASSWORD:
+        required: false
+      FIREBASE_SERVICE_ACCOUNT_JSON:
+        required: false
+      PLAY_STORE_SERVICE_ACCOUNT_JSON:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  distribute:
+    name: "Android Distribute · ${{ inputs.channel }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    environment: ${{ inputs.environment }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    env:
+      CHANNEL: ${{ inputs.channel }}
+      APP_MODULE: ${{ inputs.app-module }}
+      PACKAGE_NAME: ${{ inputs.package-name }}
+      FIREBASE_APP_ID: ${{ inputs.firebase-app-id }}
+      TESTER_GROUPS: ${{ inputs.tester-groups }}
+      RELEASE_NOTES: ${{ inputs.release-notes }}
+      HAS_SIGNING_CONFIG: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && secrets.ANDROID_KEYSTORE_PASSWORD != '' && secrets.ANDROID_KEY_ALIAS != '' && secrets.ANDROID_KEY_PASSWORD != '' }}
+      HAS_FIREBASE_CONFIG: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON != '' && inputs.firebase-app-id != '' }}
+      HAS_PLAY_CONFIG: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON != '' }}
+    steps:
+      - name: Check signing and distribution channel configuration
+        id: config
+        run: |
+          set -euo pipefail
+          if [ "$CHANNEL" != "firebase" ] && [ "$CHANNEL" != "play-internal" ]; then
+            echo "::error::Unsupported channel '$CHANNEL' (expected 'firebase' or 'play-internal')."
+            exit 1
+          fi
+
+          if [ "$HAS_SIGNING_CONFIG" != "true" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "## Android Distribution Skipped (\`$CHANNEL\`)"
+              echo ""
+              echo "Configure Android signing secrets (\`ANDROID_KEYSTORE_BASE64\`, \`ANDROID_KEYSTORE_PASSWORD\`, \`ANDROID_KEY_ALIAS\`, \`ANDROID_KEY_PASSWORD\`) in the \`${{ inputs.environment }}\` environment to enable signed release builds."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          if [ "$CHANNEL" = "firebase" ] && [ "$HAS_FIREBASE_CONFIG" != "true" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "## Firebase App Distribution Skipped (\`$PACKAGE_NAME\`)"
+              echo ""
+              echo "Configure \`FIREBASE_SERVICE_ACCOUNT_JSON\` and \`firebase-app-id\` (\`FIREBASE_ANDROID_APP_ID\`) to distribute signed builds to tester group \`$TESTER_GROUPS\`."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          if [ "$CHANNEL" = "play-internal" ] && [ "$HAS_PLAY_CONFIG" != "true" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "## Google Play Internal Track Skipped (\`$PACKAGE_NAME\`)"
+              echo ""
+              echo "Configure \`PLAY_STORE_SERVICE_ACCOUNT_JSON\` in the \`${{ inputs.environment }}\` environment to publish signed AAB bundles to Google Play Internal."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Java 21 (Temurin)
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Node.js
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".nvmrc"
+
+      - name: Setup Gradle
+        if: steps.config.outputs.enabled == 'true'
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Materialize ephemeral signing keystore and channel credentials
+        if: steps.config.outputs.enabled == 'true'
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          PLAY_SA: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+          if [ "$CHANNEL" = "firebase" ]; then
+            printf '%s' "$FIREBASE_SA" > "$RUNNER_TEMP/firebase-sa.json"
+          elif [ "$CHANNEL" = "play-internal" ]; then
+            printf '%s' "$PLAY_SA" > "$RUNNER_TEMP/play-sa.json"
+          fi
+
+      - name: Build signed Android release artifact
+        id: build
+        if: steps.config.outputs.enabled == 'true'
+        env:
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          if [ "$CHANNEL" = "firebase" ]; then
+            ./gradlew "${APP_MODULE}:assembleRelease" --no-daemon --stacktrace \
+              -Pandroid.injected.signing.store.file="$RUNNER_TEMP/release.keystore" \
+              -Pandroid.injected.signing.store.password="$STORE_PASSWORD" \
+              -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+              -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
+            apk_path=$(find . -path "*/build/outputs/apk/release/*.apk" | head -n 1)
+            test -n "$apk_path" || { echo "::error::Signed release APK not found"; exit 1; }
+            echo "artifact_path=$apk_path" >> "$GITHUB_OUTPUT"
+          else
+            ./gradlew "${APP_MODULE}:bundleRelease" --no-daemon --stacktrace \
+              -Pandroid.injected.signing.store.file="$RUNNER_TEMP/release.keystore" \
+              -Pandroid.injected.signing.store.password="$STORE_PASSWORD" \
+              -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+              -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
+            aab_path=$(find . -path "*/build/outputs/bundle/release/*.aab" | head -n 1)
+            test -n "$aab_path" || { echo "::error::Signed release AAB not found"; exit 1; }
+            echo "artifact_path=$aab_path" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Distribute signed APK to Firebase App Distribution
+        if: steps.config.outputs.enabled == 'true' && inputs.channel == 'firebase'
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-sa.json
+          APK_PATH: ${{ steps.build.outputs.artifact_path }}
+        run: |
+          set -euo pipefail
+          notes="${RELEASE_NOTES:-Commit ${GITHUB_SHA::7} from ${GITHUB_REF_NAME}}"
+          npx --yes firebase-tools@13.29.1 appdistribution:distribute "$APK_PATH" \
+            --app "$FIREBASE_APP_ID" \
+            --groups "$TESTER_GROUPS" \
+            --release-notes "$notes"
+
+      - name: Publish signed AAB to Google Play Internal Track
+        if: steps.config.outputs.enabled == 'true' && inputs.channel == 'play-internal'
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/play-sa.json
+          AAB_PATH: ${{ steps.build.outputs.artifact_path }}
+        run: |
+          set -euo pipefail
+          node -e '
+            const fs = require("fs");
+            const { google } = require("googleapis");
+            async function publish() {
+              const auth = new google.auth.GoogleAuth({
+                keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+                scopes: ["https://www.googleapis.com/auth/androidpublisher"]
+              });
+              const androidpublisher = google.androidpublisher({ version: "v3", auth });
+              const packageName = process.env.PACKAGE_NAME;
+              const edit = await androidpublisher.edits.insert({ packageName });
+              const editId = edit.data.id;
+              const bundle = await androidpublisher.edits.bundles.upload({
+                packageName,
+                editId,
+                media: {
+                  mimeType: "application/octet-stream",
+                  body: fs.createReadStream(process.env.AAB_PATH)
+                }
+              });
+              await androidpublisher.edits.tracks.update({
+                packageName,
+                editId,
+                track: "internal",
+                requestBody: {
+                  track: "internal",
+                  releases: [{
+                    versionCodes: [String(bundle.data.versionCode)],
+                    status: "completed"
+                  }]
+                }
+              });
+              await androidpublisher.edits.commit({ packageName, editId });
+              console.log(`Published ${packageName} versionCode=${bundle.data.versionCode} to Play Internal track.`);
+            }
+            publish().catch((err) => { console.error(err); process.exit(1); });
+          '
+
+      - name: Upload signed release artifact
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: android-release-${{ inputs.channel }}
+          path: ${{ inputs.working-directory }}/${{ steps.build.outputs.artifact_path }}
+          retention-days: 14
+
+      - name: Scrub ephemeral signing and service-account credentials
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/release.keystore" "$RUNNER_TEMP/firebase-sa.json" "$RUNNER_TEMP/play-sa.json"

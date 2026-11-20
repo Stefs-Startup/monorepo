@@ -1,0 +1,10 @@
+appId: com.pulse.accountability
+name: "Pulse Android — Journey 3: Left-Undone Rescue Triage"
+---
+- launchApp
+- assertVisible: "Habitually Undone"
+- tapOn: "Undone Log"
+- assertVisible: "Habitually Undone & Long-Standing"
+- tapOn: "Talk it through"
+- tapOn: "Too big — shrink to 5m"
+- tapOn: "Shrink to 5-minute starter"
