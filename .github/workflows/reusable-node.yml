@@ -6,11 +6,11 @@
 # the project's package.json defines it. Turborepo roots work unchanged, since
 # their `lint` / `build` / ... scripts call `turbo`.
 #
-# Usage from any repository in the organization:
+# Usage from any repository in the organization (pin @v1 once v1.0.0/v1 tags are cut; @main works until then):
 #
 #   jobs:
 #     web:
-#       uses: Stefs-Startup/monorepo/.github/workflows/reusable-node.yml@main
+#       uses: Stefs-Startup/monorepo/.github/workflows/reusable-node.yml@v1
 #       with:
 #         working-directory: apps/web     # optional, defaults to "."
 #

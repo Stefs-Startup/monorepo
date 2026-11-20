@@ -37,6 +37,11 @@ pre-commit:
       # actionlint is optional locally; CI remains the source of truth.
       run: "command -v actionlint >/dev/null && actionlint {staged_files} || echo 'actionlint not installed; skipping'"
 
+commit-msg:
+  commands:
+    commitlint:
+      run: "if [ -x node_modules/.bin/commitlint ]; then node_modules/.bin/commitlint --config commitlint.config.mjs --edit {1}; else echo 'commitlint not installed; skipping'; fi"
+
 pre-push:
   commands:
     quality:

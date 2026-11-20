@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.pulse.kmp"
-version = "0.6.5"
+version = "0.6.5" // x-release-please-version
 
 kotlin {
     jvmToolchain(17)

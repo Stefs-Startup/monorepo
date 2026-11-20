@@ -6,17 +6,18 @@
 # scripts and get Android defaults; anything else gets plain JVM defaults. Any
 # task list can be overridden, and an empty list skips that gate.
 #
-# Usage from any repository in the organization:
+# Usage from any repository in the organization (pin @v1 once v1.0.0/v1 tags are cut; @main works until then):
 #
 #   jobs:
 #     api:
-#       uses: Stefs-Startup/monorepo/.github/workflows/reusable-gradle.yml@main
+#       uses: Stefs-Startup/monorepo/.github/workflows/reusable-gradle.yml@v1
 #       with:
 #         working-directory: services/api   # optional, defaults to "."
 #
-# Defaults            quality      build                   test
-#   android           lintDebug    assembleDebug           testDebugUnitTest
-#   jvm               (none)       assemble testClasses    test
+# Defaults            quality      build                                          test
+#   android           lintDebug    assembleDebug                                  testDebugUnitTest
+#   kmp               codeQuality  jvmJar compileProductionExecutableKotlinWasmJs   jvmTest
+#   jvm               (none)       assemble testClasses                           test
 # =============================================================================
 
 name: Reusable · Gradle
@@ -33,7 +34,7 @@ on:
         type: string
         default: "21"
       project-type:
-        description: "auto | android | jvm"
+        description: "auto | android | kmp | jvm"
         type: string
         default: "auto"
       quality-tasks:
