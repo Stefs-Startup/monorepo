@@ -46,6 +46,10 @@ on:
         description: Newline-separated build output globs, relative to working-directory.
         type: string
         default: "dist"
+      turbo-filter:
+        description: Optional Turborepo --filter expression (e.g. ...[origin/main]) used only when a script invokes turbo.
+        type: string
+        default: ""
       timeout-minutes:
         type: number
         default: 25
@@ -64,6 +68,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: ${{ inputs.turbo-filter != '' && 0 || 1 }}
 
       - name: Detect package manager & Node version
         id: detect
@@ -129,12 +135,26 @@ jobs:
         env:
           PM: ${{ steps.detect.outputs.pm }}
           SCRIPTS: ${{ inputs.scripts }}
+          TURBO_FILTER: ${{ inputs.turbo-filter }}
           CI: "true"
         run: |
           for script in $SCRIPTS; do
-            if jq -e --arg s "$script" '.scripts[$s] // empty' package.json > /dev/null; then
+            script_cmd=$(jq -r --arg s "$script" '.scripts[$s] // empty' package.json)
+            if [ -n "$script_cmd" ]; then
               echo "::group::$PM run $script"
-              "$PM" run "$script"
+              if [ -n "$TURBO_FILTER" ] && [[ "$script_cmd" == turbo\ * ]]; then
+                filter_ref="${TURBO_FILTER#*[}"
+                filter_ref="${filter_ref%]}"
+                if [ -n "$filter_ref" ] && git rev-parse --verify -q "$filter_ref" > /dev/null; then
+                  echo "Applying Turborepo filter: --filter=$TURBO_FILTER"
+                  "$PM" exec turbo run "$script" --filter="$TURBO_FILTER"
+                else
+                  echo "::warning::Turborepo filter ref '$filter_ref' unavailable; running unscoped $PM run $script"
+                  "$PM" run "$script"
+                fi
+              else
+                "$PM" run "$script"
+              fi
               echo "::endgroup::"
             else
               echo "Skipping '$script' (not defined in package.json)"
