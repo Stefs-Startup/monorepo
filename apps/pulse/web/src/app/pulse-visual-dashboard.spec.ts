@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { AppComponent } from './app.component';
 import { StalledTaskCardComponent } from './components/stalled-task-card/stalled-task-card.component';
 import { SettingsNavigatorComponent } from './components/settings-navigator/settings-navigator.component';
-import { PartnerSettingsDto } from './models/pulse.models';
+import { PartnerSettingsDto, TriageActionCode } from './models/pulse.models';
 
 describe('Pulse Visual Focus Dashboard — Tier 2 Component & State Contract Suite', () => {
   it('verifies AppComponent and Visual Focus Dashboard components are defined with zero chat overlay dependency', () => {
@@ -69,7 +69,7 @@ describe('Pulse Visual Focus Dashboard — Tier 2 Component & State Contract Sui
 
   it('emits direct visual triage actions from StalledTaskCardComponent', () => {
     const card = new StalledTaskCardComponent();
-    const events: Array<{ taskId: string; action: string }> = [];
+    const events: Array<{ taskId: string; action: TriageActionCode }> = [];
     card.triage.subscribe((e) => events.push(e));
 
     card.triage.emit({ taskId: 'task-tax-receipts', action: 'SHRINK_TO_5M' });
