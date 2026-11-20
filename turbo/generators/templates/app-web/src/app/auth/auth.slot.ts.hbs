@@ -1,0 +1,52 @@
+import { InjectionToken, Provider, Signal, computed, signal } from '@angular/core';
+
+export interface AuthSession {
+  readonly authenticated: boolean;
+  readonly subjectId: string;
+  readonly provider: 'anonymous' | 'google-oauth';
+}
+
+export interface AuthSlotStore {
+  readonly session: Signal<AuthSession>;
+  readonly isAuthenticated: Signal<boolean>;
+  signIn(subjectId: string, provider?: 'anonymous' | 'google-oauth'): void;
+  signOut(): void;
+}
+
+const ANONYMOUS_SESSION: AuthSession = {
+  authenticated: false,
+  subjectId: 'guest',
+  provider: 'anonymous'
+};
+
+export function createAuthSlotStore(initialSession: AuthSession = ANONYMOUS_SESSION): AuthSlotStore {
+  const sessionSignal = signal<AuthSession>(initialSession);
+  const isAuthenticated = computed(() => sessionSignal().authenticated);
+
+  return {
+    session: sessionSignal.asReadonly(),
+    isAuthenticated,
+    signIn(subjectId: string, provider: 'anonymous' | 'google-oauth' = 'google-oauth'): void {
+      sessionSignal.set({
+        authenticated: true,
+        subjectId: subjectId.trim() || 'user',
+        provider
+      });
+    },
+    signOut(): void {
+      sessionSignal.set(ANONYMOUS_SESSION);
+    }
+  };
+}
+
+export const AUTH_SLOT = new InjectionToken<AuthSlotStore>('AUTH_SLOT', {
+  providedIn: 'root',
+  factory: () => createAuthSlotStore()
+});
+
+export function provideAuthSlot(customStore?: AuthSlotStore): Provider {
+  return {
+    provide: AUTH_SLOT,
+    useValue: customStore ?? createAuthSlotStore()
+  };
+}

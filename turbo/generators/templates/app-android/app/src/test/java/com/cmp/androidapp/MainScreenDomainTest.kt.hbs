@@ -1,0 +1,19 @@
+package com.cmp.androidapp
+
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+class MainScreenDomainTest {
+
+    @Test
+    fun evaluateWelcomeBannerFormatsAppName() {
+        assertEquals(
+            "{{pascalCase name}} · Edge-to-Edge Compose Ready",
+            MainScreenDomain.evaluateWelcomeBanner("{{pascalCase name}}")
+        )
+        assertEquals(
+            "{{dashCase name}} · Edge-to-Edge Compose Ready",
+            MainScreenDomain.evaluateWelcomeBanner("   ")
+        )
+    }
+}

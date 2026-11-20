@@ -1,0 +1,18 @@
+# `{{dashCase name}}`
+
+{{description}}
+
+Generated via `pnpm gen app service {{dashCase name}}` (`STE-47`).
+
+## Endpoints
+- `GET /actuator/health` — Spring Boot Actuator health probe
+- `GET /api/v1/status` — Service status endpoint backed by pure domain engine
+- `GET /v3/api-docs` — OpenAPI 3.1.0 specification (springdoc-openapi)
+
+## Development
+
+```bash
+./gradlew codeQuality
+./gradlew assemble testClasses
+./gradlew test
+```

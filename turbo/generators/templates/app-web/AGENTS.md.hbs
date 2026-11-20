@@ -1,0 +1,17 @@
+# `{{dashCase name}}` Engineering Constitution (Angular 21 Signals Web App)
+
+## 1. Pure Functional Core & Signals State (`ADR-007`)
+- Keep domain transformations and route/auth state evaluation in pure, deterministic TypeScript functions.
+- Use Angular 21 standalone components (`standalone: true`), `signal()`, `computed()`, and modern `@if` / `@for` / `@switch` control flow. Legacy `*ngIf` / `*ngFor` / `*ngSwitch` directives are forbidden.
+
+## 2. Shared Configuration & Auth Slot
+- TypeScript extends `../../packages/config/tsconfig.angular.json` (`@cmp/config`).
+- ESLint flat config extends `angular` from `../../packages/config/eslint.config.mjs`.
+- Authentication plugs into `src/app/auth/auth.slot.ts` (`AUTH_SLOT` / `provideAuthSlot()`), keeping OAuth/session providers decoupled from UI components.
+
+## 3. Verification Gate
+Before any change is considered complete, all of the following must pass:
+- `npm run lint`
+- `npm run typecheck`
+- `npm run build`
+- `npm test`

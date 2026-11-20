@@ -1,0 +1,20 @@
+# `{{dashCase name}}`
+
+{{description}}
+
+Generated via `pnpm gen app web {{dashCase name}}` (`STE-46`).
+
+## Architecture
+- **Angular 21 Standalone + Signals**: `src/app/app.component.ts` & `src/app/app.routes.ts`
+- **Auth Module Slot**: `src/app/auth/auth.slot.ts` (`AUTH_SLOT` token + signal store for plugging in `@cmp/google-auth` or custom auth providers)
+- **Shared Config**: Extends `@cmp/config` (`tsconfig.angular.json` and `eslint.config.mjs`)
+- **Unit Testing**: Vitest (`src/app/app.component.spec.ts`)
+
+## Development
+
+```bash
+npm run lint
+npm run typecheck
+npm run build
+npm test
+```

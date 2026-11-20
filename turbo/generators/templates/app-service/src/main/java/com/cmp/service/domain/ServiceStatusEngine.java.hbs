@@ -1,0 +1,20 @@
+package com.cmp.service.domain;
+
+/**
+ * Pure Java 21 functional domain core (ADR-007) — zero Spring or Servlet dependencies.
+ */
+public final class ServiceStatusEngine {
+
+    private ServiceStatusEngine() {
+    }
+
+    public record ServiceStatusSnapshot(String service, String status, String version) {
+    }
+
+    public static ServiceStatusSnapshot evaluateStatus(String serviceName) {
+        String normalized = (serviceName == null || serviceName.isBlank())
+                ? "{{dashCase name}}"
+                : serviceName.trim();
+        return new ServiceStatusSnapshot(normalized, "UP", "0.1.0");
+    }
+}
