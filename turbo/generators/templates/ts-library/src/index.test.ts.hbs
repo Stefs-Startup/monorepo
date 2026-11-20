@@ -1,0 +1,22 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import { createPackageSummary } from "./index.js";
+
+describe("@cmp/{{dashCase name}}", () => {
+  it("builds a normalized package summary", () => {
+    const summary = createPackageSummary("{{dashCase name}}");
+    assert.deepEqual(summary, {
+      scope: "@cmp",
+      name: "{{dashCase name}}",
+      fullName: "@cmp/{{dashCase name}}",
+    });
+  });
+
+  it("rejects invalid package names", () => {
+    assert.throws(() => createPackageSummary(""), /Invalid package name/);
+    assert.throws(
+      () => createPackageSummary("Invalid_Name"),
+      /Invalid package name/,
+    );
+  });
+});
