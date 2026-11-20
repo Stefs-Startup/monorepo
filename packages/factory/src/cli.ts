@@ -3,6 +3,10 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  formatCodemodReportMarkdown,
+  runBoundedCodemodLoop,
+} from "./codemod-loop.js";
+import {
   generateApp,
   generateSlice,
   type FactoryStack,
@@ -24,6 +28,7 @@ Commands:
   verify [--target=<pkg>] [--json]                      Run factory guardrails, WCAG/Zero-PII, and test gates
   plan:critic <file> [--json]                           Audit a plan/spec for completeness and risk escalation
   scorecard [--json] [--write]                          Generate engineering & release readiness scorecard
+  codemod:loop --scope=<path[,path2]> [options]         Run bounded agentic codemod loop (RFC-0005 / STE-66)
 `);
 }
 
@@ -184,6 +189,51 @@ export function runCli(rawArgv: string[]): number {
         console.log(formatScorecardTable(report));
       }
       return 0;
+    }
+
+    if (command === "codemod:loop") {
+      const rawScope = readFlagValue(rest, "--scope");
+      const scopes = (rawScope ?? "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (scopes.length === 0) {
+        console.error(
+          "Error: codemod:loop requires --scope=<path[,path2]> (e.g. --scope=packages/utils).",
+        );
+        printUsage();
+        return 1;
+      }
+      const rootDir = readFlagValue(rest, "--root") ?? process.cwd();
+      const codemodCommand = readFlagValue(rest, "--cmd");
+      const verifyCommand = readFlagValue(rest, "--verify-cmd");
+      const maxAttemptsRaw = readFlagValue(rest, "--max-attempts");
+      const maxFilesRaw = readFlagValue(rest, "--max-files");
+      const allowModerateBlastRadius = rest.includes("--allow-moderate");
+      const autoRollback = !rest.includes("--no-rollback");
+      const json = rest.includes("--json");
+
+      const result = runBoundedCodemodLoop({
+        rootDir,
+        scopes,
+        codemodCommand,
+        verifyCommand,
+        maxAttempts: maxAttemptsRaw
+          ? Number.parseInt(maxAttemptsRaw, 10)
+          : undefined,
+        maxTouchedFiles: maxFilesRaw
+          ? Number.parseInt(maxFilesRaw, 10)
+          : undefined,
+        allowModerateBlastRadius,
+        autoRollback,
+      });
+
+      if (json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        console.log(formatCodemodReportMarkdown(result));
+      }
+      return result.passed ? 0 : 1;
     }
 
     console.error(`Unknown command: ${command}`);

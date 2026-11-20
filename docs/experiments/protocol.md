@@ -79,7 +79,7 @@ The metrics that must **not** degrade during the experiment.
 
 ## 💻 Phase 3: Scaffolding and Implementation
 
-To keep the repository clean and maintainable under [monorepo-conventions.md](file:///Users/stefan/Code/monorepo/docs/monorepo-conventions.md), use these structural rules:
+To keep the repository clean and maintainable under [monorepo-conventions.md](../monorepo-conventions.md), use these structural rules:
 
 1.  **Branch Naming**: All experiment branches follow:
     `sheldoncrosss/exp-[number]-[short-description]`
