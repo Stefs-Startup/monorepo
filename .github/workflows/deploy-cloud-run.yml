@@ -15,6 +15,11 @@
 name: "Deploy & Rollback · Cloud Run"
 
 on:
+  push:
+    tags:
+      - "pulse-backend-v*"
+      - "pulse-web-v*"
+
   workflow_dispatch:
     inputs:
       surface:
@@ -110,10 +115,12 @@ jobs:
     environment: ${{ inputs.environment || 'prod' }}
     env:
       DEPLOY_ACTION: ${{ inputs.action || 'deploy' }}
-      DEPLOY_SURFACE: ${{ inputs.surface || 'all' }}
+      DEPLOY_SURFACE: ${{ inputs.surface || (startsWith(github.ref_name, 'pulse-backend-v') && 'pulse-backend') || (startsWith(github.ref_name, 'pulse-web-v') && 'pulse-web') || 'all' }}
       TARGET_REVISION: ${{ inputs.target_revision || '' }}
       DEPLOY_ENV: ${{ inputs.environment || 'prod' }}
       BUILD_MODE: ${{ inputs.build_mode || 'cloudbuild' }}
+      REF_TYPE: ${{ github.ref_type }}
+      REF_NAME: ${{ github.ref_name }}
       GCP_PROJECT: ${{ inputs.gcp_project || vars.GCP_PROJECT || 'gw-cli-490302' }}
       GCP_REGION: ${{ inputs.gcp_region || vars.GCP_REGION || 'us-central1' }}
       HAS_WIF_CONFIG: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER != '' && secrets.GCP_SERVICE_ACCOUNT != '' }}
@@ -148,12 +155,17 @@ jobs:
           chmod +x scripts/deploy.sh scripts/rollback.sh scripts/smoke-test.sh
 
           if [ "${DEPLOY_ACTION}" = "deploy" ]; then
+            VERSION_ARGS=()
+            if [ "${REF_TYPE:-}" = "tag" ] && [ -n "${REF_NAME:-}" ]; then
+              VERSION_ARGS=(--app-version "${REF_NAME#*-v}")
+            fi
             /bin/bash scripts/deploy.sh \
               --surface "${DEPLOY_SURFACE}" \
               --project "${GCP_PROJECT}" \
               --region "${GCP_REGION}" \
               --env "${DEPLOY_ENV}" \
-              --build-mode "${BUILD_MODE}"
+              --build-mode "${BUILD_MODE}" \
+              "${VERSION_ARGS[@]}"
           elif [ "${DEPLOY_ACTION}" = "rollback" ]; then
             if [ "${DEPLOY_SURFACE}" = "all" ]; then
               echo "::error::Rollback requires a single concrete surface (pulse-backend or pulse-web)."

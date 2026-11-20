@@ -1,0 +1,35 @@
+# =============================================================================
+# PR Preview Deployment — Pulse Web (STE-43)
+# =============================================================================
+# Calls reusable-web-preview.yml on pull requests touching apps/pulse/web.
+# =============================================================================
+
+name: "PR Preview · Pulse Web"
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "apps/pulse/web/**"
+      - "infra/deploy/services.json"
+      - "scripts/deploy.sh"
+      - ".github/workflows/reusable-web-preview.yml"
+      - ".github/workflows/preview-pulse-web.yml"
+
+concurrency:
+  group: preview-pulse-web-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+jobs:
+  preview:
+    uses: ./.github/workflows/reusable-web-preview.yml
+    with:
+      surface: pulse-web
+      pr-number: ${{ github.event.pull_request.number }}
+    secrets: inherit
