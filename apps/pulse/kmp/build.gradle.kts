@@ -1,8 +1,10 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 plugins {
     id("stefs.kotlin-lib")
     alias(libs.plugins.kotlin.serialization)
+    id("org.openapi.generator") version "7.27.0"
 }
 
 group = "com.pulse.kmp"
@@ -63,4 +65,41 @@ tasks.register("codeQuality") {
         }
         println("PASS KMP codeQuality: commonMain purity (ADR-008) and JVM + wasmJs compilation verified.")
     }
+}
+
+val generatedOpenApiDir = layout.buildDirectory.dir("generated/openapi")
+val committedGeneratedModelsDir = layout.projectDirectory.dir("src/commonMain/kotlin/com/pulse/kmp/api/generated")
+
+tasks.named<GenerateTask>("openApiGenerate") {
+    generatorName.set("kotlin")
+    library.set("multiplatform")
+    inputSpec.set(file("../contracts/pulse-api.openapi.json").absolutePath)
+    outputDir.set(generatedOpenApiDir)
+    modelPackage.set("com.pulse.kmp.api.generated")
+    globalProperties.set(
+        mapOf(
+            "models" to "",
+            "apis" to "false",
+            "supportingFiles" to "false"
+        )
+    )
+    configOptions.set(
+        mapOf(
+            "dateLibrary" to "kotlinx-datetime",
+            "enumPropertyNaming" to "UPPERCASE",
+            "explicitApi" to "false",
+            "omitGradlePluginVersions" to "true",
+            "omitGradleWrapper" to "true"
+        )
+    )
+}
+
+tasks.register<Sync>("syncPulseApiModels") {
+    group = "openapi"
+    description = "Generates KMP Kotlin models from apps/pulse/contracts/pulse-api.openapi.json and syncs them into commonMain."
+    dependsOn("openApiGenerate")
+    from(generatedOpenApiDir.map { it.dir("src/commonMain/kotlin/com/pulse/kmp/api/generated") }) {
+        include("*.kt")
+    }
+    into(committedGeneratedModelsDir)
 }

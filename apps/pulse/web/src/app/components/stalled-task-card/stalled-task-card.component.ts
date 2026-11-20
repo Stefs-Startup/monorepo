@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { TaskAccountabilityStatus } from '../../models/pulse.models';
+import { TaskAccountabilityStatus, TriageActionCode } from '../../models/pulse.models';
 
 @Component({
   selector: 'app-stalled-task-card',
@@ -186,5 +186,5 @@ import { TaskAccountabilityStatus } from '../../models/pulse.models';
 })
 export class StalledTaskCardComponent {
   @Input() status: TaskAccountabilityStatus | null = null;
-  @Output() triage = new EventEmitter<{ taskId: string; action: string }>();
+  @Output() triage = new EventEmitter<{ taskId: string; action: TriageActionCode }>();
 }

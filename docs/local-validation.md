@@ -54,6 +54,7 @@ Gate 4 (Release Readiness Scorecard) only aggregates Gates 1-3, so it has no loc
 | `arch` | JS/TS & JVM | `dependency-cruiser` (JS/TS module boundaries) / ArchUnit (`./gradlew test`) | `SKIP` (or `FAIL` with `CHECK_STRICT=1`) |
 | `a11y` | `apps/web` | Playwright + `@axe-core/playwright` (`test:a11y`, WCAG 2.2 AA) | `SKIP` (or `FAIL` with `CHECK_STRICT=1`) |
 | `mutation` | JS/TS & JVM | Stryker (`stryker.config.mjs`) / PITest | `SKIP` (or `FAIL` with `CHECK_STRICT=1`) |
+| `contract` | `apps/pulse` | `scripts/api-contract.sh check` + `scripts/api-contract.sh breaking` (`oasdiff`, or auto/builtin [`openapi-diff-fallback.mjs`](../scripts/openapi-diff-fallback.mjs)) | Uses `oasdiff`/Docker or falls back to `builtin` Node diff (`CHECK_STRICT=1` enforces `CONTRACT_DIFF_TOOL=oasdiff` if explicitly requested) |
 
 Example:
 
@@ -62,7 +63,26 @@ scripts/check.sh --gate security
 scripts/check.sh --gate arch
 scripts/check.sh --gate a11y
 scripts/check.sh --gate mutation
+scripts/check.sh --gate contract
 ```
+
+## Contract-First OpenAPI 3.1 Sync & Breaking-Change Drill (`ADR-0005`)
+
+When modifying `apps/pulse/backend` REST controllers/DTOs or `apps/pulse/contracts/pulse-api.openapi.json`:
+
+```bash
+# Re-export OpenAPI 3.1 spec + regenerate Angular TS types + KMP Kotlin models
+/bin/bash scripts/api-contract.sh sync
+
+# Verify zero drift + run OpenAPI breaking-change check against origin/main (oasdiff default, or builtin Node fallback)
+scripts/check.sh --gate contract
+CONTRACT_DIFF_TOOL=builtin /bin/bash scripts/api-contract.sh drill
+
+# Run non-destructive Expand vs. Breaking Catch learning drill
+/bin/bash scripts/api-contract.sh drill
+```
+
+In CI, [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs [`.github/workflows/ci-contract-pulse-api.yml`](../.github/workflows/ci-contract-pulse-api.yml) (`contracts` job) and surfaces sync, breaking-change, and changelog state directly inside the `Release Readiness Scorecard` step summary and sticky `<!-- cmp-release-readiness-scorecard -->` PR comment.
 
 ## Git hooks (Lefthook)
 

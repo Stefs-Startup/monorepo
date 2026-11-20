@@ -1,139 +1,50 @@
-export type AccountabilityCategory =
-  | 'HABITUALLY_DEFERRED'
-  | 'LONG_STANDING_GHOSTED'
-  | 'ACTIVE_COMMITTED'
-  | 'HEALTHY_BACKLOG'
-  | 'COMPLETED_OR_PARKED';
+import type { components } from '../api/generated/pulse-api.types';
 
-export type TaskCommitmentState =
-  | 'NORMAL'
-  | 'TODAY_TOP_3'
-  | 'DEFERRED_INTENTIONALLY'
-  | 'SOMEDAY_PARKED';
+/**
+ * Contract-first domain & DTO type aliases re-exported directly from the
+ * OpenAPI 3.1 generated module (`../api/generated/pulse-api.types.ts`).
+ *
+ * Hand-editing duplicate DTO interfaces here is forbidden under RFC-0003 / ADR-0005.
+ * Regenerate via `npm run api:generate` (or `bash scripts/api-contract.sh sync`).
+ */
+type Schemas = components['schemas'];
 
-export type TaskEnergyLevel = 'QUICK_WIN' | 'FOCUSED' | 'DEEP_WORK';
+export type AccountabilityCategory = Schemas['AccountabilityCategory'];
+export type TaskCommitmentState = Schemas['TaskCommitmentState'];
+export type TaskEnergyLevel = Schemas['TaskEnergyLevel'];
+export type HorizonWindowType = Schemas['HorizonWindowType'];
+export type ChatRole = Schemas['ChatRole'];
+export type TriageActionCode = Schemas['TriageActionCode'];
 
-export type HorizonWindowType =
-  | 'HABITUALLY_UNDONE'
-  | 'LONG_STANDING_DRIFT'
-  | 'ACTIVE_FLOW';
+export type TaskItem = Schemas['TaskItem'];
+export type TaskAccountabilityStatus = Schemas['TaskAccountabilityStatus'];
+export type HorizonWindowBarItem = Schemas['HorizonWindowBarItem'];
+export type HorizonWindowCardModel = Schemas['HorizonWindowCardModel'];
+export type TaskHorizonAnalyticsSnapshot = Schemas['TaskHorizonAnalyticsSnapshot'];
+export type ConversationalMessage = Schemas['ConversationalMessage'];
+export type QuickReplySpecDto = Schemas['QuickReplySpecDto'];
+export type PartnerSettingsDto = Schemas['PartnerSettingsDto'];
+export type BreadcrumbEntry = Schemas['BreadcrumbEntry'];
+export type ContrastAuditEntry = Schemas['ContrastAuditEntry'];
+export type PulseDashboardResponse = Schemas['PulseDashboardResponse'];
 
-export interface TaskItem {
-  id: string;
-  googleTaskId: string | null;
-  taskListId: string;
-  taskListTitle: string;
-  title: string;
-  notes: string;
-  isCompleted: boolean;
-  dueEpochMillis: number | null;
-  completedEpochMillis: number | null;
-  createdEpochMillis: number;
-  updatedEpochMillis: number;
-  deferCount: number;
-  commitment: TaskCommitmentState;
-  energy: TaskEnergyLevel;
-  blockerNote: string;
-  dirtySync: boolean;
-}
+export type TriageRequest = Schemas['TriageRequest'];
+export type SwapTop3Request = Schemas['SwapTop3Request'];
+export type ChatMessageRequest = Schemas['ChatMessageRequest'];
+export type ApiErrorResponse = Schemas['ApiErrorResponse'];
 
-export interface TaskAccountabilityStatus {
-  task: TaskItem;
-  category: AccountabilityCategory;
-  badgeLabel: string;
-  daysOld: number;
-  daysUntouched: number;
-  daysOverdue: number;
-}
+export const TRIAGE_ACTION_CODES: readonly TriageActionCode[] = [
+  'COMMIT_TODAY',
+  'PIN_TOP_3',
+  'UNPIN',
+  'SHRINK_TO_5M',
+  'RESCHEDULE',
+  'DELEGATE',
+  'PARK_SOMEDAY',
+  'DROP_CONSCIOUSLY',
+  'COMPLETE'
+] as const;
 
-export interface HorizonWindowBarItem {
-  taskId: string;
-  title: string;
-  shortLabel: string;
-  primaryMetricLabel: string;
-  secondaryMetricLabel: string;
-  intensityFraction: number;
-  category: AccountabilityCategory;
-  deferCount: number;
-  daysOld: number;
-  daysUntouched: number;
-  daysOverdue: number;
-  sortScore: number;
-}
-
-export interface HorizonWindowCardModel {
-  windowType: HorizonWindowType;
-  title: string;
-  shortTabTitle: string;
-  subtitle: string;
-  headlineStat: string;
-  emptyStateTitle: string;
-  emptyStateBody: string;
-  items: HorizonWindowBarItem[];
-}
-
-export interface TaskHorizonAnalyticsSnapshot {
-  windows: HorizonWindowCardModel[];
-  habitualDeferralCount: number;
-  longStandingCount: number;
-  committedTodayCount: number;
-  healthyBacklogCount: number;
-  averageStalledDeferrals: number;
-  oldestOpenDays: number;
-  clarityRatioPercent: number;
-}
-
-export interface ConversationalMessage {
-  id: string;
-  role: 'PARTNER' | 'USER';
-  text: string;
-  suggestedActionCode: string | null;
-}
-
-export interface QuickReplySpecDto {
-  id: string;
-  label: string;
-  messageText: string;
-}
-
-export interface PartnerSettingsDto {
-  partnerTone: string;
-  aiStreamingEnabled: boolean;
-  connectedGoogleAccount: string;
-  lastSyncStatus: string;
-  morningRitualTime: string;
-  eveningShutdownTime: string;
-  zeroPiiTelemetryEnabled: boolean;
-}
-
-export interface BreadcrumbEntry {
-  timestampIso: string;
-  event: string;
-  summary: string;
-}
-
-export interface ContrastAuditEntry {
-  pairName: string;
-  foregroundRgb: number;
-  backgroundRgb: number;
-  contrastRatio: number;
-  minimumRequired: number;
-  passesWcagAA: boolean;
-}
-
-export interface PulseDashboardResponse {
-  horizon: TaskHorizonAnalyticsSnapshot;
-  allStatuses: TaskAccountabilityStatus[];
-  top3Commitments: TaskAccountabilityStatus[];
-  habituallyUndone: TaskAccountabilityStatus[];
-  longStandingDrift: TaskAccountabilityStatus[];
-  activeBacklog: TaskAccountabilityStatus[];
-  conversationThreadsByTaskId: Record<string, ConversationalMessage[]>;
-  quickReplies: QuickReplySpecDto[];
-  settings: PartnerSettingsDto;
-  breadcrumbs: BreadcrumbEntry[];
-  wcagContrastAudit: ContrastAuditEntry[];
-  swapRequired: boolean;
-  pendingSwapCandidateTaskId: string | null;
-  statusBanner: string;
+export function isTriageActionCode(value: string): value is TriageActionCode {
+  return (TRIAGE_ACTION_CODES as readonly string[]).includes(value);
 }

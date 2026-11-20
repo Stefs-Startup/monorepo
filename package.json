@@ -26,6 +26,10 @@
     "mutation:test": "npx --yes @stryker-mutator/core run",
     "check": "scripts/check.sh --changed",
     "check:all": "scripts/check.sh --all",
+    "api:sync": "/bin/bash scripts/api-contract.sh sync",
+    "api:check": "/bin/bash scripts/api-contract.sh check",
+    "api:breaking": "/bin/bash scripts/api-contract.sh breaking",
+    "api:drill": "/bin/bash scripts/api-contract.sh drill",
     "prepare": "lefthook install"
   },
   "devDependencies": {

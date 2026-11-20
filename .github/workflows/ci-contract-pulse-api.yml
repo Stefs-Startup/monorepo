@@ -1,0 +1,441 @@
+# =============================================================================
+# Reusable Contract-First API Gate — Pulse OpenAPI 3.1 (ADR-0005 / RFC-0003)
+# =============================================================================
+# Called by `.github/workflows/ci.yml` on every push, PR, and merge_group, or
+# triggered manually via workflow_dispatch.
+#
+# Behavior:
+#   - Fast path (PRs not touching Pulse/contract files): validates committed
+#     OpenAPI 3.1 spec + generated Angular TS & KMP models exist and parse cleanly.
+#   - Full path (Pulse/contract changes, push to main, merge_group, or force_full):
+#     1. Runs `scripts/api-contract.sh check` (Spring Boot 4 -> OpenAPI 3.1 ->
+#        Angular 21 TS types -> KMP multiplatform models).
+#     2. Diffs against base branch OpenAPI 3.1 spec with `oasdiff` (default) or
+#        the zero-dependency `scripts/openapi-diff-fallback.mjs` (`diff-tool: builtin`).
+#   - Emits `contract-check-reports` artifact (`contract-report.json`) consumed by
+#     the `Release Readiness Scorecard` job in `.github/workflows/ci.yml` so PR
+#     comments and step summaries always reflect live contract & diff state.
+# =============================================================================
+
+name: "Contract CI · Pulse OpenAPI 3.1"
+
+on:
+  workflow_call:
+    inputs:
+      base-ref:
+        description: "Optional git ref/SHA to diff against (defaults to PR base or previous commit)"
+        type: string
+        default: ""
+      force-full:
+        description: "Run full Spring Boot -> Angular -> KMP contract sync even when Pulse files did not change"
+        type: boolean
+        default: false
+      diff-tool:
+        description: "OpenAPI diff engine: 'oasdiff' (default) or 'builtin' (zero-dependency Node fallback)"
+        type: string
+        default: "oasdiff"
+  workflow_dispatch:
+    inputs:
+      base-ref:
+        description: "Optional git ref/SHA to diff against"
+        type: string
+        default: ""
+      force-full:
+        description: "Run full Spring Boot -> Angular -> KMP contract sync"
+        type: boolean
+        default: true
+      diff-tool:
+        description: "OpenAPI diff engine"
+        type: choice
+        options:
+          - oasdiff
+          - builtin
+        default: oasdiff
+
+permissions:
+  contents: read
+
+jobs:
+  contract-check:
+    name: "OpenAPI 3.1 Sync & Breaking-Change Gate"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository (full history for base diff)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Determine contract scope and base ref
+        id: scope
+        env:
+          INPUT_BASE_REF: ${{ inputs.base-ref }}
+          INPUT_FORCE_FULL: ${{ inputs.force-full }}
+          INPUT_DIFF_TOOL: ${{ inputs.diff-tool }}
+          EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          mkdir -p .contract-ci-tmp
+
+          diff_tool="${INPUT_DIFF_TOOL:-oasdiff}"
+          if [ "$diff_tool" != "oasdiff" ] && [ "$diff_tool" != "builtin" ]; then
+            echo "::warning::Unknown diff-tool '$diff_tool'; defaulting to 'oasdiff'."
+            diff_tool="oasdiff"
+          fi
+
+          base_ref="${INPUT_BASE_REF:-}"
+          if [ -z "$base_ref" ]; then
+            if [ "$EVENT_NAME" = "pull_request" ] && [ -n "$PR_BASE_SHA" ]; then
+              base_ref="$PR_BASE_SHA"
+            elif [ -n "$GITHUB_BASE_REF" ] && git rev-parse --verify -q "origin/${GITHUB_BASE_REF}" >/dev/null 2>&1; then
+              base_ref="origin/${GITHUB_BASE_REF}"
+            elif [ "$EVENT_NAME" = "push" ] && [ -n "$PUSH_BEFORE" ] && [ "$PUSH_BEFORE" != "0000000000000000000000000000000000000000" ] && git rev-parse --verify -q "$PUSH_BEFORE" >/dev/null 2>&1; then
+              base_ref="$PUSH_BEFORE"
+            elif git rev-parse --verify -q HEAD~1 >/dev/null 2>&1; then
+              base_ref="HEAD~1"
+            else
+              base_ref="HEAD"
+            fi
+          fi
+
+          spec_rel="apps/pulse/contracts/pulse-api.openapi.json"
+          if git cat-file -e "${base_ref}:${spec_rel}" >/dev/null 2>&1; then
+            base_exists="true"
+            git show "${base_ref}:${spec_rel}" > .contract-ci-tmp/base-pulse-api.openapi.json
+          else
+            base_exists="false"
+          fi
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            changed="$(git diff --name-only "${base_ref}...HEAD" 2>/dev/null || git diff --name-only "$base_ref" HEAD 2>/dev/null || true)"
+          else
+            changed="$(git diff --name-only "$base_ref" HEAD 2>/dev/null || true)"
+          fi
+
+          if echo "$changed" | grep -qE '^apps/pulse/contracts/pulse-api\.openapi\.json$'; then
+            spec_changed="true"
+          else
+            spec_changed="false"
+          fi
+
+          pulse_changed="false"
+          if echo "$changed" | grep -qE '^(apps/pulse/(backend|web|kmp|contracts)/|scripts/api-contract\.sh|scripts/openapi-diff-fallback\.mjs|\.github/workflows/ci-contract-pulse-api\.yml)'; then
+            pulse_changed="true"
+          fi
+
+          if [ "${INPUT_FORCE_FULL:-false}" = "true" ] || [ "$EVENT_NAME" != "pull_request" ] || [ "$pulse_changed" = "true" ]; then
+            run_full="true"
+          else
+            run_full="false"
+          fi
+
+          {
+            echo "base_ref=$base_ref"
+            echo "base_exists=$base_exists"
+            echo "spec_changed=$spec_changed"
+            echo "run_full=$run_full"
+            echo "diff_tool=$diff_tool"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Scope: event=$EVENT_NAME, base_ref=$base_ref, base_exists=$base_exists, spec_changed=$spec_changed, run_full=$run_full, diff_tool=$diff_tool"
+
+      - name: Fast-path structural check (when Pulse/contract files unchanged)
+        id: fast_check
+        if: steps.scope.outputs.run_full != 'true'
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          mkdir -p .contract-ci-tmp
+          node -e '
+            const fs = require("fs");
+            const specPath = "apps/pulse/contracts/pulse-api.openapi.json";
+            const webTypes = "apps/pulse/web/src/app/api/generated/pulse-api.types.ts";
+            const kmpDir = "apps/pulse/kmp/src/commonMain/kotlin/com/pulse/kmp/api/generated";
+
+            if (!fs.existsSync(specPath)) throw new Error(`Missing ${specPath}`);
+            const spec = JSON.parse(fs.readFileSync(specPath, "utf8"));
+            if (!/^3\./.test(String(spec.openapi || ""))) {
+              throw new Error(`Expected OpenAPI 3.x spec, found ${spec.openapi}`);
+            }
+            const endpoints = Object.keys(spec.paths || {}).length;
+            const schemas = Object.keys((spec.components && spec.components.schemas) || {}).length;
+            if (endpoints === 0 || schemas === 0) {
+              throw new Error(`Invalid contract counts: endpoints=${endpoints}, schemas=${schemas}`);
+            }
+            if (!fs.existsSync(webTypes) || fs.statSync(webTypes).size === 0) {
+              throw new Error(`Missing or empty generated TS file: ${webTypes}`);
+            }
+            if (!fs.existsSync(kmpDir)) throw new Error(`Missing KMP generated dir: ${kmpDir}`);
+            const ktFiles = fs.readdirSync(kmpDir).filter((f) => f.endsWith(".kt"));
+            if (ktFiles.length === 0) throw new Error(`No generated .kt models in ${kmpDir}`);
+            console.log(`Fast contract check OK: OpenAPI ${spec.openapi}, ${endpoints} paths, ${schemas} schemas, ${ktFiles.length} KMP models.`);
+          ' 2>&1 | tee .contract-ci-tmp/fast.log
+
+      - name: Setup Java 21 (Temurin)
+        if: steps.scope.outputs.run_full == 'true'
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        if: steps.scope.outputs.run_full == 'true'
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Setup Node.js
+        if: steps.scope.outputs.run_full == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+          cache-dependency-path: apps/pulse/web/package-lock.json
+
+      - name: Install Angular workspace dependencies
+        if: steps.scope.outputs.run_full == 'true'
+        working-directory: apps/pulse/web
+        run: npm ci
+
+      - name: Verify Spring Boot 4 -> OpenAPI 3.1 -> Angular 21 & KMP contract sync
+        id: full_sync
+        if: steps.scope.outputs.run_full == 'true'
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          mkdir -p .contract-ci-tmp
+          bash scripts/api-contract.sh check 2>&1 | tee .contract-ci-tmp/sync.log
+
+      - name: Breaking-change check via oasdiff
+        id: oasdiff_breaking
+        if: >-
+          always() &&
+          steps.scope.outputs.base_exists == 'true' &&
+          (steps.scope.outputs.spec_changed == 'true' || steps.scope.outputs.run_full == 'true') &&
+          steps.scope.outputs.diff_tool == 'oasdiff'
+        continue-on-error: true
+        uses: oasdiff/oasdiff-action/breaking@14ca7009a63c417dfe27b7c44359c4bcccaf8eee # v0.2.1
+        with:
+          base: .contract-ci-tmp/base-pulse-api.openapi.json
+          revision: apps/pulse/contracts/pulse-api.openapi.json
+          fail-on: ${{ github.event_name != 'push' && 'ERR' || '' }}
+          output-to-file: .contract-ci-tmp/breaking.txt
+          allow-external-refs: "false"
+          review: "false"
+          github-token: ""
+
+      - name: OpenAPI changelog via oasdiff
+        id: oasdiff_changelog
+        if: >-
+          always() &&
+          steps.scope.outputs.base_exists == 'true' &&
+          (steps.scope.outputs.spec_changed == 'true' || steps.scope.outputs.run_full == 'true') &&
+          steps.scope.outputs.diff_tool == 'oasdiff'
+        continue-on-error: true
+        uses: oasdiff/oasdiff-action/changelog@14ca7009a63c417dfe27b7c44359c4bcccaf8eee # v0.2.1
+        with:
+          base: .contract-ci-tmp/base-pulse-api.openapi.json
+          revision: apps/pulse/contracts/pulse-api.openapi.json
+          format: markdown
+          output-to-file: .contract-ci-tmp/changelog.md
+          allow-external-refs: "false"
+          review: "false"
+          github-token: ""
+
+      - name: Breaking-change check via builtin OpenAPI diff fallback
+        id: builtin_diff
+        if: >-
+          always() &&
+          steps.scope.outputs.base_exists == 'true' &&
+          (steps.scope.outputs.spec_changed == 'true' || steps.scope.outputs.run_full == 'true') &&
+          steps.scope.outputs.diff_tool == 'builtin'
+        continue-on-error: true
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          node scripts/openapi-diff-fallback.mjs changelog --format markdown \
+            .contract-ci-tmp/base-pulse-api.openapi.json \
+            apps/pulse/contracts/pulse-api.openapi.json \
+            > .contract-ci-tmp/changelog.md
+
+          if [ "$EVENT_NAME" = "push" ]; then
+            node scripts/openapi-diff-fallback.mjs breaking \
+              .contract-ci-tmp/base-pulse-api.openapi.json \
+              apps/pulse/contracts/pulse-api.openapi.json \
+              > .contract-ci-tmp/breaking.txt
+          else
+            node scripts/openapi-diff-fallback.mjs breaking --fail-on ERR \
+              .contract-ci-tmp/base-pulse-api.openapi.json \
+              apps/pulse/contracts/pulse-api.openapi.json \
+              > .contract-ci-tmp/breaking.txt
+          fi
+
+      - name: Build contract-report.json and contract step summary
+        id: report
+        if: always()
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ steps.scope.outputs.base_ref }}
+          BASE_EXISTS: ${{ steps.scope.outputs.base_exists }}
+          SPEC_CHANGED: ${{ steps.scope.outputs.spec_changed }}
+          RUN_FULL: ${{ steps.scope.outputs.run_full }}
+          DIFF_TOOL: ${{ steps.scope.outputs.diff_tool }}
+          FAST_OUTCOME: ${{ steps.fast_check.outcome }}
+          SYNC_OUTCOME: ${{ steps.full_sync.outcome }}
+          OASDIFF_BREAKING_OUTCOME: ${{ steps.oasdiff_breaking.outcome }}
+          BUILTIN_DIFF_OUTCOME: ${{ steps.builtin_diff.outcome }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const specPath = "apps/pulse/contracts/pulse-api.openapi.json";
+            let specVersion = "unknown";
+            let endpointCount = 0;
+            let schemaCount = 0;
+            try {
+              const spec = JSON.parse(fs.readFileSync(specPath, "utf8"));
+              specVersion = String(spec.openapi || "unknown");
+              endpointCount = Object.keys(spec.paths || {}).length;
+              schemaCount = Object.keys((spec.components && spec.components.schemas) || {}).length;
+            } catch {}
+
+            const runFull = process.env.RUN_FULL === "true";
+            const baseExists = process.env.BASE_EXISTS === "true";
+            const specChanged = process.env.SPEC_CHANGED === "true";
+            const diffTool = process.env.DIFF_TOOL || "oasdiff";
+            const eventName = process.env.EVENT_NAME || "pull_request";
+            const readIfExists = (p) => (fs.existsSync(p) ? fs.readFileSync(p, "utf8").trim() : "");
+            const tailLines = (txt, n) => txt.split(/\r?\n/).slice(-n).join("\n");
+
+            const syncOk = runFull
+              ? process.env.SYNC_OUTCOME === "success"
+              : process.env.FAST_OUTCOME === "success";
+
+            const syncLog = runFull
+              ? readIfExists(".contract-ci-tmp/sync.log")
+              : readIfExists(".contract-ci-tmp/fast.log");
+
+            const syncCheck = {
+              status: syncOk ? "pass" : "fail",
+              details: syncOk
+                ? runFull
+                  ? "Verified OpenAPI 3.1 spec, Angular TS types, and KMP models are 100% in sync."
+                  : "Fast structural check passed: OpenAPI 3.1 spec and generated Angular/KMP bindings intact."
+                : runFull
+                  ? "Contract drift detected across Spring Boot, Angular TS, and/or KMP generated models."
+                  : "Fast structural check failed (missing or invalid contract or generated bindings).",
+              ...(syncOk || !syncLog ? {} : { logExcerpt: tailLines(syncLog, 60) }),
+            };
+
+            const breakingTxt = readIfExists(".contract-ci-tmp/breaking.txt");
+            const changelogMd = readIfExists(".contract-ci-tmp/changelog.md");
+            const hasChangelog =
+              changelogMd.length > 0 &&
+              !/^(?:no (?:api |changelog )?changes(?: detected)?\.?)$/i.test(changelogMd);
+
+            let breakingCheck;
+            if (!baseExists) {
+              breakingCheck = {
+                status: "baseline-new",
+                tool: diffTool,
+                details: "Base branch does not yet contain pulse-api.openapi.json (initial baseline).",
+              };
+            } else if (!runFull && !specChanged) {
+              breakingCheck = {
+                status: "unchanged",
+                tool: diffTool,
+                details: "Pulse OpenAPI files unchanged in PR; baseline intact.",
+              };
+            } else {
+              const diffOutcome =
+                diffTool === "builtin"
+                  ? process.env.BUILTIN_DIFF_OUTCOME
+                  : process.env.OASDIFF_BREAKING_OUTCOME;
+              const failed =
+                diffOutcome === "failure" || diffOutcome === "cancelled";
+
+              if (failed) {
+                breakingCheck = {
+                  status: "fail",
+                  tool: diffTool,
+                  details: `Breaking API changes detected vs ${process.env.BASE_REF || "base"}.`,
+                  ...(breakingTxt ? { breakingSummary: tailLines(breakingTxt, 120) } : {}),
+                  ...(hasChangelog ? { changelogMarkdown: changelogMd } : {}),
+                };
+              } else {
+                breakingCheck = {
+                  status: "pass",
+                  tool: diffTool,
+                  details: hasChangelog
+                    ? `0 breaking errors; non-breaking OpenAPI changes summarized vs ${process.env.BASE_REF || "base"}.`
+                    : `No breaking changes detected vs ${process.env.BASE_REF || "base"}.`,
+                  ...(hasChangelog ? { changelogMarkdown: changelogMd } : {}),
+                };
+              }
+            }
+
+            const overallStatus =
+              syncCheck.status === "pass" && breakingCheck.status !== "fail"
+                ? "pass"
+                : "fail";
+
+            const report = {
+              schemaVersion: 1,
+              specPath,
+              specVersion,
+              endpointCount,
+              schemaCount,
+              mode: runFull ? "full" : "fast-unchanged",
+              diffTool,
+              baseRef: process.env.BASE_REF || "",
+              specChanged,
+              syncCheck,
+              breakingCheck,
+              overallStatus,
+              generatedAt: new Date().toISOString(),
+            };
+
+            fs.mkdirSync(".contract-ci-tmp", { recursive: true });
+            fs.writeFileSync(
+              ".contract-ci-tmp/contract-report.json",
+              JSON.stringify(report, null, 2) + "\n",
+            );
+            console.log(JSON.stringify({ overallStatus, mode: report.mode, breakingStatus: breakingCheck.status }));
+          '
+          node -e '
+            const fs = require("fs");
+            const r = JSON.parse(fs.readFileSync(".contract-ci-tmp/contract-report.json", "utf8"));
+            const lines = [
+              "## API Contract Gate — Pulse OpenAPI 3.1",
+              "",
+              `- **Overall:** ${r.overallStatus === "pass" ? "🟢 PASS" : "🔴 FAIL"} (\`${r.mode}\`, tool: \`${r.diffTool}\`)`,
+              `- **Sync Check:** \`${r.syncCheck.status}\` — ${r.syncCheck.details}`,
+              `- **Breaking Check:** \`${r.breakingCheck.status}\` — ${r.breakingCheck.details}`,
+            ];
+            if (r.breakingCheck.breakingSummary) {
+              lines.push("", "### Breaking Changes", "", "```text", r.breakingCheck.breakingSummary, "```");
+            }
+            if (r.breakingCheck.changelogMarkdown) {
+              lines.push("", "### OpenAPI Changelog", "", r.breakingCheck.changelogMarkdown);
+            }
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
+          '
+
+      - name: Upload contract report artifact
+        if: always() && hashFiles('.contract-ci-tmp/contract-report.json') != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: contract-check-reports
+          path: .contract-ci-tmp/contract-report.json
+          retention-days: 30
+
+      - name: Enforce Contract Gate
+        if: always()
+        run: |
+          status=$(node -e 'const fs=require("fs"); const r=JSON.parse(fs.readFileSync(".contract-ci-tmp/contract-report.json","utf8")); process.stdout.write(r.overallStatus || "fail");')
+          rm -rf .contract-ci-tmp
+          if [ "$status" != "pass" ]; then
+            echo "::error::Pulse OpenAPI 3.1 contract check failed. Inspect summary or run 'bash scripts/api-contract.sh check' locally."
+            exit 1
+          fi

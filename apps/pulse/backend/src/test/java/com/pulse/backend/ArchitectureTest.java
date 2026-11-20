@@ -21,7 +21,9 @@ class ArchitectureTest {
                     .should().dependOnClassesThat().resideInAnyPackage(
                             "org.springframework..",
                             "jakarta.servlet..",
-                            "lombok.."
+                            "lombok..",
+                            "io.swagger..",
+                            "org.springdoc.."
                     )
-                    .because("ADR-007 requires the domain package to remain a pure functional core free of Spring, Servlet, and Lombok dependencies.");
+                    .because("ADR-007 requires the domain package to remain a pure functional core free of Spring, Servlet, Lombok, Swagger, and OpenAPI framework dependencies.");
 }
