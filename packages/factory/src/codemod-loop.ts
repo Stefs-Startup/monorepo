@@ -84,18 +84,23 @@ export interface CodemodLoopOptions {
   maxAttempts?: number;
   allowModerateBlastRadius?: boolean;
   maxTouchedFiles?: number;
-  codemodCommand?: string;
-  verifyCommand?: string;
   autoRollback?: boolean;
   proposeEdits?: (context: CodemodStepContext) => void;
   executor?: CodemodExecutor;
 }
 
 export function normalizePosixPath(filePath: string): string {
-  return filePath
-    .replace(/\\/g, "/")
-    .replace(/^\.\/+/, "")
-    .replace(/\/+$/, "");
+  let normalized = filePath.split("\\").join("/").trim();
+  while (normalized.startsWith("./")) {
+    normalized = normalized.slice(2);
+  }
+  while (normalized.startsWith("/")) {
+    normalized = normalized.slice(1);
+  }
+  while (normalized.endsWith("/")) {
+    normalized = normalized.slice(0, -1);
+  }
+  return normalized;
 }
 
 /**
@@ -106,7 +111,7 @@ export function evaluateScopeLock(
   rawAllowedScopes: string[],
 ): CodemodScopeCheck {
   const allowedScopes = rawAllowedScopes
-    .map((s) => normalizePosixPath(s.trim()))
+    .map((s) => normalizePosixPath(s))
     .filter((s) => s.length > 0 && !s.split("/").includes(".."));
 
   if (allowedScopes.length === 0) {
@@ -122,7 +127,7 @@ export function evaluateScopeLock(
   const outOfScopeFiles: string[] = [];
 
   for (const rawFile of changedFiles) {
-    const file = normalizePosixPath(rawFile.trim());
+    const file = normalizePosixPath(rawFile);
     if (!file) {
       continue;
     }
@@ -236,15 +241,15 @@ export function evaluateBlastRadiusBudget(params: {
   };
 }
 
-function runShell(
+function runProcess(
   command: string,
+  args: string[],
   cwd: string,
-  extraEnv?: Record<string, string>,
 ): { exitCode: number; output: string } {
-  const res = spawnSync("/bin/sh", ["-c", command], {
+  const res = spawnSync(command, args, {
     cwd,
     encoding: "utf8",
-    env: { ...process.env, ...extraEnv },
+    shell: false,
   });
   const stdout = res.stdout ?? "";
   const stderr = res.stderr ?? "";
@@ -255,25 +260,24 @@ function runShell(
   };
 }
 
-export function createDefaultCodemodExecutor(options?: {
-  codemodCommand?: string;
-  verifyCommand?: string;
-}): CodemodExecutor {
-  const verifyCommand = options?.verifyCommand ?? "scripts/check.sh --changed";
-  const codemodCommand = options?.codemodCommand;
-
+export function createDefaultCodemodExecutor(): CodemodExecutor {
   return {
     getChangedFiles(rootDir: string): string[] {
-      const tracked = runShell("git diff --name-only HEAD", rootDir);
-      const untracked = runShell(
-        "git ls-files --others --exclude-standard",
+      const tracked = runProcess(
+        "git",
+        ["diff", "--name-only", "HEAD"],
+        rootDir,
+      );
+      const untracked = runProcess(
+        "git",
+        ["ls-files", "--others", "--exclude-standard"],
         rootDir,
       );
       const set = new Set<string>();
       for (const line of `${tracked.output}\n${untracked.output}`.split(
         /\r?\n/,
       )) {
-        const clean = normalizePosixPath(line.trim());
+        const clean = normalizePosixPath(line);
         if (clean) {
           set.add(clean);
         }
@@ -282,27 +286,21 @@ export function createDefaultCodemodExecutor(options?: {
     },
 
     getUntrackedFiles(rootDir: string): string[] {
-      const untracked = runShell(
-        "git ls-files --others --exclude-standard",
+      const untracked = runProcess(
+        "git",
+        ["ls-files", "--others", "--exclude-standard"],
         rootDir,
       );
       return untracked.output
         .split(/\r?\n/)
-        .map((l) => normalizePosixPath(l.trim()))
+        .map((l) => normalizePosixPath(l))
         .filter(Boolean)
         .sort();
     },
 
-    runCodemodStep: codemodCommand
-      ? (context: CodemodStepContext) =>
-          runShell(codemodCommand, context.rootDir, {
-            CODEMOD_ATTEMPT: String(context.attempt),
-            CODEMOD_FEEDBACK: context.previousFeedback,
-          })
-      : undefined,
-
     runCheckGate(rootDir: string): { exitCode: number; output: string } {
-      return runShell(verifyCommand, rootDir);
+      const checkScript = path.join(rootDir, "scripts", "check.sh");
+      return runProcess("/bin/bash", [checkScript, "--changed"], rootDir);
     },
 
     runBlastRadiusGate(
@@ -317,15 +315,19 @@ export function createDefaultCodemodExecutor(options?: {
         "src",
         "cli.js",
       );
-      if (!fs.existsSync(cliPath)) {
+      try {
+        fs.accessSync(cliPath, fs.constants.R_OK);
+      } catch {
         return {
           exitCode: 0,
           output:
             "blast-radius dist CLI not built in workspace; treating as HIGH_CONFIDENCE (0).",
         };
       }
-      const flag = allowModerate ? "--gate --allow-moderate" : "--gate";
-      return runShell(`node "${cliPath}" ${flag}`, rootDir);
+      const args = allowModerate
+        ? [cliPath, "--gate", "--allow-moderate"]
+        : [cliPath, "--gate"];
+      return runProcess(process.execPath, args, rootDir);
     },
 
     rollbackChanges(
@@ -333,15 +335,24 @@ export function createDefaultCodemodExecutor(options?: {
       trackedFilesToRestore: string[],
       newUntrackedFilesToRemove: string[],
     ): void {
-      if (trackedFilesToRestore.length > 0) {
-        const quoted = trackedFilesToRestore
-          .map((f) => `"${f.replace(/"/g, '\\"')}"`)
-          .join(" ");
-        runShell(`git checkout HEAD -- ${quoted}`, rootDir);
+      const safeTracked = trackedFilesToRestore
+        .map(normalizePosixPath)
+        .filter((f) => f.length > 0 && !f.split("/").includes(".."));
+      if (safeTracked.length > 0) {
+        runProcess(
+          "git",
+          ["checkout", "HEAD", "--", ...safeTracked],
+          rootDir,
+        );
       }
+      const resolvedRoot = path.resolve(rootDir);
       for (const rel of newUntrackedFilesToRemove) {
-        const full = path.resolve(rootDir, rel);
-        if (full.startsWith(path.resolve(rootDir)) && fs.existsSync(full)) {
+        const cleanRel = normalizePosixPath(rel);
+        if (!cleanRel || cleanRel.split("/").includes("..")) {
+          continue;
+        }
+        const full = path.resolve(resolvedRoot, cleanRel);
+        if (full.startsWith(`${resolvedRoot}${path.sep}`)) {
           fs.rmSync(full, { recursive: true, force: true });
         }
       }
@@ -362,9 +373,7 @@ export function runBoundedCodemodLoop(
   const rootDir = path.resolve(options.rootDir ?? process.cwd());
   const requestedAttempts = options.maxAttempts ?? HARD_MAX_CODEMOD_ATTEMPTS;
   const hasProposer = Boolean(
-    options.proposeEdits ||
-      options.codemodCommand ||
-      options.executor?.runCodemodStep,
+    options.proposeEdits || options.executor?.runCodemodStep,
   );
   const maxAttempts = hasProposer
     ? Math.min(
@@ -376,12 +385,7 @@ export function runBoundedCodemodLoop(
   const maxTouchedFiles = options.maxTouchedFiles ?? DEFAULT_MAX_TOUCHED_FILES;
   const autoRollback = options.autoRollback ?? true;
 
-  const executor =
-    options.executor ??
-    createDefaultCodemodExecutor({
-      codemodCommand: options.codemodCommand,
-      verifyCommand: options.verifyCommand,
-    });
+  const executor = options.executor ?? createDefaultCodemodExecutor();
 
   const baselineChanged = new Set(executor.getChangedFiles(rootDir));
   const baselineUntracked = new Set(executor.getUntrackedFiles(rootDir));
@@ -399,7 +403,7 @@ export function runBoundedCodemodLoop(
         rootDir,
       });
       if (stepRes.exitCode !== 0) {
-        previousFeedback = `Codemod command exited with ${stepRes.exitCode}: ${stepRes.output}`;
+        previousFeedback = `Codemod step exited with ${stepRes.exitCode}: ${stepRes.output}`;
       }
     }
 

@@ -205,8 +205,6 @@ export function runCli(rawArgv: string[]): number {
         return 1;
       }
       const rootDir = readFlagValue(rest, "--root") ?? process.cwd();
-      const codemodCommand = readFlagValue(rest, "--cmd");
-      const verifyCommand = readFlagValue(rest, "--verify-cmd");
       const maxAttemptsRaw = readFlagValue(rest, "--max-attempts");
       const maxFilesRaw = readFlagValue(rest, "--max-files");
       const allowModerateBlastRadius = rest.includes("--allow-moderate");
@@ -216,8 +214,6 @@ export function runCli(rawArgv: string[]): number {
       const result = runBoundedCodemodLoop({
         rootDir,
         scopes,
-        codemodCommand,
-        verifyCommand,
         maxAttempts: maxAttemptsRaw
           ? Number.parseInt(maxAttemptsRaw, 10)
           : undefined,

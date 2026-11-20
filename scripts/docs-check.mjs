@@ -30,6 +30,25 @@ function unquoteYamlScalar(raw) {
   return trimmed;
 }
 
+function isSimpleIdentifier(value) {
+  if (!value) {
+    return false;
+  }
+  for (let i = 0; i < value.length; i++) {
+    const ch = value.charCodeAt(i);
+    const isAlphaNum =
+      (ch >= 48 && ch <= 57) ||
+      (ch >= 65 && ch <= 90) ||
+      (ch >= 97 && ch <= 122) ||
+      ch === 45 ||
+      ch === 95;
+    if (!isAlphaNum) {
+      return false;
+    }
+  }
+  return true;
+}
+
 /**
  * Parses `on.workflow_call.inputs` from a GitHub Actions reusable workflow YAML file.
  */
@@ -44,20 +63,19 @@ export function parseWorkflowCallInputs(yamlContent) {
   const byName = new Map();
 
   for (const rawLine of lines) {
-    const commentStripped = rawLine.replace(/^\s*#.*$/, "");
-    if (!commentStripped.trim()) {
+    const trimmed = rawLine.trim();
+    if (!trimmed || trimmed.startsWith("#")) {
       continue;
     }
-    const indent = rawLine.match(/^(\s*)/)[1].length;
-    const trimmed = rawLine.trim();
+    const indent = rawLine.length - rawLine.trimStart().length;
 
-    if (/^workflow_call\s*:/.test(trimmed)) {
+    if (trimmed === "workflow_call:" || trimmed.startsWith("workflow_call:")) {
       inWorkflowCall = true;
       inInputs = false;
       continue;
     }
 
-    if (inWorkflowCall && indent === 0 && !/^on\s*:/.test(trimmed)) {
+    if (inWorkflowCall && indent === 0 && !trimmed.startsWith("on:")) {
       inWorkflowCall = false;
       inInputs = false;
       currentInputName = null;
@@ -67,7 +85,7 @@ export function parseWorkflowCallInputs(yamlContent) {
       continue;
     }
 
-    if (/^inputs\s*:/.test(trimmed)) {
+    if (trimmed === "inputs:" || trimmed.startsWith("inputs:")) {
       inInputs = true;
       inputsIndent = indent;
       currentInputName = null;
@@ -81,31 +99,31 @@ export function parseWorkflowCallInputs(yamlContent) {
         continue;
       }
 
-      if (
-        currentInputIndent === -1 ||
-        indent === currentInputIndent
-      ) {
-        const keyMatch = trimmed.match(/^([A-Za-z0-9_-]+)\s*:\s*$/);
-        if (keyMatch) {
-          currentInputIndent = indent;
-          currentInputName = keyMatch[1];
-          const record = {
-            name: currentInputName,
-            type: "string",
-            required: false,
-            default: undefined,
-            description: "",
-          };
-          inputs.push(record);
-          byName.set(currentInputName, record);
-          continue;
+      if (currentInputIndent === -1 || indent === currentInputIndent) {
+        if (trimmed.endsWith(":")) {
+          const candidateKey = trimmed.slice(0, -1).trim();
+          if (isSimpleIdentifier(candidateKey)) {
+            currentInputIndent = indent;
+            currentInputName = candidateKey;
+            const record = {
+              name: currentInputName,
+              type: "string",
+              required: false,
+              default: undefined,
+              description: "",
+            };
+            inputs.push(record);
+            byName.set(currentInputName, record);
+            continue;
+          }
         }
       }
 
       if (currentInputName && indent > currentInputIndent) {
-        const propMatch = trimmed.match(/^([A-Za-z0-9_-]+)\s*:\s*(.*)$/);
-        if (propMatch) {
-          const [, propKey, propValRaw] = propMatch;
+        const colonIdx = trimmed.indexOf(":");
+        if (colonIdx > 0) {
+          const propKey = trimmed.slice(0, colonIdx).trim();
+          const propValRaw = trimmed.slice(colonIdx + 1);
           const record = byName.get(currentInputName);
           const val = unquoteYamlScalar(propValRaw);
           if (propKey === "type") {
@@ -127,6 +145,7 @@ export function parseWorkflowCallInputs(yamlContent) {
 
 function escapeMarkdownCell(text) {
   return String(text ?? "")
+    .replace(/\\/g, "\\\\")
     .replace(/\|/g, "\\|")
     .replace(/\r?\n/g, " ")
     .trim();
@@ -161,15 +180,17 @@ export function parseDiscoverProjectsOutput(rawOutput) {
     if (!line || line.startsWith("workflow ")) {
       continue;
     }
-    const match = line.match(/^(\S+)\s+(\S+)(?:\s+(.*))?$/);
-    if (!match) {
+    const parts = line.split(/\s+/);
+    if (parts.length < 2) {
       continue;
     }
-    const [, workflow, projectPath, details] = match;
+    const workflow = parts[0];
+    const projectPath = parts[1];
+    const details = parts.slice(2).join(" ").trim();
     rows.push({
       workflow,
       path: projectPath,
-      details: (details ?? "").trim(),
+      details,
     });
   }
   return rows;
@@ -210,10 +231,13 @@ export function replaceGeneratedBlock(content, markerName, generatedBody) {
 
 function walkMarkdownFiles(dir) {
   const results = [];
-  if (!fs.existsSync(dir)) {
+  let entries;
+  try {
+    entries = fs.readdirSync(dir, { withFileTypes: true });
+  } catch {
     return results;
   }
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+  for (const entry of entries) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       results.push(...walkMarkdownFiles(full));
@@ -267,7 +291,7 @@ export function checkDocsMarkdownLinks(rootDir) {
       if (cleanPath.startsWith("file://")) {
         checkedCount += 1;
         brokenLinks.push({
-          file: path.relative(rootDir, file).replace(/\\/g, "/"),
+          file: path.relative(rootDir, file).split("\\").join("/"),
           target: rawTarget,
           reason: "Hardcoded file:// URI is not portable across machines or CI.",
         });
@@ -282,11 +306,13 @@ export function checkDocsMarkdownLinks(rootDir) {
 
       checkedCount += 1;
       const resolved = path.resolve(path.dirname(file), cleanPath);
-      if (!fs.existsSync(resolved)) {
+      try {
+        fs.accessSync(resolved, fs.constants.R_OK);
+      } catch {
         brokenLinks.push({
-          file: path.relative(rootDir, file).replace(/\\/g, "/"),
+          file: path.relative(rootDir, file).split("\\").join("/"),
           target: rawTarget,
-          reason: `Target does not exist: ${path.relative(rootDir, resolved).replace(/\\/g, "/")}`,
+          reason: `Target does not exist: ${path.relative(rootDir, resolved).split("\\").join("/")}`,
         });
       }
     }
@@ -304,11 +330,12 @@ export function runDocsCheck(options = {}) {
   const mode = options.mode ?? "check";
   const docPath = path.join(rootDir, "docs", "ci-reusable-workflows.md");
 
-  if (!fs.existsSync(docPath)) {
+  let originalDoc;
+  try {
+    originalDoc = fs.readFileSync(docPath, "utf8");
+  } catch {
     throw new Error(`Missing required documentation file: ${docPath}`);
   }
-
-  const originalDoc = fs.readFileSync(docPath, "utf8");
   let nextDoc = originalDoc;
 
   // 1. Sync reusable workflow input tables for workflows marked in docs/ci-reusable-workflows.md
@@ -322,10 +349,12 @@ export function runDocsCheck(options = {}) {
 
   for (const wfFile of workflowFiles) {
     const wfPath = path.join(rootDir, ".github", "workflows", wfFile);
-    if (!fs.existsSync(wfPath)) {
+    let yamlContent;
+    try {
+      yamlContent = fs.readFileSync(wfPath, "utf8");
+    } catch {
       throw new Error(`Referenced reusable workflow not found: ${wfPath}`);
     }
-    const yamlContent = fs.readFileSync(wfPath, "utf8");
     const inputs = parseWorkflowCallInputs(yamlContent);
     const table = renderWorkflowInputsTable(inputs);
     nextDoc = replaceGeneratedBlock(nextDoc, `inputs:${wfFile}`, table);
