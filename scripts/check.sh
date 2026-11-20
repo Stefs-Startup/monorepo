@@ -148,7 +148,7 @@ path_to_stacks() {
       echo springboot; echo kmp; echo android ;;
     apps/pulse/backend/*|.github/workflows/ci-stack-springboot-java.yml) echo springboot ;;
     apps/pulse/kmp/*|.github/workflows/ci-stack-kmp-multiplatform.yml) echo kmp ;;
-    apps/pulse/app/*|apps/pulse/gradle/*|apps/pulse/build.gradle.kts|apps/pulse/settings.gradle.kts|apps/pulse/gradle.properties|apps/pulse/gradlew*|.github/workflows/ci-stack-android-kotlin.yml)
+    apps/pulse/app/*|apps/pulse/google-auth/*|apps/pulse/gradle/*|apps/pulse/build.gradle.kts|apps/pulse/settings.gradle.kts|apps/pulse/gradle.properties|apps/pulse/gradlew*|.github/workflows/ci-stack-android-kotlin.yml)
       echo android ;;
     apps/ytm-menubar/*) echo ytm-menubar ;;
     .github/workflows/ci.yml|.github/ci-projects.json|.github/workflows/reusable-*|.github/scripts/*|scripts/check.sh) echo "${ALL_STACKS[@]}" ;;

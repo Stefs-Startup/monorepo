@@ -1,43 +1,24 @@
 package com.pulse.accountability.domain
 
-import java.time.Instant
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
+import com.stefs.googleauth.GoogleAuthContract
 
 object AuthUtils {
-    const val TASKS_SCOPE = "https://www.googleapis.com/auth/tasks"
+    const val TASKS_SCOPE = GoogleAuthContract.TASKS_SCOPE
 
-    fun formatTasksScope(): String = "oauth2:$TASKS_SCOPE"
+    fun formatTasksScope(): String = GoogleAuthContract.formatTasksScope()
 
-    fun validateGoogleEmail(email: String): Boolean {
-        val trimmed = email.trim()
-        if (trimmed.isEmpty() || !trimmed.contains("@") || !trimmed.contains(".")) return false
-        val parts = trimmed.split("@")
-        return parts.size == 2 && parts[0].isNotEmpty() && parts[1].length >= 3
-    }
+    fun validateGoogleEmail(email: String): Boolean =
+        GoogleAuthContract.validateGoogleEmail(email)
 
-    fun isAuthorizedSession(email: String, token: String): Boolean {
-        return validateGoogleEmail(email) && token.isNotBlank()
-    }
+    fun isAuthorizedSession(email: String, token: String): Boolean =
+        GoogleAuthContract.isAuthorizedSession(email, token)
 
-    fun maskToken(token: String): String {
-        val trimmed = token.trim()
-        if (trimmed.length <= 8) return "****"
-        val prefix = trimmed.take(4)
-        val suffix = trimmed.takeLast(4)
-        return "$prefix...$suffix"
-    }
+    fun maskToken(token: String): String =
+        GoogleAuthContract.maskToken(token)
 
-    fun parseRfc3339ToEpoch(rfcString: String?): Long? {
-        if (rfcString.isNullOrBlank()) return null
-        return runCatching {
-            Instant.parse(rfcString).toEpochMilli()
-        }.getOrNull()
-    }
+    fun parseRfc3339ToEpoch(rfcString: String?): Long? =
+        GoogleAuthContract.parseRfc3339ToEpoch(rfcString)
 
-    fun formatEpochToRfc3339(epochMillis: Long): String {
-        return Instant.ofEpochMilli(epochMillis)
-            .atOffset(ZoneOffset.UTC)
-            .format(DateTimeFormatter.ISO_INSTANT)
-    }
+    fun formatEpochToRfc3339(epochMillis: Long): String =
+        GoogleAuthContract.formatEpochToRfc3339(epochMillis)
 }
