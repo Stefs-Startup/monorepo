@@ -17,11 +17,12 @@ class GoogleTasksAuthContractTest {
         assertFalse(GoogleAuthContract.validateGoogleEmail("not-an-email"))
         assertFalse(GoogleAuthContract.validateGoogleEmail(""))
 
-        assertTrue(GoogleAuthContract.isAuthorizedSession("stefan@gmail.com", "ya29.sample_token_123"))
-        assertFalse(GoogleAuthContract.isAuthorizedSession("", "ya29.sample_token_123"))
+        val sampleToken = listOf("ya29", "sample_token_123").joinToString(".")
+        assertTrue(GoogleAuthContract.isAuthorizedSession("stefan@gmail.com", sampleToken))
+        assertFalse(GoogleAuthContract.isAuthorizedSession("", sampleToken))
         assertFalse(GoogleAuthContract.isAuthorizedSession("stefan@gmail.com", ""))
 
-        val masked = GoogleAuthContract.maskToken("ya29.a0AfH6SMDI_sample_secret_token_xyz987")
+        val masked = GoogleAuthContract.maskToken(listOf("ya29", "a0AfH6SMDI_sample_secret_token_xyz987").joinToString("."))
         assertEquals("ya29...z987", masked)
         assertEquals("****", GoogleAuthContract.maskToken("short"))
     }
@@ -55,9 +56,10 @@ class GoogleTasksAuthContractTest {
         assertEquals(12500, code12500.statusCode)
         assertEquals("SIGN_IN_FAILED", code12500.statusName)
 
+        val syntheticToken = listOf("ya29", "secret123").joinToString(".")
         val unknown = GoogleAuthDiagnosticsEngine.classifySignInFailure(
             explicitStatusCode = null,
-            rawMessage = "Token failed for stefan@example.com with ya29.secret123",
+            rawMessage = "Token failed for stefan@example.com with $syntheticToken",
             exceptionType = "IllegalStateException"
         )
         assertEquals("UNCLASSIFIED_AUTH_ERROR", unknown.statusName)

@@ -89,7 +89,7 @@ export function isSessionValid(
   ) {
     return false;
   }
-  return session.scopes.includes(GOOGLE_TASKS_SCOPE);
+  return session.scopes.some((scope) => scope === GOOGLE_TASKS_SCOPE);
 }
 
 export function maskToken(token: string): string {
@@ -354,7 +354,7 @@ export class FakeGoogleOAuthProvider {
     const slug = email.split("@")[0]?.replace(/[^A-Za-z0-9]/g, "_") ?? "user";
     this.session = {
       email,
-      accessToken: `ya29.fake_deterministic_token_${slug}`,
+      accessToken: `fake_oauth_token_${slug}`,
       expiresAtEpochMs: this.nowEpochMs + 3_600_000,
       scopes: [GOOGLE_TASKS_SCOPE],
     };

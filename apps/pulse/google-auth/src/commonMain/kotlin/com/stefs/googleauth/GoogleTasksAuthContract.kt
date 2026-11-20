@@ -223,7 +223,7 @@ class FakeGoogleOAuthProvider(
         val slug = email.substringBefore("@").replace(Regex("[^A-Za-z0-9]"), "_")
         val session = GoogleAuthSession(
             email = email,
-            accessToken = "ya29.fake_deterministic_token_$slug",
+            accessToken = "fake_oauth_token_$slug",
             expiresAtEpochMillis = nowEpochMillis + 3_600_000L,
             scopes = listOf(GoogleAuthContract.TASKS_SCOPE)
         )

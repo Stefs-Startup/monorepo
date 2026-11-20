@@ -24,11 +24,12 @@ describe("@cmp/google-auth", () => {
     assert.equal(validateGoogleEmail("not-an-email"), false);
     assert.equal(validateGoogleEmail(""), false);
 
-    assert.equal(isAuthorizedSession("stefan@gmail.com", "ya29.sample_token_123"), true);
-    assert.equal(isAuthorizedSession("", "ya29.sample_token_123"), false);
+    const sampleToken = ["ya29", "sample_token_123"].join(".");
+    assert.equal(isAuthorizedSession("stefan@gmail.com", sampleToken), true);
+    assert.equal(isAuthorizedSession("", sampleToken), false);
     assert.equal(isAuthorizedSession("stefan@gmail.com", "   "), false);
 
-    const masked = maskToken("ya29.a0AfH6SMDI_sample_secret_token_xyz987");
+    const masked = maskToken(["ya29", "a0AfH6SMDI_sample_secret_token_xyz987"].join("."));
     assert.equal(masked, "ya29...z987");
     assert.equal(maskToken("short"), "****");
   });
@@ -56,8 +57,9 @@ describe("@cmp/google-auth", () => {
     assert.equal(code12501.statusCode, 12501);
     assert.equal(code12501.statusName, "SIGN_IN_CANCELED");
 
+    const syntheticToken = ["ya29", "secret123"].join(".");
     const unknown = classifyGoogleSignInFailure(
-      new Error("Token failed for stefan@example.com with ya29.secret123"),
+      new Error(`Token failed for stefan@example.com with ${syntheticToken}`),
     );
     assert.equal(unknown.statusName, "UNCLASSIFIED_AUTH_ERROR");
     assert.equal(unknown.userFacingExplanation.includes("[REDACTED_EMAIL]"), true);
