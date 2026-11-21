@@ -9,16 +9,17 @@ in this monorepo. Read this before creating new apps, packages, or files.
 
 All workspace packages use the `@cmp/` npm scope:
 
-| Location | Example name | Example package.json `"name"` |
-|----------|--------------|-------------------------------|
-| `apps/web` | Web frontend | `@cmp/web` |
-| `apps/api` | API server | `@cmp/api` |
-| `apps/cli` | CLI tool | `@cmp/cli` |
-| `packages/factory` | Agentic Software Factory CLI | `@cmp/factory` |
-| `packages/ui` | UI components | `@cmp/ui` |
-| `packages/utils` | Shared functional primitives | `@cmp/utils` |
-| `packages/types` | Shared types | `@cmp/types` |
-| `packages/config` | Shared configs | `@cmp/config` |
+| Location | Package Name | Purpose |
+|----------|--------------|---------|
+| `apps/web` | `@cmp/web` | Product showcase web app |
+| `packages/config` | `@cmp/config` | Shared TypeScript, ESLint, and Prettier presets |
+| `packages/factory` | `@cmp/factory` | Agentic Software Factory CLI, codemod loop, and scorecard |
+| `packages/flags` | `@cmp/flags` | Feature flags, kill switches, and experiment engine |
+| `packages/google-auth` | `@cmp/google-auth` | Reusable Google OAuth + Tasks client & deterministic fakes |
+| `packages/observability` | `@cmp/observability` | Zero-PII OTel logging, RED metrics, W3C `traceparent`, SLOs |
+| `packages/utils` | `@cmp/utils` | Pure functional primitives (WCAG 2.2 AA, Zero-PII, scarcity) |
+| `tools/blast-radius` | `@cmp/blast-radius` | Deterministic dependency blast-radius & AST CLI |
+| `tools/blast-radius-ui` | `@cmp/blast-radius-ui` | Local interactive Blast-Radius graph viewer |
 
 **Rule:** Directory name matches the unscoped package name. `apps/web` → `@cmp/web`.
 
@@ -90,6 +91,8 @@ New apps and vertical product slices are generated and verified via `@cmp/factor
 ### Pulse Reference Architecture (`apps/pulse`)
 `apps/pulse` is a **polyglot Gradle + npm reference application** (Kotlin/KMP, Spring Boot 4 / Java 21, and Angular 21) and is excluded from `pnpm-workspace.yaml` (`!apps/pulse`, `!apps/pulse/**`).
 - **Build & Test**: Use `./gradlew` inside `apps/pulse` (and `apps/pulse/backend`) for Kotlin/Android/Spring Boot targets, and `npm` inside `apps/pulse/web` for Angular targets.
+- **Shared Gradle Conventions**: Gradle builds apply `stefs.android-app`, `stefs.jvm-service`, and `stefs.kotlin-lib` from `build-logic/` and resolve versions from root `gradle/libs.versions.toml`.
+- **Generators (`pnpm gen`)**: Use `pnpm gen lib <name>` and `pnpm gen app {web,service,android} <name>` (`turbo/generators/`) to scaffold new packages and apps pre-wired with `@cmp/config` or `build-logic/`.
 - **Role in Monorepo**: Serves as the canonical reference architecture for Pure Functional Core, Zero-PII observability, WCAG 2.2 AA contrast gating, and the multi-stack guides in `docs/stack-best-practices/`.
 
 ---

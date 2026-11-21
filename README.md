@@ -5,7 +5,7 @@
 This is the root of the **CMP monorepo** — the single source of truth for all
 apps, shared packages, build logic, infrastructure, and documentation.
 
-**New to the repo?** Start with [`CONTRIBUTING.md`](./CONTRIBUTING.md) for your Day-1 setup and first-PR workflow.
+**New to the repo?** Start with [`docs/onboarding.md`](./docs/onboarding.md) (Day-1 → First PR runbook) and [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ---
 

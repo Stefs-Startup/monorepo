@@ -9,11 +9,26 @@ about this monorepo — its architecture, conventions, processes, and decisions.
 
 If you are new to the repository, read these first in order:
 
-1. [**Root README**](../README.md) — Repo map, `mise.toml` / `scripts/bootstrap.sh` setup, running Pulse locally, and `pnpm gen`.
-2. [**Contributing Guide**](../CONTRIBUTING.md) — Day-1 tool checklist, `STE-x` branching, Conventional Commits, OpenAPI sync, and PR CI lifecycle.
-3. [**Local Validation Reference**](./local-validation.md) — Running `./scripts/check.sh --changed` and per-stack CI gates locally.
-4. [**Monorepo Conventions**](./monorepo-conventions.md) — Naming rules, shared `@cmp/config` presets, and workspace patterns.
-5. [**Reusable CI Workflows**](./ci-reusable-workflows.md) — Auto-generated workflow input tables, discovered projects, and `v1` tag usage.
+1. [**Onboarding Runbook**](./onboarding.md) — Architecture map, Day-1 setup, first-hour local runs, first-PR walkthrough, and troubleshooting FAQ.
+2. [**Root README**](../README.md) — Quickstart commands, repo layout, `pnpm gen`, and Blast-Radius CLI.
+3. [**Contributing Guide**](../CONTRIBUTING.md) — `STE-x` branching, Conventional Commits, OpenAPI sync, and PR CI gates.
+4. [**Local Validation Reference**](./local-validation.md) — Running `./scripts/check.sh --changed` and per-stack CI gates locally.
+5. [**Monorepo Conventions**](./monorepo-conventions.md) — Naming rules, shared `@cmp/config` presets, and workspace patterns.
+6. [**Reusable CI Workflows**](./ci-reusable-workflows.md) — Auto-generated workflow input tables, discovered projects, and `v1` tag usage.
+
+## Directory READMEs
+
+| Area | README |
+| :--- | :--- |
+| **Gradle Convention Plugins** | [`build-logic/README.md`](../build-logic/README.md) |
+| **Deployment & Local Compose** | [`infra/README.md`](../infra/README.md) |
+| **Code Generators (`pnpm gen`)** | [`turbo/generators/README.md`](../turbo/generators/README.md) |
+| **Blast-Radius Graph UI** | [`tools/blast-radius-ui/README.md`](../tools/blast-radius-ui/README.md) |
+| **Pulse Backend (Spring Boot 4)** | [`apps/pulse/backend/README.md`](../apps/pulse/backend/README.md) |
+| **Pulse Web (Angular 21)** | [`apps/pulse/web/README.md`](../apps/pulse/web/README.md) |
+| **Pulse KMP Core** | [`apps/pulse/kmp/README.md`](../apps/pulse/kmp/README.md) |
+| **Pulse Android App** | [`apps/pulse/app/README.md`](../apps/pulse/app/README.md) |
+| **Pulse KMP Google Auth** | [`apps/pulse/google-auth/README.md`](../apps/pulse/google-auth/README.md) |
 
 ---
 
@@ -21,6 +36,7 @@ If you are new to the repository, read these first in order:
 
 | File / Directory | Purpose |
 |-----------------|---------|
+| [`onboarding.md`](./onboarding.md) | Complete Day-1 → Week-1 developer onboarding runbook & troubleshooting FAQ |
 | [`local-validation.md`](./local-validation.md) | Local CI-parity gate reference (`scripts/check.sh` across all stacks) |
 | [`scorecard.md`](./scorecard.md) | Live repository health & release-readiness scorecard (`pnpm scorecard`) |
 | [`guides/01-single-command-prod-deploy-and-rollback-playbook.md`](./guides/01-single-command-prod-deploy-and-rollback-playbook.md) | Cloud Run single-command deploy, canary smoke gate, PR previews, and instant rollback (`ADR-0004`) |

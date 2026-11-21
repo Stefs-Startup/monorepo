@@ -1,6 +1,6 @@
 # Contributing & Developer Onboarding
 
-Welcome to the **CMP monorepo**. This guide covers everything you need to go from a fresh clone to a green, merge-ready pull request.
+Welcome to the **CMP monorepo**. This guide covers everything you need to go from a fresh clone to a green, merge-ready pull request. For the full Day-1 → Week-1 walkthrough, architecture diagram, and troubleshooting FAQ, see [`docs/onboarding.md`](./docs/onboarding.md).
 
 ---
 
