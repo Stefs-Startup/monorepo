@@ -1,6 +1,6 @@
 {
   "name": "@cmp/config",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Shared TypeScript, ESLint, and Prettier configuration presets for the CMP monorepo",

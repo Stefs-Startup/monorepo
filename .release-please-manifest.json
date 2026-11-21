@@ -3,7 +3,7 @@
   "apps/pulse/backend": "0.6.0",
   "apps/pulse/kmp": "0.6.5",
   "apps/web": "0.0.0",
-  "packages/config": "0.0.0",
+  "packages/config": "1.0.0",
   "packages/factory": "0.0.0",
   "packages/utils": "0.0.0",
   "tools/blast-radius": "0.0.0"
