@@ -22,8 +22,8 @@
   },
   "devDependencies": {
     "@cmp/config": "workspace:*",
-    "@types/node": "^24.12.4",
-    "rimraf": "^6.0.0",
+    "@types/node": "^26.6.6",
+    "rimraf": "^6.1.4",
     "typescript": "^5.6.3"
   }
 }
