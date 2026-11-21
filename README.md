@@ -3,7 +3,9 @@
 > One person. One repo. All the things.
 
 This is the root of the **CMP monorepo** — the single source of truth for all
-apps, shared packages, infrastructure, and documentation in this Company of One.
+apps, shared packages, build logic, infrastructure, and documentation.
+
+**New to the repo?** Start with [`docs/onboarding.md`](./docs/onboarding.md) (Day-1 → First PR runbook) and [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ---
 
@@ -11,108 +13,95 @@ apps, shared packages, infrastructure, and documentation in this Company of One.
 
 ```
 /
-├── apps/                  Deployable units & reference applications
+├── apps/                  Deployable applications
 │   ├── web/               Product showcase web app (@cmp/web)
-│   └── pulse/             Polyglot reference architecture (Kotlin/KMP, Spring Boot 4, Angular 21; Gradle/npm)
-├── packages/              Shared libraries & tooling consumed across apps
-│   ├── factory/           Agentic Software Factory CLI & generators (@cmp/factory)
-│   ├── utils/             Shared functional primitives: WCAG 2.2 AA, Zero-PII, scarcity (@cmp/utils)
-│   └── config/            Shared TypeScript/build configurations (@cmp/config)
-├── tools/                 Internal developer & CI tooling (pnpm workspace)
+│   └── pulse/             Polyglot reference app (Android Compose, KMP, Spring Boot 4, Angular 21)
+├── build-logic/           Shared Gradle convention plugins (stefs.android-app, stefs.jvm-service, stefs.kotlin-lib)
+├── gradle/                Unified Gradle version catalog (libs.versions.toml)
+├── packages/              Shared workspace libraries
+│   ├── config/            Shared TypeScript, ESLint, and Prettier presets (@cmp/config)
+│   ├── factory/           Agentic Software Factory CLI, codemod loop, scorecard (@cmp/factory)
+│   ├── flags/             Feature flags & experimentation engine (@cmp/flags)
+│   ├── google-auth/       Reusable Google OAuth + Tasks client & fakes (@cmp/google-auth)
+│   ├── observability/     Zero-PII OTel logging, RED metrics, W3C traceparent, SLOs (@cmp/observability)
+│   └── utils/             Pure functional primitives: WCAG 2.2 AA, Zero-PII, focus/scarcity (@cmp/utils)
+├── turbo/generators/      pnpm gen templates (lib, app web, app service, app android)
+├── tools/                 Internal developer & CI tooling
 │   ├── blast-radius/      Deterministic dependency blast-radius & AST CLI (@cmp/blast-radius)
 │   └── blast-radius-ui/   Local interactive Blast-Radius graph viewer (@cmp/blast-radius-ui)
+├── infra/                 Dockerfiles, local prod-parity Compose, Cloud Run deploy manifest
 ├── renovate/              Self-hosted Renovate OSS config & OpenRewrite migration setup
-├── infra/                 Infrastructure as code — Docker, Compose, IaC (CMP-12)
-└── docs/                  Human + agent documentation
-    ├── adr/               Architecture Decision Records (CMP-13)
-    ├── stack-best-practices/  Multi-stack best practices (Kotlin, KMP, Compose, Firebase, Spring Boot 4, Angular 21)
-    └── knowledge-base/    Enterprise knowledge base (Spring, Angular, Node, React, Web)
+└── docs/                  Human + agent documentation (ADRs, RFCs, playbooks, references)
 ```
 
 ---
 
-## Agentic Software Factory Workflow
+## Getting Started (Day-1 Setup)
 
-This monorepo operates as an **Agentic Software Factory**, pairing `@cmp/factory` generators and verification gates with `@cmp/utils` pure functional primitives and `apps/pulse` as the canonical reference architecture:
+**Pinned toolchains** ([`mise.toml`](./mise.toml)): **Node 20**, **pnpm 9.12.3**, **JDK 21** (KMP toolchain: 17), and **Python 3** (plus optional Android SDK `ANDROID_HOME` for Android builds).
 
 ```bash
-# Scaffold a new app (with AGENTS.md constitution, domain engine, and tests)
-pnpm gen:app <name> [--stack=web-ts|angular-spring|kmp]
+# Recommended: install pinned toolchains (if using mise), install workspace deps,
+# verify toolchain parity, and run changed-stack CI gates:
+./scripts/bootstrap.sh
 
-# Scaffold a vertical product slice inside an existing app
-pnpm gen:slice <app> <slice>
-
-# Run the deterministic verification loop (AGENTS.md audit, WCAG 2.2 AA, Zero-PII, typecheck, tests)
-pnpm verify:slice [--target=<pkg>] [--json]
+# Or inspect your environment without modifying anything:
+./scripts/bootstrap.sh --check-only
 ```
 
-- **`@cmp/factory` (`packages/factory`)**: Provides `gen:app`, `gen:slice`, and `verify` (`pnpm verify:slice`) to scaffold apps/slices and enforce architectural guardrails.
-- **`@cmp/utils` (`packages/utils`)**: Provides pure functional primitives shared across TypeScript apps — WCAG 2.2 AA contrast auditing, Zero-PII telemetry scrubbing & pseudonymization, and focus/scarcity guards.
-- **`apps/pulse` (Reference Architecture)**: Demonstrates Pure Functional Core (`ADR-007`), KMP/Compose Multiplatform (`ADR-008`), Modern Desktop Web UX (`ADR-009`), and Zero-PII observability across Kotlin, Spring Boot 4 / Java 21, and Angular 21. Managed via Gradle/npm and excluded from `pnpm-workspace.yaml`.
-
----
-
-## Getting Started
-
-**Prerequisites:** Node 20 LTS · pnpm 9+
+If you prefer managing runtimes manually (`nvm use`, `corepack enable`, JDK 21):
 
 ```bash
-# Install the correct Node version (if using nvm or fnm)
-nvm use        # reads .nvmrc → Node 20
-
-# Install pnpm if you don't have it
-corepack enable
-
-# Install all workspace dependencies from the repo root
-pnpm install
-
-# Run all dev servers in parallel
-pnpm dev
-
-# Run all tests
-pnpm test
-
-# Run all linters
-pnpm lint
-
-# Type-check everything
-pnpm typecheck
+pnpm install --frozen-lockfile   # also installs Lefthook git hooks (commit-msg, pre-push)
+./scripts/check.sh --changed     # run CI-parity gates for stacks you touched
 ```
 
 ---
 
-## Workspace Commands
+## Running `apps/pulse` Locally
 
-pnpm workspaces let you run commands scoped to one package or all packages:
+Local development and test suites use deterministic seed fixtures and fake Google Tasks/OAuth providers (`FakeGoogleTasksStub`, `FakeGoogleOAuthProvider`) — **zero real Google credentials are required**.
+
+- **Backend (Spring Boot 4 / Java 21):**
+  ```bash
+  cd apps/pulse/backend && ./gradlew bootRun
+  ```
+- **Web (Angular 21 + Signals):**
+  ```bash
+  cd apps/pulse/web && npm ci && npm start
+  ```
+- **Full-Stack Production-Parity Containers (`pulse-backend` + `pulse-web`):**
+  ```bash
+  docker compose -f infra/compose.prod-local.yml up --build
+  ```
+
+---
+
+## Scaffolding & Common Commands
+
+### Code Generators (`pnpm gen`)
 
 ```bash
-# Run a command in a specific workspace
-pnpm --filter <package-name> <command>
+# TypeScript library in packages/ (extends @cmp/config, includes AGENTS.md, README.md, tests)
+pnpm gen lib <name>
 
-# Example: run dev only for the web app
-pnpm --filter web dev
-
-# Run a command recursively across ALL workspaces
-pnpm -r build
-
-# Add a dependency to a specific workspace
-pnpm --filter web add react
-
-# Add a shared package as a workspace dependency
-pnpm --filter web add @cmp/ui --workspace
+# Full-stack app templates
+pnpm gen app web <name>                 # Angular 21 Signals + Vitest + @cmp/config + auth slot
+pnpm gen app service <name> [--infra]   # Spring Boot 4 + stefs.jvm-service + springdoc + optional compose.yaml
+pnpm gen app android <name>             # Kotlin/Compose + stefs.android-app + edge-to-edge
 ```
 
----
+### Validation, Contracts & Docs
 
-## Adding a New App or Package
-
-Use the Agentic Software Factory CLI (`@cmp/factory`) for new apps and slices, or add a package manually:
-
-1. Run `pnpm gen:app <name>` (or create a directory under `apps/` or `packages/` with a `@cmp/` `package.json`)
-2. Use `pnpm gen:slice <app> <slice>` to add vertical slices backed by `@cmp/utils` primitives
-3. Run `pnpm install` from the repo root if adding packages manually
-4. Run `pnpm verify:slice` to confirm `AGENTS.md`, WCAG 2.2 AA, Zero-PII, typecheck, and test gates pass
-5. See `docs/monorepo-conventions.md` for naming and structure conventions
+```bash
+pnpm check                 # Run CI-parity gates for changed stacks (scripts/check.sh --changed)
+pnpm check:all             # Run all stack gates across the entire monorepo
+pnpm lint | typecheck | build | test   # Run Turborepo tasks across pnpm workspace packages
+pnpm api:sync              # Export Spring Boot OpenAPI 3.1 spec + regenerate TS/KMP clients
+pnpm api:check             # Fail if OpenAPI spec or generated clients drifted
+pnpm docs:check            # Verify generated workflow/project tables and docs/ links
+pnpm scorecard             # Print live repository health & release-readiness scorecard
+```
 
 ---
 
@@ -136,7 +125,7 @@ Dependency upgrades combine **self-hosted Renovate OSS** (with automated OpenRew
 
 ## Documentation
 
-- [`docs/`](./docs/) — Architecture docs, conventions, runbooks
-- [`docs/adr/`](./docs/adr/) — Architecture Decision Records
-- [`docs/monorepo-conventions.md`](./docs/monorepo-conventions.md) — Naming, structure, patterns
-
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — Day-1 setup, branching/commit rules, local verification, and PR lifecycle
+- [`docs/README.md`](./docs/README.md) — Documentation map (start-here essentials, ADRs, playbooks, references)
+- [`docs/local-validation.md`](./docs/local-validation.md) — Local CI-parity gate reference (`scripts/check.sh`)
+- [`docs/monorepo-conventions.md`](./docs/monorepo-conventions.md) — Naming, structure, and coding conventions
