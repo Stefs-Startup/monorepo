@@ -45,15 +45,18 @@ jobs:
 | `build` | Build |
 | `test` | Test (runs with `CI=true`) |
 
-| Input | Default | Notes |
-| :--- | :--- | :--- |
-| `working-directory` | `.` | Must contain `package.json` and a lockfile. |
-| `node-version` | *(auto)* | `<dir>/.nvmrc` → `<dir>/.node-version` → repo-root `.nvmrc` → `lts/*`. |
-| `pnpm-version` | *(auto)* | Only needed without a `packageManager` field. |
-| `scripts` | `lint typecheck build test` | Order matters. |
-| `artifact-paths` | `dist` | Newline-separated globs relative to `working-directory`. |
-| `artifact-name` | `node-<dir>` | |
-| `timeout-minutes` | `25` | |
+<!-- BEGIN AUTO-GENERATED:inputs:reusable-node.yml -->
+| Input | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `working-directory` | `string` | `.` | Project directory containing package.json and its lockfile. |
+| `node-version` | `string` | `""` | Node.js version. Empty = <dir>/.nvmrc, <dir>/.node-version, then the repo-root .nvmrc. |
+| `scripts` | `string` | `lint typecheck build test` | Space-separated package.json scripts to run in order (missing ones are skipped). |
+| `pnpm-version` | `string` | `""` | pnpm version, only needed when package.json has no "packageManager" field. |
+| `artifact-name` | `string` | `""` | Name for the uploaded build output. Empty = node-<working-directory>. |
+| `artifact-paths` | `string` | `dist` | Newline-separated build output globs, relative to working-directory. |
+| `turbo-filter` | `string` | `""` | Optional Turborepo --filter expression (e.g. ...[origin/main]) used only when a script invokes turbo. |
+| `timeout-minutes` | `number` | `25` |  |
+<!-- END AUTO-GENERATED:inputs:reusable-node.yml -->
 
 ## Gradle (`reusable-gradle.yml`)
 
@@ -68,16 +71,33 @@ jobs:
 | Project type | Code Quality | Build | Test |
 | :--- | :--- | :--- | :--- |
 | `android` | `lintDebug` | `assembleDebug` | `testDebugUnitTest` |
+| `kmp` | `codeQuality` | `jvmJar compileProductionExecutableKotlinWasmJs` | `jvmTest` |
 | `jvm` | *(skipped)* | `assemble testClasses` | `test` |
 
-| Input | Default | Notes |
-| :--- | :--- | :--- |
-| `working-directory` | `.` | Must contain `gradlew`. |
-| `java-version` | `21` | Newline-separated list for multiple JDKs; the last one is `JAVA_HOME`. |
-| `project-type` | `auto` | `auto`, `android` or `jvm`. |
-| `quality-tasks` / `build-tasks` / `test-tasks` | `default` | `default` = table above; `""` skips the gate; anything else replaces it (e.g. `ktlintCheck detekt`). |
-| `artifact-name` | `gradle-<dir>` | APK/AAB/JAR outputs; reports go to `<name>-reports`. |
-| `timeout-minutes` | `30` | |
+<!-- BEGIN AUTO-GENERATED:inputs:reusable-gradle.yml -->
+| Input | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `working-directory` | `string` | `.` | Directory containing gradlew. |
+| `java-version` | `string` | `21` | JDK(s) to install, newline-separated; the last one becomes JAVA_HOME. Toolchains can use any of them. |
+| `project-type` | `string` | `auto` | auto \| android \| kmp \| jvm |
+| `quality-tasks` | `string` | `default` | Gradle tasks for the quality gate. "default" = type default, "" = skip. |
+| `build-tasks` | `string` | `default` | Gradle tasks for the build gate. "default" = type default, "" = skip. |
+| `test-tasks` | `string` | `default` | Gradle tasks for the test gate. "default" = type default, "" = skip. |
+| `artifact-name` | `string` | `""` | Name for the uploaded build outputs. Empty = gradle-<working-directory>. |
+| `timeout-minutes` | `number` | `30` |  |
+<!-- END AUTO-GENERATED:inputs:reusable-gradle.yml -->
+
+## Web PR Preview (`reusable-web-preview.yml`)
+
+<!-- BEGIN AUTO-GENERATED:inputs:reusable-web-preview.yml -->
+| Input | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `surface` | `string` | *(required)* | Surface name from infra/deploy/services.json (e.g. pulse-web) |
+| `pr-number` | `number` | *(required)* | Pull request number used for the preview revision tag |
+| `gcp-project` | `string` | `""` | Optional GCP project ID override |
+| `gcp-region` | `string` | `""` | Optional GCP region override |
+| `build-mode` | `string` | `cloudbuild` | Image build strategy (cloudbuild or buildx) |
+<!-- END AUTO-GENERATED:inputs:reusable-web-preview.yml -->
 
 ---
 
@@ -87,6 +107,17 @@ You don't write a job per app. [`discover_projects.py`](../.github/scripts/disco
 
 - every tracked `gradlew` → `reusable-gradle.yml`
 - every `package.json` with its own lockfile (including the root pnpm workspace) → `reusable-node.yml`
+
+<!-- BEGIN AUTO-GENERATED:discovered-projects -->
+| Workflow | Project Path | Detected Stack & Gate Details |
+| :--- | :--- | :--- |
+| `reusable-gradle` | `apps/pulse` | android, JDK 21 |
+| `reusable-gradle` | `apps/pulse/backend` | jvm, JDK 21 |
+| `reusable-gradle` | `apps/pulse/kmp` | kmp, JDK 21 |
+| `reusable-node` | `apps/pulse/web` | npm, Node 20: lint typecheck build test -> dist |
+| `reusable-node` | `.` | pnpm, Node 20: lint typecheck build test -> apps/*/dist, packages/*/dist, tools/*/dist |
+| `(excluded)` | `apps/backstage` | *(excluded via `.github/ci-projects.json`)* |
+<!-- END AUTO-GENERATED:discovered-projects -->
 
 Preview what CI will run:
 
