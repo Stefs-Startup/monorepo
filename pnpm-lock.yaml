@@ -75,6 +75,21 @@ importers:
         specifier: ^5.6.3
         version: 5.9.3
 
+  packages/google-auth:
+    devDependencies:
+      '@cmp/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: ^24.12.4
+        version: 24.12.4
+      rimraf:
+        specifier: ^6.1.4
+        version: 6.1.4
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+
   packages/utils:
     devDependencies:
       '@cmp/config':

@@ -26,4 +26,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "PulseAccountability"
-include(":app")
+include(":app", ":google-auth")
