@@ -1,6 +1,6 @@
 {
   "name": "@cmp/blast-radius",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Deterministic dependency blast-radius and critical-path AST CLI for the CMP monorepo",

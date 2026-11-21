@@ -6,5 +6,5 @@
   "packages/config": "0.0.0",
   "packages/factory": "0.0.0",
   "packages/utils": "0.0.0",
-  "tools/blast-radius": "0.0.0"
+  "tools/blast-radius": "1.0.0"
 }
