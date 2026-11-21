@@ -1,5 +1,5 @@
 {
-  "apps/pulse/web": "0.6.0",
+  "apps/pulse/web": "0.6.1",
   "apps/pulse/backend": "0.6.0",
   "apps/pulse/kmp": "0.6.5",
   "apps/web": "0.0.0",
