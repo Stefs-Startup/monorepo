@@ -1,0 +1,94 @@
+# =============================================================================
+# Android UI & Critical-Journey Pipeline — Pulse Android (STE-59)
+# =============================================================================
+# Runs only when Android-affected files change:
+#   1. Audits Maestro critical-journey flow definitions (apps/pulse/app/maestro/*.yaml)
+#   2. Runs PulseCriticalJourneysUiTest + PartnerChatMapperTest (:app:testDebugUnitTest)
+#      covering Onboarding (4 steps), Top-3 Scarcity Swap Gate, and Rescue Triage
+#   3. Uploads JUnit XML/HTML reports on failure or completion
+# =============================================================================
+
+name: "UI Tests · Pulse Android"
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "build-logic/**"
+      - "gradle/libs.versions.toml"
+      - "apps/pulse/app/**"
+      - "apps/pulse/build.gradle.kts"
+      - "apps/pulse/settings.gradle.kts"
+      - "apps/pulse/gradle.properties"
+      - "apps/pulse/gradlew"
+      - ".github/workflows/android-ui-tests.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "build-logic/**"
+      - "gradle/libs.versions.toml"
+      - "apps/pulse/app/**"
+      - "apps/pulse/build.gradle.kts"
+      - "apps/pulse/settings.gradle.kts"
+      - "apps/pulse/gradle.properties"
+      - "apps/pulse/gradlew"
+      - ".github/workflows/android-ui-tests.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  android-ui-journeys:
+    name: "Android Critical Journeys & Maestro Audit (apps/pulse/app)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/pulse
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Validate Maestro critical-journey YAML flows
+        run: |
+          set -euo pipefail
+          for flow in app/maestro/config.yaml app/maestro/onboarding-flow.yaml app/maestro/top3-scarcity-flow.yaml app/maestro/rescue-triage-flow.yaml; do
+            test -s "$flow" || { echo "::error::Missing or empty Maestro flow: $flow"; exit 1; }
+            grep -q "appId: com.pulse.accountability" "$flow" || { echo "::error::$flow missing appId"; exit 1; }
+          done
+          echo "Validated 4 Maestro critical-journey YAML files."
+
+      - name: Run Android UI Critical-Journey Tests (:app:testDebugUnitTest)
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest \
+            --tests "com.pulse.accountability.ui.PulseCriticalJourneysUiTest" \
+            --tests "com.pulse.accountability.ui.components.chat.PartnerChatMapperTest" \
+            --no-daemon --stacktrace
+
+      - name: Upload Android UI test reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pulse-android-ui-test-reports
+          path: |
+            apps/pulse/app/build/reports/tests/testDebugUnitTest/**
+            apps/pulse/app/build/test-results/testDebugUnitTest/*.xml
+          if-no-files-found: ignore
+          retention-days: 14

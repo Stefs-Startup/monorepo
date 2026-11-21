@@ -1,0 +1,5 @@
+appId: com.pulse.accountability
+flows:
+  - onboarding-flow.yaml
+  - top3-scarcity-flow.yaml
+  - rescue-triage-flow.yaml

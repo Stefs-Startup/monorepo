@@ -1,0 +1,30 @@
+appId: com.pulse.accountability
+name: "Pulse Android — Journey 1: 4-Step Onboarding & Persona Selection"
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Step 1 of 4"
+- assertVisible: "Pulse Setup"
+- assertVisible: "Hard Top-3 Non-Negotiables"
+- assertVisible: "Zero-Guilt Triage"
+- assertVisible: "Look-Ahead Preparation"
+- tapOn: "Begin Setup"
+
+- assertVisible: "Step 2 of 4"
+- assertVisible: "Connect Your Google Account"
+- tapOn:
+    text: "Developer Demo / Offline Mode"
+    optional: true
+- tapOn:
+    text: "Continue with Google Tasks"
+    optional: true
+
+- assertVisible: "Step 3 of 4"
+- assertVisible: "Choose Your Partner Persona"
+- tapOn: "Candid & Focused"
+- tapOn: "Confirm Persona"
+
+- assertVisible: "Step 4 of 4"
+- assertVisible: "Lock in Today's Finish Line"
+- assertVisible: "0 / 3 Selected for Today"
+- tapOn: "Enter Pulse Dashboard"
